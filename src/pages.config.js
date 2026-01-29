@@ -57,6 +57,9 @@ import NDISCalculator from './pages/NDISCalculator';
 import Tasks from './pages/Tasks';
 import AIAssistant from './pages/AIAssistant';
 import Settings from './pages/Settings';
+import Messages from './pages/Messages';
+import WorkflowTriggers from './pages/WorkflowTriggers';
+import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +74,9 @@ export const PAGES = {
     "Tasks": Tasks,
     "AIAssistant": AIAssistant,
     "Settings": Settings,
+    "Messages": Messages,
+    "WorkflowTriggers": WorkflowTriggers,
+    "Reports": Reports,
 }
 
 export const pagesConfig = {
