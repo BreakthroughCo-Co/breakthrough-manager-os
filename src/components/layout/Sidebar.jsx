@@ -15,7 +15,10 @@ import {
   ChevronRight,
   Sparkles,
   Settings,
-  Building2
+  Building2,
+  MessageSquare,
+  Zap,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -26,8 +29,11 @@ const navItems = [
   { name: 'Compliance', icon: Shield, page: 'Compliance' },
   { name: 'Billing', icon: DollarSign, page: 'Billing' },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
-  { name: 'NDIS Calculator', icon: Calculator, page: 'NDISCalculator' },
   { name: 'Tasks', icon: ListTodo, page: 'Tasks' },
+  { name: 'Messages', icon: MessageSquare, page: 'Messages' },
+  { name: 'Reports', icon: FileText, page: 'Reports' },
+  { name: 'Workflows', icon: Zap, page: 'WorkflowTriggers' },
+  { name: 'Calculator', icon: Calculator, page: 'NDISCalculator' },
   { name: 'AI Assistant', icon: Sparkles, page: 'AIAssistant' },
 ];
 
