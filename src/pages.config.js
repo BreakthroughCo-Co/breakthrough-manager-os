@@ -50,6 +50,9 @@
 import Dashboard from './pages/Dashboard';
 import Practitioners from './pages/Practitioners';
 import Clients from './pages/Clients';
+import Compliance from './pages/Compliance';
+import Billing from './pages/Billing';
+import Programs from './pages/Programs';
 import __Layout from './Layout.jsx';
 
 
@@ -57,6 +60,9 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "Practitioners": Practitioners,
     "Clients": Clients,
+    "Compliance": Compliance,
+    "Billing": Billing,
+    "Programs": Programs,
 }
 
 export const pagesConfig = {
