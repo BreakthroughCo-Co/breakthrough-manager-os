@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { createPageUrl } from '@/utils';
 import {
   UserPlus,
   Search,
@@ -16,7 +17,8 @@ import {
   Trash2,
   X,
   Check,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -208,6 +210,12 @@ export default function Practitioners() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => {
+                    window.location.href = createPageUrl('PractitionerDetail') + `?id=${practitioner.id}`;
+                  }}>
+                    <Users className="w-4 h-4 mr-2" />
+                    View Caseload
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleOpenDialog(practitioner)}>
                     <Edit className="w-4 h-4 mr-2" />
                     Edit

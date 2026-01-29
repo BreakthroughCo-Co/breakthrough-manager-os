@@ -14,8 +14,11 @@ import {
   Edit,
   Trash2,
   User,
-  FileText
+  FileText,
+  Mail,
+  Eye
 } from 'lucide-react';
+import ClientCommunicationTemplates from '@/components/communication/ClientCommunicationTemplates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -90,6 +93,7 @@ export default function Clients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [formData, setFormData] = useState(emptyClient);
+  const [communicationClient, setCommunicationClient] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -298,6 +302,10 @@ export default function Clients() {
                         <DropdownMenuItem onClick={() => handleOpenDialog(client)}>
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setCommunicationClient(client)}>
+                          <Mail className="w-4 h-4 mr-2" />
+                          Send Communication
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => deleteMutation.mutate(client.id)}
@@ -512,6 +520,13 @@ export default function Clients() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Communication Templates Dialog */}
+      <ClientCommunicationTemplates
+        client={communicationClient}
+        isOpen={!!communicationClient}
+        onClose={() => setCommunicationClient(null)}
+      />
     </div>
   );
 }

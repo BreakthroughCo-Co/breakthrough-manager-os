@@ -60,6 +60,7 @@ import Settings from './pages/Settings';
 import Messages from './pages/Messages';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import Reports from './pages/Reports';
+import PractitionerDetail from './pages/PractitionerDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -77,6 +78,7 @@ export const PAGES = {
     "Messages": Messages,
     "WorkflowTriggers": WorkflowTriggers,
     "Reports": Reports,
+    "PractitionerDetail": PractitionerDetail,
 }
 
 export const pagesConfig = {
