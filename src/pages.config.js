@@ -53,6 +53,10 @@ import Clients from './pages/Clients';
 import Compliance from './pages/Compliance';
 import Billing from './pages/Billing';
 import Programs from './pages/Programs';
+import NDISCalculator from './pages/NDISCalculator';
+import Tasks from './pages/Tasks';
+import AIAssistant from './pages/AIAssistant';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +67,10 @@ export const PAGES = {
     "Compliance": Compliance,
     "Billing": Billing,
     "Programs": Programs,
+    "NDISCalculator": NDISCalculator,
+    "Tasks": Tasks,
+    "AIAssistant": AIAssistant,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
