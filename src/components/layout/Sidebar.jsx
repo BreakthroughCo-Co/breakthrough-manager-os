@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -13,32 +14,145 @@ import {
   ListTodo,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   Settings,
   Building2,
   MessageSquare,
   Zap,
-  FileText
+  FileText,
+  Brain,
+  ClipboardCheck,
+  Briefcase,
+  Activity,
+  FileSearch,
+  BookOpen,
+  AlertTriangle,
+  UserCog,
+  ScrollText,
+  Star,
+  Gauge,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
-const navItems = [
+const mainNavItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Practitioners', icon: UserCheck, page: 'Practitioners' },
   { name: 'Clients', icon: Users, page: 'Clients' },
-  { name: 'Compliance', icon: Shield, page: 'Compliance' },
   { name: 'Billing', icon: DollarSign, page: 'Billing' },
-  { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Tasks', icon: ListTodo, page: 'Tasks' },
   { name: 'Messages', icon: MessageSquare, page: 'Messages' },
+];
+
+const clinicalItems = [
+  { name: 'Clinical Hub', icon: Brain, page: 'ClinicalHub' },
+  { name: 'FBA Assessment', icon: FileSearch, page: 'FBAAssessment' },
+  { name: 'ABC Data & Analysis', icon: Activity, page: 'ABCAnalyser' },
+  { name: 'BSP Creator', icon: ScrollText, page: 'BSPCreator' },
+  { name: 'Social Stories', icon: BookOpen, page: 'SocialStories' },
+  { name: 'Root Cause Analysis', icon: AlertTriangle, page: 'RootCauseAnalysis' },
+  { name: 'Restrictive Practices', icon: Lock, page: 'RestrictivePractices' },
+  { name: 'Capability Assessment', icon: Gauge, page: 'CapabilityAssessment' },
+];
+
+const complianceItems = [
+  { name: 'Compliance Hub', icon: Shield, page: 'Compliance' },
+  { name: 'Risk Assessment', icon: AlertTriangle, page: 'RiskAssessmentTool' },
+  { name: 'BIP Quality Audit', icon: ClipboardCheck, page: 'BIPQualityAudit' },
+  { name: 'Case Notes', icon: FileText, page: 'CaseNotes' },
+  { name: 'Worker Screening', icon: UserCog, page: 'WorkerScreening', managerOnly: true },
+  { name: 'Client Feedback', icon: Star, page: 'ClientFeedback' },
+];
+
+const adminItems = [
+  { name: 'NDIS Plans', icon: FileText, page: 'NDISPlans' },
+  { name: 'Plan Utilisation', icon: Gauge, page: 'PlanUtilisation' },
+  { name: 'Service Agreements', icon: ScrollText, page: 'ServiceAgreements' },
+  { name: 'Staff Induction', icon: UserCog, page: 'StaffInduction', managerOnly: true },
+  { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Reports', icon: FileText, page: 'Reports' },
   { name: 'Workflows', icon: Zap, page: 'WorkflowTriggers' },
+];
+
+const toolItems = [
   { name: 'Calculator', icon: Calculator, page: 'NDISCalculator' },
   { name: 'AI Assistant', icon: Sparkles, page: 'AIAssistant' },
 ];
 
 export default function Sidebar({ currentPage }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [clinicalOpen, setClinicalOpen] = useState(false);
+  const [complianceOpen, setComplianceOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [userRole, setUserRole] = useState('user');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setUserRole(user.role || 'user');
+      } catch (e) {}
+    };
+    loadUser();
+
+    // Auto-expand based on current page
+    if (clinicalItems.some(i => i.page === currentPage)) setClinicalOpen(true);
+    if (complianceItems.some(i => i.page === currentPage)) setComplianceOpen(true);
+    if (adminItems.some(i => i.page === currentPage)) setAdminOpen(true);
+  }, [currentPage]);
+
+  const isManager = userRole === 'admin';
+
+  const renderNavItem = (item, isActive) => {
+    if (item.managerOnly && !isManager) return null;
+    
+    return (
+      <Link
+        key={item.name}
+        to={createPageUrl(item.page)}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group text-sm",
+          isActive
+            ? "bg-teal-500/10 text-teal-400"
+            : "text-slate-400 hover:text-white hover:bg-slate-800/50",
+          collapsed && "justify-center px-2"
+        )}
+      >
+        <item.icon className={cn("w-4 h-4 flex-shrink-0", isActive && "scale-110")} />
+        {!collapsed && <span className="font-medium truncate">{item.name}</span>}
+      </Link>
+    );
+  };
+
+  const renderCollapsibleSection = (title, items, isOpen, setIsOpen, Icon) => (
+    <Collapsible open={!collapsed && isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <button
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all",
+            collapsed && "justify-center px-2"
+          )}
+        >
+          <Icon className="w-4 h-4 flex-shrink-0" />
+          {!collapsed && (
+            <>
+              <span className="font-medium text-sm flex-1 text-left">{title}</span>
+              <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
+            </>
+          )}
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pl-4 space-y-0.5 mt-1">
+        {items.map((item) => renderNavItem(item, currentPage === item.page))}
+      </CollapsibleContent>
+    </Collapsible>
+  );
 
   return (
     <aside
@@ -64,34 +178,25 @@ export default function Sidebar({ currentPage }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = currentPage === item.page;
-          return (
-            <Link
-              key={item.name}
-              to={createPageUrl(item.page)}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group",
-                isActive
-                  ? "bg-teal-500/10 text-teal-400"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/50",
-                collapsed && "justify-center px-0"
-              )}
-            >
-              <item.icon className={cn(
-                "w-5 h-5 flex-shrink-0 transition-transform",
-                isActive && "scale-110"
-              )} />
-              {!collapsed && (
-                <span className="text-sm font-medium">{item.name}</span>
-              )}
-              {isActive && !collapsed && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-teal-400" />
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+        {/* Main Navigation */}
+        {mainNavItems.map((item) => renderNavItem(item, currentPage === item.page))}
+        
+        <div className="my-3 border-t border-slate-800/50" />
+        
+        {/* Clinical Suite */}
+        {renderCollapsibleSection('Clinical', clinicalItems, clinicalOpen, setClinicalOpen, Brain)}
+        
+        {/* Compliance Suite */}
+        {renderCollapsibleSection('Compliance', complianceItems, complianceOpen, setComplianceOpen, Shield)}
+        
+        {/* Admin Suite */}
+        {renderCollapsibleSection('Admin', adminItems, adminOpen, setAdminOpen, Briefcase)}
+        
+        <div className="my-3 border-t border-slate-800/50" />
+        
+        {/* Tools */}
+        {toolItems.map((item) => renderNavItem(item, currentPage === item.page))}
       </nav>
 
       {/* Settings */}
@@ -99,12 +204,12 @@ export default function Sidebar({ currentPage }) {
         <Link
           to={createPageUrl('Settings')}
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all",
-            collapsed && "justify-center px-0"
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all text-sm",
+            collapsed && "justify-center px-2"
           )}
         >
-          <Settings className="w-5 h-5" />
-          {!collapsed && <span className="text-sm font-medium">Settings</span>}
+          <Settings className="w-4 h-4" />
+          {!collapsed && <span className="font-medium">Settings</span>}
         </Link>
       </div>
 

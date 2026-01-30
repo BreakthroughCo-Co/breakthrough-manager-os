@@ -47,38 +47,50 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Dashboard from './pages/Dashboard';
-import Practitioners from './pages/Practitioners';
+import AIAssistant from './pages/AIAssistant';
+import Billing from './pages/Billing';
 import Clients from './pages/Clients';
 import Compliance from './pages/Compliance';
-import Billing from './pages/Billing';
-import Programs from './pages/Programs';
-import NDISCalculator from './pages/NDISCalculator';
-import Tasks from './pages/Tasks';
-import AIAssistant from './pages/AIAssistant';
-import Settings from './pages/Settings';
+import Dashboard from './pages/Dashboard';
 import Messages from './pages/Messages';
-import WorkflowTriggers from './pages/WorkflowTriggers';
-import Reports from './pages/Reports';
+import NDISCalculator from './pages/NDISCalculator';
 import PractitionerDetail from './pages/PractitionerDetail';
+import Practitioners from './pages/Practitioners';
+import Programs from './pages/Programs';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
+import Tasks from './pages/Tasks';
+import WorkflowTriggers from './pages/WorkflowTriggers';
+import ClinicalHub from './pages/ClinicalHub';
+import FBAAssessment from './pages/FBAAssessment';
+import ABCAnalyser from './pages/ABCAnalyser';
+import BSPCreator from './pages/BSPCreator';
+import SocialStories from './pages/SocialStories';
+import RootCauseAnalysis from './pages/RootCauseAnalysis';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Practitioners": Practitioners,
+    "AIAssistant": AIAssistant,
+    "Billing": Billing,
     "Clients": Clients,
     "Compliance": Compliance,
-    "Billing": Billing,
-    "Programs": Programs,
-    "NDISCalculator": NDISCalculator,
-    "Tasks": Tasks,
-    "AIAssistant": AIAssistant,
-    "Settings": Settings,
+    "Dashboard": Dashboard,
     "Messages": Messages,
-    "WorkflowTriggers": WorkflowTriggers,
-    "Reports": Reports,
+    "NDISCalculator": NDISCalculator,
     "PractitionerDetail": PractitionerDetail,
+    "Practitioners": Practitioners,
+    "Programs": Programs,
+    "Reports": Reports,
+    "Settings": Settings,
+    "Tasks": Tasks,
+    "WorkflowTriggers": WorkflowTriggers,
+    "ClinicalHub": ClinicalHub,
+    "FBAAssessment": FBAAssessment,
+    "ABCAnalyser": ABCAnalyser,
+    "BSPCreator": BSPCreator,
+    "SocialStories": SocialStories,
+    "RootCauseAnalysis": RootCauseAnalysis,
 }
 
 export const pagesConfig = {
