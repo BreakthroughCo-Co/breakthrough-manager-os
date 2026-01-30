@@ -67,6 +67,13 @@ import ABCAnalyser from './pages/ABCAnalyser';
 import BSPCreator from './pages/BSPCreator';
 import SocialStories from './pages/SocialStories';
 import RootCauseAnalysis from './pages/RootCauseAnalysis';
+import RestrictivePractices from './pages/RestrictivePractices';
+import CapabilityAssessment from './pages/CapabilityAssessment';
+import RiskAssessmentTool from './pages/RiskAssessmentTool';
+import CaseNotes from './pages/CaseNotes';
+import BIPQualityAudit from './pages/BIPQualityAudit';
+import WorkerScreening from './pages/WorkerScreening';
+import ClientFeedback from './pages/ClientFeedback';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +98,13 @@ export const PAGES = {
     "BSPCreator": BSPCreator,
     "SocialStories": SocialStories,
     "RootCauseAnalysis": RootCauseAnalysis,
+    "RestrictivePractices": RestrictivePractices,
+    "CapabilityAssessment": CapabilityAssessment,
+    "RiskAssessmentTool": RiskAssessmentTool,
+    "CaseNotes": CaseNotes,
+    "BIPQualityAudit": BIPQualityAudit,
+    "WorkerScreening": WorkerScreening,
+    "ClientFeedback": ClientFeedback,
 }
 
 export const pagesConfig = {
