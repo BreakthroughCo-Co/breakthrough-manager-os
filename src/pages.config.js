@@ -74,6 +74,10 @@ import CaseNotes from './pages/CaseNotes';
 import BIPQualityAudit from './pages/BIPQualityAudit';
 import WorkerScreening from './pages/WorkerScreening';
 import ClientFeedback from './pages/ClientFeedback';
+import NDISPlans from './pages/NDISPlans';
+import PlanUtilisation from './pages/PlanUtilisation';
+import ServiceAgreements from './pages/ServiceAgreements';
+import StaffInduction from './pages/StaffInduction';
 import __Layout from './Layout.jsx';
 
 
@@ -105,6 +109,10 @@ export const PAGES = {
     "BIPQualityAudit": BIPQualityAudit,
     "WorkerScreening": WorkerScreening,
     "ClientFeedback": ClientFeedback,
+    "NDISPlans": NDISPlans,
+    "PlanUtilisation": PlanUtilisation,
+    "ServiceAgreements": ServiceAgreements,
+    "StaffInduction": StaffInduction,
 }
 
 export const pagesConfig = {
