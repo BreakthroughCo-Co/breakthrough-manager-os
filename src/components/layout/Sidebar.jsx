@@ -48,6 +48,7 @@ const mainNavItems = [
   { name: 'Billing', icon: DollarSign, page: 'Billing' },
   { name: 'Tasks', icon: ListTodo, page: 'Tasks' },
   { name: 'Messages', icon: MessageSquare, page: 'Messages' },
+  { name: 'Communications', icon: MessageSquare, page: 'ClientCommunications' },
 ];
 
 const clinicalItems = [

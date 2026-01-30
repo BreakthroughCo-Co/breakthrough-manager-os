@@ -47,72 +47,74 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ABCAnalyser from './pages/ABCAnalyser';
 import AIAssistant from './pages/AIAssistant';
+import BIPQualityAudit from './pages/BIPQualityAudit';
+import BSPCreator from './pages/BSPCreator';
 import Billing from './pages/Billing';
+import CapabilityAssessment from './pages/CapabilityAssessment';
+import CaseNotes from './pages/CaseNotes';
+import ClientFeedback from './pages/ClientFeedback';
 import Clients from './pages/Clients';
+import ClinicalHub from './pages/ClinicalHub';
 import Compliance from './pages/Compliance';
 import Dashboard from './pages/Dashboard';
+import FBAAssessment from './pages/FBAAssessment';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
+import NDISPlans from './pages/NDISPlans';
+import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerDetail from './pages/PractitionerDetail';
 import Practitioners from './pages/Practitioners';
 import Programs from './pages/Programs';
 import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-import Tasks from './pages/Tasks';
-import WorkflowTriggers from './pages/WorkflowTriggers';
-import ClinicalHub from './pages/ClinicalHub';
-import FBAAssessment from './pages/FBAAssessment';
-import ABCAnalyser from './pages/ABCAnalyser';
-import BSPCreator from './pages/BSPCreator';
-import SocialStories from './pages/SocialStories';
-import RootCauseAnalysis from './pages/RootCauseAnalysis';
 import RestrictivePractices from './pages/RestrictivePractices';
-import CapabilityAssessment from './pages/CapabilityAssessment';
 import RiskAssessmentTool from './pages/RiskAssessmentTool';
-import CaseNotes from './pages/CaseNotes';
-import BIPQualityAudit from './pages/BIPQualityAudit';
-import WorkerScreening from './pages/WorkerScreening';
-import ClientFeedback from './pages/ClientFeedback';
-import NDISPlans from './pages/NDISPlans';
-import PlanUtilisation from './pages/PlanUtilisation';
+import RootCauseAnalysis from './pages/RootCauseAnalysis';
 import ServiceAgreements from './pages/ServiceAgreements';
+import Settings from './pages/Settings';
+import SocialStories from './pages/SocialStories';
 import StaffInduction from './pages/StaffInduction';
+import Tasks from './pages/Tasks';
+import WorkerScreening from './pages/WorkerScreening';
+import WorkflowTriggers from './pages/WorkflowTriggers';
+import ClientCommunications from './pages/ClientCommunications';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ABCAnalyser": ABCAnalyser,
     "AIAssistant": AIAssistant,
+    "BIPQualityAudit": BIPQualityAudit,
+    "BSPCreator": BSPCreator,
     "Billing": Billing,
+    "CapabilityAssessment": CapabilityAssessment,
+    "CaseNotes": CaseNotes,
+    "ClientFeedback": ClientFeedback,
     "Clients": Clients,
+    "ClinicalHub": ClinicalHub,
     "Compliance": Compliance,
     "Dashboard": Dashboard,
+    "FBAAssessment": FBAAssessment,
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
+    "NDISPlans": NDISPlans,
+    "PlanUtilisation": PlanUtilisation,
     "PractitionerDetail": PractitionerDetail,
     "Practitioners": Practitioners,
     "Programs": Programs,
     "Reports": Reports,
-    "Settings": Settings,
-    "Tasks": Tasks,
-    "WorkflowTriggers": WorkflowTriggers,
-    "ClinicalHub": ClinicalHub,
-    "FBAAssessment": FBAAssessment,
-    "ABCAnalyser": ABCAnalyser,
-    "BSPCreator": BSPCreator,
-    "SocialStories": SocialStories,
-    "RootCauseAnalysis": RootCauseAnalysis,
     "RestrictivePractices": RestrictivePractices,
-    "CapabilityAssessment": CapabilityAssessment,
     "RiskAssessmentTool": RiskAssessmentTool,
-    "CaseNotes": CaseNotes,
-    "BIPQualityAudit": BIPQualityAudit,
-    "WorkerScreening": WorkerScreening,
-    "ClientFeedback": ClientFeedback,
-    "NDISPlans": NDISPlans,
-    "PlanUtilisation": PlanUtilisation,
+    "RootCauseAnalysis": RootCauseAnalysis,
     "ServiceAgreements": ServiceAgreements,
+    "Settings": Settings,
+    "SocialStories": SocialStories,
     "StaffInduction": StaffInduction,
+    "Tasks": Tasks,
+    "WorkerScreening": WorkerScreening,
+    "WorkflowTriggers": WorkflowTriggers,
+    "ClientCommunications": ClientCommunications,
 }
 
 export const pagesConfig = {
