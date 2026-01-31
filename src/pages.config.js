@@ -54,6 +54,7 @@ import BSPCreator from './pages/BSPCreator';
 import Billing from './pages/Billing';
 import CapabilityAssessment from './pages/CapabilityAssessment';
 import CaseNotes from './pages/CaseNotes';
+import ClientCommunications from './pages/ClientCommunications';
 import ClientFeedback from './pages/ClientFeedback';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
@@ -78,7 +79,6 @@ import StaffInduction from './pages/StaffInduction';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import ClientCommunications from './pages/ClientCommunications';
 import __Layout from './Layout.jsx';
 
 
@@ -90,6 +90,7 @@ export const PAGES = {
     "Billing": Billing,
     "CapabilityAssessment": CapabilityAssessment,
     "CaseNotes": CaseNotes,
+    "ClientCommunications": ClientCommunications,
     "ClientFeedback": ClientFeedback,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
@@ -114,7 +115,6 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "ClientCommunications": ClientCommunications,
 }
 
 export const pagesConfig = {
