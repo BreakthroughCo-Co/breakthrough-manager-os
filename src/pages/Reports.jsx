@@ -519,20 +519,30 @@ export default function Reports() {
         {/* Saved Reports View */}
         <TabsContent value="saved" className="mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {savedReports.map((report) => (
-              <Card key={report.id} className="hover:shadow-lg transition-all cursor-pointer" onClick={() => handleLoadSavedReport(report)}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">{entityConfig[report.entity_type]?.icon && <entityConfig[report.entity_type].icon className="w-5 h-5 text-teal-600" />}</div>
-                      <div><h4 className="font-semibold text-slate-900">{report.name}</h4><p className="text-xs text-slate-500">{entityConfig[report.entity_type]?.name}</p></div>
+            {savedReports.map((report) => {
+              const IconComponent = entityConfig[report.entity_type]?.icon;
+              return (
+                <Card key={report.id} className="hover:shadow-lg transition-all cursor-pointer" onClick={() => handleLoadSavedReport(report)}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
+                          {IconComponent && <IconComponent className="w-5 h-5 text-teal-600" />}
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-900">{report.name}</h4>
+                          <p className="text-xs text-slate-500">{entityConfig[report.entity_type]?.name}</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); deleteSavedMutation.mutate(report.id); }} className="text-red-500 hover:text-red-600">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); deleteSavedMutation.mutate(report.id); }} className="text-red-500 hover:text-red-600"><Trash2 className="w-4 h-4" /></Button>
-                  </div>
-                  <p className="text-xs text-slate-400">Created {report.created_date ? format(new Date(report.created_date), 'MMM d, yyyy') : '-'}</p>
-                </CardContent>
-              </Card>
-            ))}
+                    <p className="text-xs text-slate-400">Created {report.created_date ? format(new Date(report.created_date), 'MMM d, yyyy') : '-'}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
           {savedReports.length === 0 && (<div className="bg-white rounded-2xl border border-slate-200 py-16 text-center"><Star className="w-12 h-12 text-slate-300 mx-auto mb-3" /><p className="text-slate-500">No saved reports yet</p><p className="text-sm text-slate-400">Save report configurations from the Report Builder</p></div>)}
         </TabsContent>
