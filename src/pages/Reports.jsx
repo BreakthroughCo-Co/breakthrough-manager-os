@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth, parseISO, startOfWeek, startOfYear, eachMonthOfInterval, eachWeekOfInterval } from 'date-fns';
 import {
   FileText,
   Filter,
@@ -20,7 +20,8 @@ import {
   Trash2,
   PieChart,
   TrendingUp,
-  LayoutDashboard
+  LayoutDashboard,
+  LineChart as LineChartIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -202,6 +203,8 @@ export default function Reports() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [reportName, setReportName] = useState('');
+  const [chartType, setChartType] = useState('pie');
+  const [chartField, setChartField] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -227,16 +230,47 @@ export default function Reports() {
   const dataMap = { Client: clients, Practitioner: practitioners, BillingRecord: billingRecords, ComplianceItem: complianceItems, Task: tasks, Program: programs };
 
   // Dashboard metrics
-  const dashboardMetrics = useMemo(() => ({
-    clientsByStatus: Object.entries(clients.reduce((acc, c) => { acc[c.status] = (acc[c.status] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.replace(/_/g, ' ') || 'Unknown', value })),
-    clientsByService: Object.entries(clients.reduce((acc, c) => { acc[c.service_type || 'Unknown'] = (acc[c.service_type || 'Unknown'] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name, value })),
-    tasksByStatus: Object.entries(tasks.reduce((acc, t) => { acc[t.status] = (acc[t.status] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.replace(/_/g, ' ') || 'Unknown', value })),
-    complianceByStatus: Object.entries(complianceItems.reduce((acc, c) => { acc[c.status] = (acc[c.status] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.replace(/_/g, ' ') || 'Unknown', value })),
-    totalFunding: clients.reduce((sum, c) => sum + (c.funding_allocated || 0), 0),
-    usedFunding: clients.reduce((sum, c) => sum + (c.funding_utilised || 0), 0),
-    billingByStatus: Object.entries(billingRecords.reduce((acc, b) => { acc[b.status] = (acc[b.status] || 0) + (b.total_amount || 0); return acc; }, {})).map(([name, value]) => ({ name, value })),
-    practitionersByRole: Object.entries(practitioners.reduce((acc, p) => { acc[p.role || 'Unknown'] = (acc[p.role || 'Unknown'] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.split(' ')[0] || 'Unknown', value })),
-  }), [clients, tasks, complianceItems, billingRecords, practitioners]);
+  const dashboardMetrics = useMemo(() => {
+    // Generate time-series data for client growth
+    const sortedClients = [...clients].sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+    const clientGrowth = [];
+    if (sortedClients.length > 0) {
+      const startDate = new Date(sortedClients[0]?.created_date || new Date());
+      const months = eachMonthOfInterval({ start: startOfYear(startDate), end: new Date() }).slice(-12);
+      months.forEach(month => {
+        const count = sortedClients.filter(c => new Date(c.created_date) <= month).length;
+        clientGrowth.push({ name: format(month, 'MMM yyyy'), value: count });
+      });
+    }
+
+    // Billing over time
+    const billingByMonth = [];
+    const billingMonths = eachMonthOfInterval({ start: subDays(new Date(), 365), end: new Date() }).slice(-12);
+    billingMonths.forEach(month => {
+      const monthStart = month;
+      const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+      const total = billingRecords
+        .filter(b => {
+          const date = new Date(b.service_date);
+          return date >= monthStart && date <= monthEnd;
+        })
+        .reduce((sum, b) => sum + (b.total_amount || 0), 0);
+      billingByMonth.push({ name: format(month, 'MMM'), value: total });
+    });
+
+    return {
+      clientsByStatus: Object.entries(clients.reduce((acc, c) => { acc[c.status] = (acc[c.status] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.replace(/_/g, ' ') || 'Unknown', value })),
+      clientsByService: Object.entries(clients.reduce((acc, c) => { acc[c.service_type || 'Unknown'] = (acc[c.service_type || 'Unknown'] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name, value })),
+      tasksByStatus: Object.entries(tasks.reduce((acc, t) => { acc[t.status] = (acc[t.status] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.replace(/_/g, ' ') || 'Unknown', value })),
+      complianceByStatus: Object.entries(complianceItems.reduce((acc, c) => { acc[c.status] = (acc[c.status] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.replace(/_/g, ' ') || 'Unknown', value })),
+      totalFunding: clients.reduce((sum, c) => sum + (c.funding_allocated || 0), 0),
+      usedFunding: clients.reduce((sum, c) => sum + (c.funding_utilised || 0), 0),
+      billingByStatus: Object.entries(billingRecords.reduce((acc, b) => { acc[b.status] = (acc[b.status] || 0) + (b.total_amount || 0); return acc; }, {})).map(([name, value]) => ({ name, value })),
+      practitionersByRole: Object.entries(practitioners.reduce((acc, p) => { acc[p.role || 'Unknown'] = (acc[p.role || 'Unknown'] || 0) + 1; return acc; }, {})).map(([name, value]) => ({ name: name?.split(' ')[0] || 'Unknown', value })),
+      clientGrowth,
+      billingByMonth,
+    };
+  }, [clients, tasks, complianceItems, billingRecords, practitioners]);
 
   // Generate chart data from report results
   const chartData = useMemo(() => {
@@ -258,9 +292,42 @@ export default function Reports() {
           counts[key] = (counts[key] || 0) + 1;
         }
       });
-      return { field: field.label, data: Object.entries(counts).map(([name, value]) => ({ name, value })) };
+      return { field: field.label, key: field.key, data: Object.entries(counts).map(([name, value]) => ({ name, value })) };
     });
   }, [reportData, selectedEntity, selectedFields, filters]);
+
+  // Time-series chart data for report builder
+  const timeSeriesData = useMemo(() => {
+    if (!selectedEntity || !reportData) return null;
+    const config = entityConfig[selectedEntity];
+    const dateField = config.dateField || 'created_date';
+    
+    const data = dataMap[selectedEntity].filter(item => {
+      let include = true;
+      Object.entries(filters).forEach(([fKey, fValue]) => {
+        if (fValue && fValue !== 'all' && item[fKey] !== fValue) include = false;
+      });
+      return include && item[dateField];
+    });
+
+    if (data.length === 0) return null;
+
+    // Group by month
+    const byMonth = {};
+    data.forEach(item => {
+      const date = new Date(item[dateField]);
+      const key = format(date, 'MMM yyyy');
+      byMonth[key] = (byMonth[key] || 0) + 1;
+    });
+
+    // Sort by date
+    const sorted = Object.entries(byMonth)
+      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+      .slice(-12)
+      .map(([name, value]) => ({ name, value }));
+
+    return sorted;
+  }, [selectedEntity, reportData, filters]);
 
   const handleEntitySelect = (entity) => {
     setSelectedEntity(entity);
@@ -324,6 +391,7 @@ export default function Reports() {
       selected_fields: JSON.stringify(selectedFields),
       filters: JSON.stringify(filters),
       date_range: JSON.stringify(dateRange),
+      chart_config: JSON.stringify({ chartType, chartField }),
     });
   };
 
@@ -333,6 +401,9 @@ export default function Reports() {
       setSelectedFields(JSON.parse(saved.selected_fields || '[]'));
       setFilters(JSON.parse(saved.filters || '{}'));
       setDateRange(JSON.parse(saved.date_range || '{}'));
+      const chartConfig = JSON.parse(saved.chart_config || '{}');
+      if (chartConfig.chartType) setChartType(chartConfig.chartType);
+      if (chartConfig.chartField) setChartField(chartConfig.chartField);
     } catch { }
     setActiveView('builder');
     setReportData(null);
@@ -443,6 +514,25 @@ export default function Reports() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+
+            {/* Time-series charts */}
+            <Card>
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><LineChartIcon className="w-4 h-4" />Client Growth Over Time</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={dashboardMetrics.clientGrowth}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" tick={{ fontSize: 10 }} /><YAxis /><Tooltip /><Line type="monotone" dataKey="value" stroke="#14B8A6" strokeWidth={2} dot={{ fill: '#14B8A6' }} /></LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="w-4 h-4" />Monthly Billing Trend</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={dashboardMetrics.billingByMonth}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" tick={{ fontSize: 10 }} /><YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} /><Tooltip formatter={(v) => `$${v.toLocaleString()}`} /><Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6' }} /></LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
@@ -467,7 +557,7 @@ export default function Reports() {
               {selectedEntity ? (
                 <>
                   <Tabs defaultValue="fields">
-                    <TabsList><TabsTrigger value="fields"><Settings className="w-4 h-4 mr-1" />Fields</TabsTrigger><TabsTrigger value="filters"><Filter className="w-4 h-4 mr-1" />Filters</TabsTrigger></TabsList>
+                    <TabsList><TabsTrigger value="fields"><Settings className="w-4 h-4 mr-1" />Fields</TabsTrigger><TabsTrigger value="filters"><Filter className="w-4 h-4 mr-1" />Filters</TabsTrigger>
                     <TabsContent value="fields" className="mt-4">
                       <Card><CardHeader className="pb-3"><CardTitle className="text-base">Select Fields to Include</CardTitle></CardHeader><CardContent>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">{currentConfig.fields.map(field => (<div key={field.key} className="flex items-center gap-2"><Checkbox id={field.key} checked={selectedFields.includes(field.key)} onCheckedChange={() => handleFieldToggle(field.key)} /><label htmlFor={field.key} className="text-sm text-slate-700 cursor-pointer">{field.label}</label></div>))}</div>
@@ -481,6 +571,38 @@ export default function Reports() {
                         </div>
                       </CardContent></Card>
                     </TabsContent>
+
+                    {/* Chart Configuration Tab */}
+                    <TabsTrigger value="chart"><PieChart className="w-4 h-4 mr-1" />Chart</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="chart" className="mt-4">
+                    <Card><CardHeader className="pb-3"><CardTitle className="text-base">Chart Visualisation</CardTitle></CardHeader><CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-xs">Chart Type</Label>
+                          <Select value={chartType} onValueChange={setChartType}>
+                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pie"><div className="flex items-center gap-2"><PieChart className="w-4 h-4" />Pie Chart</div></SelectItem>
+                              <SelectItem value="bar"><div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />Bar Chart</div></SelectItem>
+                              <SelectItem value="line"><div className="flex items-center gap-2"><LineChartIcon className="w-4 h-4" />Line Chart (Time Series)</div></SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Chart Field</Label>
+                          <Select value={chartField} onValueChange={setChartField}>
+                            <SelectTrigger className="mt-1"><SelectValue placeholder="Select field" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={null}>Auto (all chartable)</SelectItem>
+                              {currentConfig.fields.filter(f => f.chartable).map(f => (
+                                <SelectItem key={f.key} value={f.key}>{f.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </CardContent></Card>
                   </Tabs>
 
                   <div className="flex justify-between">
@@ -493,13 +615,28 @@ export default function Reports() {
                       {/* Charts */}
                       {chartData && chartData.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {chartData.map((chart, idx) => (
+                          {(chartField ? chartData.filter(c => c.key === chartField) : chartData).map((chart, idx) => (
                             <Card key={idx}><CardHeader className="pb-2"><CardTitle className="text-sm">{chart.field} Distribution</CardTitle></CardHeader><CardContent>
                               <ResponsiveContainer width="100%" height={200}>
-                                <RechartsPie><Pie data={chart.data} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{chart.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip /></RechartsPie>
+                                {chartType === 'pie' ? (
+                                  <RechartsPie><Pie data={chart.data} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{chart.data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip /></RechartsPie>
+                                ) : chartType === 'bar' ? (
+                                  <BarChart data={chart.data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" tick={{ fontSize: 10 }} /><YAxis /><Tooltip /><Bar dataKey="value" fill="#14B8A6" radius={[4, 4, 0, 0]} /></BarChart>
+                                ) : (
+                                  <BarChart data={chart.data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" tick={{ fontSize: 10 }} /><YAxis /><Tooltip /><Bar dataKey="value" fill="#3B82F6" radius={[4, 4, 0, 0]} /></BarChart>
+                                )}
                               </ResponsiveContainer>
                             </CardContent></Card>
                           ))}
+                          
+                          {/* Time-series line chart */}
+                          {chartType === 'line' && timeSeriesData && timeSeriesData.length > 0 && (
+                            <Card className="md:col-span-2"><CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><LineChartIcon className="w-4 h-4" />{currentConfig?.name} Over Time</CardTitle></CardHeader><CardContent>
+                              <ResponsiveContainer width="100%" height={250}>
+                                <LineChart data={timeSeriesData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" tick={{ fontSize: 10 }} /><YAxis /><Tooltip /><Line type="monotone" dataKey="value" stroke="#14B8A6" strokeWidth={2} dot={{ fill: '#14B8A6' }} /></LineChart>
+                              </ResponsiveContainer>
+                            </CardContent></Card>
+                          )}
                         </div>
                       )}
 

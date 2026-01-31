@@ -18,7 +18,9 @@ import {
   Lightbulb,
   ArrowRight,
   Plus,
-  ListTodo
+  ListTodo,
+  RefreshCw,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -149,6 +151,25 @@ const communicationTypes = [
       { label: 'Assign practitioner', action: 'navigate', page: 'Clients' },
     ],
   },
+  {
+    id: 'session_feedback',
+    name: 'Session Feedback Request',
+    icon: Star,
+    category: 'Quality',
+    description: 'Request feedback about recent sessions',
+    color: 'bg-orange-100 text-orange-700',
+    suggestedPhrases: [
+      'We value your feedback',
+      'Your input helps us improve our services',
+      'Please take a moment to share your thoughts',
+      'All feedback is confidential and appreciated',
+    ],
+    followUpActions: [
+      { label: 'Create feedback review task', action: 'create_task', taskTitle: 'Review client feedback' },
+      { label: 'Schedule follow-up call', action: 'create_task', taskTitle: 'Follow-up call to discuss feedback' },
+      { label: 'View feedback dashboard', action: 'navigate', page: 'ClientFeedback' },
+    ],
+  },
 ];
 
 export default function ClientCommunications() {
@@ -162,6 +183,7 @@ export default function ClientCommunications() {
   const [copied, setCopied] = useState(false);
   const [sent, setSent] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [isRegeneratingSectionKey, setIsRegeneratingSectionKey] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -207,6 +229,46 @@ export default function ClientCommunications() {
       alert(`Task created: ${action.taskTitle}`);
     } else if (action.action === 'navigate') {
       window.location.href = `/${action.page}`;
+    }
+  };
+
+  const regenerateSection = async (section) => {
+    if (!selectedType || !selectedClient) return;
+    setIsRegeneratingSectionKey(section);
+    
+    const client = selectedClientData;
+    const sectionPrompts = {
+      subject: `Generate only a professional email subject line for a ${selectedType.name.toLowerCase()} communication for ${client?.full_name || 'a client'}. Return just the subject line, nothing else.`,
+      intro: `Generate only a warm, professional opening paragraph (2-3 sentences) for a ${selectedType.name.toLowerCase()} email to ${client?.full_name || 'a client'}. Keep it brief and engaging.`,
+      outro: `Generate only a professional closing paragraph (2-3 sentences) for a ${selectedType.name.toLowerCase()} email from Breakthrough Coaching & Consulting. Include a call to action and sign-off.`,
+    };
+
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: sectionPrompts[section]
+      });
+
+      if (section === 'subject') {
+        setGeneratedSubject(result.trim());
+      } else if (section === 'intro') {
+        // Replace first paragraph
+        const lines = generatedContent.split('\n\n');
+        if (lines.length > 0) {
+          lines[0] = result.trim();
+          setGeneratedContent(lines.join('\n\n'));
+        }
+      } else if (section === 'outro') {
+        // Replace last paragraph
+        const lines = generatedContent.split('\n\n');
+        if (lines.length > 1) {
+          lines[lines.length - 1] = result.trim();
+          setGeneratedContent(lines.join('\n\n'));
+        }
+      }
+    } catch (error) {
+      console.error('Regeneration failed:', error);
+    } finally {
+      setIsRegeneratingSectionKey(null);
     }
   };
 
@@ -291,6 +353,18 @@ Include:
 - What to expect in the first few sessions
 - Key team members they'll work with
 - How to contact us with questions`,
+
+      session_feedback: `Generate a feedback request email for ${client?.full_name || '[Client Name]'}.
+Service type: ${client?.service_type || 'Behaviour Support'}
+${additionalPoints ? `Additional context: ${additionalPoints}` : ''}
+
+Include:
+- Thank them for choosing our services
+- Request for honest feedback about recent sessions
+- Explain how feedback helps improve services
+- Assure confidentiality
+- Simple instructions on how to provide feedback
+- Express appreciation for their time`,
     };
 
     try {
@@ -483,7 +557,13 @@ Keep the tone professional but warm and supportive.`
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
-                      <Label className="text-xs">Subject</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Subject</Label>
+                        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => regenerateSection('subject')} disabled={isRegeneratingSectionKey === 'subject'}>
+                          {isRegeneratingSectionKey === 'subject' ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                          <span className="ml-1">Regenerate</span>
+                        </Button>
+                      </div>
                       <Input
                         value={generatedSubject}
                         onChange={(e) => setGeneratedSubject(e.target.value)}
@@ -491,7 +571,19 @@ Keep the tone professional but warm and supportive.`
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Body</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Body</Label>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => regenerateSection('intro')} disabled={isRegeneratingSectionKey === 'intro'}>
+                            {isRegeneratingSectionKey === 'intro' ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                            <span className="ml-1">Intro</span>
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => regenerateSection('outro')} disabled={isRegeneratingSectionKey === 'outro'}>
+                            {isRegeneratingSectionKey === 'outro' ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                            <span className="ml-1">Outro</span>
+                          </Button>
+                        </div>
+                      </div>
                       <Textarea
                         id="content-textarea"
                         value={generatedContent}
