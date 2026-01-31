@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import {
   Mail,
@@ -14,7 +14,11 @@ import {
   Check,
   Send,
   User,
-  MessageSquare
+  MessageSquare,
+  Lightbulb,
+  ArrowRight,
+  Plus,
+  ListTodo
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +43,16 @@ const communicationTypes = [
     category: 'Scheduling',
     description: 'Remind clients about upcoming sessions',
     color: 'bg-blue-100 text-blue-700',
+    suggestedPhrases: [
+      'We look forward to seeing you',
+      'Please remember to bring any relevant documentation',
+      'If you need to reschedule, please contact us at least 24 hours in advance',
+      'Our team is here to support you',
+    ],
+    followUpActions: [
+      { label: 'Create calendar reminder task', action: 'create_task', taskTitle: 'Follow up on appointment' },
+      { label: 'Schedule follow-up call', action: 'create_task', taskTitle: 'Follow-up call after session' },
+    ],
   },
   {
     id: 'session_summary',
@@ -47,6 +61,18 @@ const communicationTypes = [
     category: 'Clinical',
     description: 'Summarise a completed session for families',
     color: 'bg-emerald-100 text-emerald-700',
+    suggestedPhrases: [
+      'showed great progress in',
+      'demonstrated emerging skills with',
+      'responded well to strategies including',
+      'We observed positive engagement when',
+      'Areas we will continue to focus on include',
+    ],
+    followUpActions: [
+      { label: 'Schedule next session', action: 'create_task', taskTitle: 'Schedule follow-up session' },
+      { label: 'Update BSP with observations', action: 'create_task', taskTitle: 'Update Behaviour Support Plan' },
+      { label: 'Create progress note', action: 'navigate', page: 'CaseNotes' },
+    ],
   },
   {
     id: 'plan_review',
@@ -55,6 +81,17 @@ const communicationTypes = [
     category: 'Admin',
     description: 'Notify about upcoming NDIS plan review',
     color: 'bg-amber-100 text-amber-700',
+    suggestedPhrases: [
+      'Your NDIS plan is due for review',
+      'We recommend scheduling a pre-planning meeting',
+      'Please gather any reports or assessments',
+      'We can provide supporting documentation for your review',
+    ],
+    followUpActions: [
+      { label: 'Schedule plan review meeting', action: 'create_task', taskTitle: 'Plan review meeting' },
+      { label: 'Prepare progress report', action: 'create_task', taskTitle: 'Prepare NDIS progress report' },
+      { label: 'Update service agreement', action: 'navigate', page: 'ServiceAgreements' },
+    ],
   },
   {
     id: 'progress_update',
@@ -63,6 +100,17 @@ const communicationTypes = [
     category: 'Clinical',
     description: 'Share monthly progress with family/carers',
     color: 'bg-purple-100 text-purple-700',
+    suggestedPhrases: [
+      'This month we focused on',
+      'Key achievements include',
+      'Strategies that worked well were',
+      'Goals for the coming month include',
+      'We appreciate your ongoing collaboration',
+    ],
+    followUpActions: [
+      { label: 'Schedule family meeting', action: 'create_task', taskTitle: 'Schedule family check-in meeting' },
+      { label: 'Review and update goals', action: 'create_task', taskTitle: 'Review client goals' },
+    ],
   },
   {
     id: 'service_agreement',
@@ -71,6 +119,16 @@ const communicationTypes = [
     category: 'Admin',
     description: 'Send service agreement for review',
     color: 'bg-teal-100 text-teal-700',
+    suggestedPhrases: [
+      'Please review the attached service agreement',
+      'This agreement outlines the services we will provide',
+      'Feel free to contact us with any questions',
+      'Once signed, we can commence services',
+    ],
+    followUpActions: [
+      { label: 'Follow up on signature', action: 'create_task', taskTitle: 'Follow up on service agreement signature' },
+      { label: 'Schedule onboarding session', action: 'create_task', taskTitle: 'Schedule client onboarding' },
+    ],
   },
   {
     id: 'welcome_email',
@@ -79,6 +137,17 @@ const communicationTypes = [
     category: 'Onboarding',
     description: 'Welcome new clients to services',
     color: 'bg-pink-100 text-pink-700',
+    suggestedPhrases: [
+      'Welcome to Breakthrough Coaching & Consulting',
+      'We are excited to begin working with you',
+      'Your dedicated practitioner will be',
+      'Please don\'t hesitate to reach out with any questions',
+    ],
+    followUpActions: [
+      { label: 'Schedule initial assessment', action: 'create_task', taskTitle: 'Schedule initial assessment' },
+      { label: 'Send intake forms', action: 'create_task', taskTitle: 'Send client intake forms' },
+      { label: 'Assign practitioner', action: 'navigate', page: 'Clients' },
+    ],
   },
 ];
 
@@ -92,6 +161,14 @@ export default function ClientCommunications() {
   const [isSending, setIsSending] = useState(false);
   const [copied, setCopied] = useState(false);
   const [sent, setSent] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+
+  const queryClient = useQueryClient();
+
+  const createTaskMutation = useMutation({
+    mutationFn: (data) => base44.entities.Task.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+  });
 
   const { data: clients = [] } = useQuery({
     queryKey: ['clients'],
@@ -104,6 +181,34 @@ export default function ClientCommunications() {
   });
 
   const selectedClientData = clients.find(c => c.id === selectedClient);
+
+  const insertPhrase = (phrase) => {
+    const textarea = document.getElementById('content-textarea');
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newContent = generatedContent.substring(0, start) + phrase + generatedContent.substring(end);
+      setGeneratedContent(newContent);
+    } else {
+      setGeneratedContent(prev => prev + ' ' + phrase);
+    }
+  };
+
+  const handleFollowUpAction = async (action) => {
+    if (action.action === 'create_task') {
+      await createTaskMutation.mutateAsync({
+        title: `${action.taskTitle} - ${selectedClientData?.full_name || 'Client'}`,
+        category: 'Clinical',
+        priority: 'medium',
+        status: 'pending',
+        related_entity_type: 'Client',
+        related_entity_id: selectedClient,
+      });
+      alert(`Task created: ${action.taskTitle}`);
+    } else if (action.action === 'navigate') {
+      window.location.href = `/${action.page}`;
+    }
+  };
 
   const generateCommunication = async () => {
     if (!selectedType || !selectedClient) return;
@@ -388,12 +493,62 @@ Keep the tone professional but warm and supportive.`
                     <div>
                       <Label className="text-xs">Body</Label>
                       <Textarea
+                        id="content-textarea"
                         value={generatedContent}
                         onChange={(e) => setGeneratedContent(e.target.value)}
-                        rows={12}
+                        rows={10}
                         className="mt-1 font-mono text-sm"
                       />
                     </div>
+
+                    {/* Suggested Phrases */}
+                    {selectedType?.suggestedPhrases && showSuggestions && (
+                      <div className="bg-purple-50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-purple-800 flex items-center gap-1">
+                            <Lightbulb className="w-3 h-3" />
+                            Suggested Phrases
+                          </span>
+                          <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => setShowSuggestions(false)}>Hide</Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedType.suggestedPhrases.map((phrase, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => insertPhrase(phrase)}
+                              className="text-xs bg-white border border-purple-200 rounded-full px-3 py-1 hover:bg-purple-100 hover:border-purple-300 transition-colors text-purple-700"
+                            >
+                              + {phrase}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Follow-up Actions */}
+                    {selectedType?.followUpActions && (
+                      <div className="bg-teal-50 rounded-lg p-3">
+                        <span className="text-xs font-medium text-teal-800 flex items-center gap-1 mb-2">
+                          <ListTodo className="w-3 h-3" />
+                          Suggested Follow-up Actions
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedType.followUpActions.map((action, idx) => (
+                            <Button
+                              key={idx}
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs border-teal-200 text-teal-700 hover:bg-teal-100"
+                              onClick={() => handleFollowUpAction(action)}
+                              disabled={createTaskMutation.isPending}
+                            >
+                              {action.action === 'create_task' ? <Plus className="w-3 h-3 mr-1" /> : <ArrowRight className="w-3 h-3 mr-1" />}
+                              {action.label}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {selectedClientData?.primary_contact_email ? (
                       <div className="flex items-center justify-between pt-2">
