@@ -557,7 +557,11 @@ export default function Reports() {
               {selectedEntity ? (
                 <>
                   <Tabs defaultValue="fields">
-                    <TabsList><TabsTrigger value="fields"><Settings className="w-4 h-4 mr-1" />Fields</TabsTrigger><TabsTrigger value="filters"><Filter className="w-4 h-4 mr-1" />Filters</TabsTrigger>
+                    <TabsList>
+                      <TabsTrigger value="fields"><Settings className="w-4 h-4 mr-1" />Fields</TabsTrigger>
+                      <TabsTrigger value="filters"><Filter className="w-4 h-4 mr-1" />Filters</TabsTrigger>
+                      <TabsTrigger value="chart"><PieChart className="w-4 h-4 mr-1" />Chart</TabsTrigger>
+                    </TabsList>
                     <TabsContent value="fields" className="mt-4">
                       <Card><CardHeader className="pb-3"><CardTitle className="text-base">Select Fields to Include</CardTitle></CardHeader><CardContent>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">{currentConfig.fields.map(field => (<div key={field.key} className="flex items-center gap-2"><Checkbox id={field.key} checked={selectedFields.includes(field.key)} onCheckedChange={() => handleFieldToggle(field.key)} /><label htmlFor={field.key} className="text-sm text-slate-700 cursor-pointer">{field.label}</label></div>))}</div>
@@ -571,38 +575,35 @@ export default function Reports() {
                         </div>
                       </CardContent></Card>
                     </TabsContent>
-
-                    {/* Chart Configuration Tab */}
-                    <TabsTrigger value="chart"><PieChart className="w-4 h-4 mr-1" />Chart</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="chart" className="mt-4">
-                    <Card><CardHeader className="pb-3"><CardTitle className="text-base">Chart Visualisation</CardTitle></CardHeader><CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-xs">Chart Type</Label>
-                          <Select value={chartType} onValueChange={setChartType}>
-                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pie"><div className="flex items-center gap-2"><PieChart className="w-4 h-4" />Pie Chart</div></SelectItem>
-                              <SelectItem value="bar"><div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />Bar Chart</div></SelectItem>
-                              <SelectItem value="line"><div className="flex items-center gap-2"><LineChartIcon className="w-4 h-4" />Line Chart (Time Series)</div></SelectItem>
-                            </SelectContent>
-                          </Select>
+                    <TabsContent value="chart" className="mt-4">
+                      <Card><CardHeader className="pb-3"><CardTitle className="text-base">Chart Visualisation</CardTitle></CardHeader><CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-xs">Chart Type</Label>
+                            <Select value={chartType} onValueChange={setChartType}>
+                              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pie"><div className="flex items-center gap-2"><PieChart className="w-4 h-4" />Pie Chart</div></SelectItem>
+                                <SelectItem value="bar"><div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />Bar Chart</div></SelectItem>
+                                <SelectItem value="line"><div className="flex items-center gap-2"><LineChartIcon className="w-4 h-4" />Line Chart (Time Series)</div></SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs">Chart Field</Label>
+                            <Select value={chartField} onValueChange={setChartField}>
+                              <SelectTrigger className="mt-1"><SelectValue placeholder="Select field" /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={null}>Auto (all chartable)</SelectItem>
+                                {currentConfig.fields.filter(f => f.chartable).map(f => (
+                                  <SelectItem key={f.key} value={f.key}>{f.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                        <div>
-                          <Label className="text-xs">Chart Field</Label>
-                          <Select value={chartField} onValueChange={setChartField}>
-                            <SelectTrigger className="mt-1"><SelectValue placeholder="Select field" /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value={null}>Auto (all chartable)</SelectItem>
-                              {currentConfig.fields.filter(f => f.chartable).map(f => (
-                                <SelectItem key={f.key} value={f.key}>{f.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </CardContent></Card>
+                      </CardContent></Card>
+                    </TabsContent>
                   </Tabs>
 
                   <div className="flex justify-between">
