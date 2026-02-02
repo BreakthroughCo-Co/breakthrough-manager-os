@@ -79,6 +79,7 @@ const adminItems = [
   { name: 'Staff Induction', icon: UserCog, page: 'StaffInduction', managerOnly: true },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Reports', icon: FileText, page: 'Reports' },
+  { name: 'Custom Dashboard', icon: LayoutDashboard, page: 'CustomDashboard' },
   { name: 'Workflows', icon: Zap, page: 'WorkflowTriggers' },
 ];
 
