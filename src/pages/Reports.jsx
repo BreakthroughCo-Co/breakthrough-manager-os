@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, subDays, startOfMonth, endOfMonth, parseISO, startOfWeek, startOfYear, eachMonthOfInterval, eachWeekOfInterval } from 'date-fns';
+import CustomDashboard from '@/components/reports/CustomDashboard';
 import {
   FileText,
   Filter,
@@ -446,7 +447,8 @@ export default function Reports() {
 
       <Tabs value={activeView} onValueChange={setActiveView}>
         <TabsList>
-          <TabsTrigger value="dashboard"><LayoutDashboard className="w-4 h-4 mr-1" />Dashboard</TabsTrigger>
+          <TabsTrigger value="dashboard"><LayoutDashboard className="w-4 h-4 mr-1" />Overview</TabsTrigger>
+          <TabsTrigger value="custom"><PieChart className="w-4 h-4 mr-1" />Custom Dashboards</TabsTrigger>
           <TabsTrigger value="builder"><Settings className="w-4 h-4 mr-1" />Report Builder</TabsTrigger>
           <TabsTrigger value="saved"><Star className="w-4 h-4 mr-1" />Saved Reports ({savedReports.length})</TabsTrigger>
         </TabsList>
@@ -534,6 +536,11 @@ export default function Reports() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Custom Dashboards View */}
+        <TabsContent value="custom" className="mt-4">
+          <CustomDashboard />
         </TabsContent>
 
         {/* Report Builder View */}

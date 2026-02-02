@@ -80,7 +80,6 @@ import StaffInduction from './pages/StaffInduction';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import CustomDashboard from './pages/CustomDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -118,7 +117,6 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "CustomDashboard": CustomDashboard,
 }
 
 export const pagesConfig = {
