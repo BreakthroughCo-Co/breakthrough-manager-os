@@ -61,6 +61,7 @@ import ClinicalHub from './pages/ClinicalHub';
 import Compliance from './pages/Compliance';
 import Dashboard from './pages/Dashboard';
 import FBAAssessment from './pages/FBAAssessment';
+import Integrations from './pages/Integrations';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
 import NDISPlans from './pages/NDISPlans';
@@ -79,7 +80,7 @@ import StaffInduction from './pages/StaffInduction';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import Integrations from './pages/Integrations';
+import CustomDashboard from './pages/CustomDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -98,6 +99,7 @@ export const PAGES = {
     "Compliance": Compliance,
     "Dashboard": Dashboard,
     "FBAAssessment": FBAAssessment,
+    "Integrations": Integrations,
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
     "NDISPlans": NDISPlans,
@@ -116,7 +118,7 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "Integrations": Integrations,
+    "CustomDashboard": CustomDashboard,
 }
 
 export const pagesConfig = {
