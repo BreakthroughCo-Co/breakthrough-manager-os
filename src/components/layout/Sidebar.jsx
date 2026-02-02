@@ -32,7 +32,8 @@ import {
   ScrollText,
   Star,
   Gauge,
-  Lock
+  Lock,
+  Link2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -84,6 +85,7 @@ const adminItems = [
 const toolItems = [
   { name: 'Calculator', icon: Calculator, page: 'NDISCalculator' },
   { name: 'AI Assistant', icon: Sparkles, page: 'AIAssistant' },
+  { name: 'Integrations', icon: Link2, page: 'Integrations' },
 ];
 
 export default function Sidebar({ currentPage }) {
