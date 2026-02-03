@@ -1,273 +1,380 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Clock, Upload, User, FileCheck, Key, AlertCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle2, Clock, AlertTriangle, Loader2, RefreshCw, Calendar, Users, BookOpen } from 'lucide-react';
 
 export default function PractitionerOnboarding() {
-  const [showNewOnboarding, setShowNewOnboarding] = useState(false);
-  const [newPractitioner, setNewPractitioner] = useState({
-    practitioner_email: '',
-    practitioner_name: '',
-    start_date: '',
-  });
+  const [selectedPractitioner, setSelectedPractitioner] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: onboardings = [] } = useQuery({
-    queryKey: ['onboardings'],
-    queryFn: () => base44.entities.PractitionerOnboarding.list('-created_date'),
+  // Fetch practitioners
+  const { data: practitioners = [] } = useQuery({
+    queryKey: ['practitioners'],
+    queryFn: () => base44.entities.Practitioner.list()
   });
 
-  const createOnboarding = useMutation({
-    mutationFn: (data) => base44.entities.PractitionerOnboarding.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['onboardings']);
-      setShowNewOnboarding(false);
-      setNewPractitioner({ practitioner_email: '', practitioner_name: '', start_date: '' });
-    },
+  // Fetch onboarding for selected practitioner
+  const { data: onboarding } = useQuery({
+    queryKey: ['onboarding', selectedPractitioner],
+    queryFn: () => base44.entities.PractitionerOnboarding.filter({ practitioner_id: selectedPractitioner }),
+    enabled: !!selectedPractitioner,
+    select: data => data[0]
   });
 
-  const verifyDocuments = useMutation({
-    mutationFn: async ({ onboardingId, documents }) => {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a document verification assistant for NDIS practitioner onboarding.
-        
-Verify the following practitioner documents and check for:
-- Valid qualifications (degree, certifications)
-- Current NDIS worker screening
-- Professional registration numbers
-- Insurance documents
-- Right to work verification
+  // Fetch training assignments
+  const { data: trainingAssignments = [] } = useQuery({
+    queryKey: ['trainingAssignments', selectedPractitioner],
+    queryFn: () => base44.entities.TrainingAssignment.filter({ practitioner_id: selectedPractitioner }),
+    enabled: !!selectedPractitioner
+  });
 
-Documents submitted: ${JSON.stringify(documents)}
+  // Fetch tasks for practitioner
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['practitionerTasks', selectedPractitioner],
+    queryFn: () => base44.entities.Task.filter({ assigned_to: practitioners.find(p => p.id === selectedPractitioner)?.email }),
+    enabled: !!selectedPractitioner
+  });
 
-Return JSON with:
-{
-  "status": "verified" | "failed",
-  "qualifications_valid": boolean,
-  "screening_current": boolean,
-  "registration_verified": boolean,
-  "issues": array of any problems found,
-  "next_steps": array of required actions
-}`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            status: { type: "string" },
-            qualifications_valid: { type: "boolean" },
-            screening_current: { type: "boolean" },
-            registration_verified: { type: "boolean" },
-            issues: { type: "array", items: { type: "string" } },
-            next_steps: { type: "array", items: { type: "string" } }
-          }
-        }
+  const generateChecklist = async () => {
+    if (!selectedPractitioner) {
+      alert('Please select a practitioner');
+      return;
+    }
+
+    const practitioner = practitioners.find(p => p.id === selectedPractitioner);
+    setIsGenerating(true);
+
+    try {
+      const result = await base44.functions.invoke('generateOnboardingChecklist', {
+        practitioner_id: selectedPractitioner,
+        role: practitioner.role,
+        service_types: [practitioner.service_type]
       });
 
-      await base44.entities.PractitionerOnboarding.update(onboardingId, {
-        document_verification_status: response.status === 'verified' ? 'verified' : 'failed',
-        verification_results: JSON.stringify(response),
-        onboarding_stage: response.status === 'verified' ? 'training_assignment' : 'document_verification'
-      });
-    },
-    onSuccess: () => queryClient.invalidateQueries(['onboardings']),
-  });
-
-  const assignTraining = useMutation({
-    mutationFn: async (onboardingId) => {
-      await base44.entities.PractitionerOnboarding.update(onboardingId, {
-        training_modules_assigned: JSON.stringify(['NDIS Standards', 'Behaviour Support Basics', 'Documentation Requirements']),
-        onboarding_stage: 'system_access',
-      });
-    },
-    onSuccess: () => queryClient.invalidateQueries(['onboardings']),
-  });
-
-  const createSystemAccess = useMutation({
-    mutationFn: async (onboarding) => {
-      await base44.users.inviteUser(onboarding.practitioner_email, 'user');
-      await base44.entities.PractitionerOnboarding.update(onboarding.id, {
-        system_access_created: true,
-        system_access_details: JSON.stringify({ access_level: 'practitioner', invited: true }),
-        onboarding_stage: 'completed',
-        onboarding_completion_date: new Date().toISOString().split('T')[0],
-      });
-    },
-    onSuccess: () => queryClient.invalidateQueries(['onboardings']),
-  });
-
-  const getStageProgress = (stage) => {
-    switch (stage) {
-      case 'document_verification': return 25;
-      case 'training_assignment': return 50;
-      case 'system_access': return 75;
-      case 'completed': return 100;
-      default: return 0;
+      alert('Onboarding checklist generated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['onboarding', selectedPractitioner] });
+    } catch (error) {
+      alert('Failed to generate checklist: ' + error.message);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const activeOnboardings = onboardings.filter(o => o.onboarding_stage !== 'completed');
-  const completedOnboardings = onboardings.filter(o => o.onboarding_stage === 'completed');
+  const scheduleTraining = async () => {
+    if (!selectedPractitioner || !onboarding?.id) {
+      alert('Please generate checklist first');
+      return;
+    }
+
+    setIsScheduling(true);
+
+    try {
+      const result = await base44.functions.invoke('scheduleOnboardingTraining', {
+        practitioner_id: selectedPractitioner,
+        onboarding_id: onboarding.id
+      });
+
+      alert(`${result.data.total_modules_scheduled} training modules scheduled!`);
+      queryClient.invalidateQueries({ queryKey: ['trainingAssignments', selectedPractitioner] });
+    } catch (error) {
+      alert('Failed to schedule training: ' + error.message);
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+
+  // Parse checklist items
+  let checklistItems = [];
+  if (onboarding?.checklist_items) {
+    try {
+      checklistItems = JSON.parse(onboarding.checklist_items);
+    } catch (e) {
+      console.error('Failed to parse checklist items:', e);
+    }
+  }
+
+  const completedItems = checklistItems.filter(item => item.status === 'completed').length;
+  const completionPercentage = checklistItems.length > 0 
+    ? (completedItems / checklistItems.length) * 100 
+    : 0;
+
+  const selectedPractitionerData = practitioners.find(p => p.id === selectedPractitioner);
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Practitioner Onboarding</h1>
-          <p className="text-muted-foreground">Automated onboarding workflow with AI verification</p>
-        </div>
-        <Button onClick={() => setShowNewOnboarding(true)}>
-          <User className="w-4 h-4 mr-2" />
-          Start New Onboarding
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold">Practitioner Onboarding</h1>
+        <p className="text-muted-foreground mt-1">AI-driven onboarding checklists and training scheduling</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{activeOnboardings.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Verification</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {onboardings.filter(o => o.onboarding_stage === 'document_verification').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Training</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {onboardings.filter(o => o.onboarding_stage === 'training_assignment').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{completedOnboardings.length}</div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Practitioner Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Select Practitioner
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <select 
+            value={selectedPractitioner || ''}
+            onChange={(e) => setSelectedPractitioner(e.target.value || null)}
+            className="w-full px-3 py-2 border rounded-md"
+          >
+            <option value="">-- Choose practitioner --</option>
+            {practitioners.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.full_name} ({p.role})
+              </option>
+            ))}
+          </select>
+        </CardContent>
+      </Card>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Active Onboardings</h2>
-        {activeOnboardings.map(onboarding => {
-          const progress = getStageProgress(onboarding.onboarding_stage);
-          return (
-            <Card key={onboarding.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-base">{onboarding.practitioner_name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{onboarding.practitioner_email}</p>
-                  </div>
-                  <Badge>{onboarding.onboarding_stage.replace(/_/g, ' ')}</Badge>
+      {selectedPractitioner && selectedPractitionerData && (
+        <>
+          {/* Practitioner Overview */}
+          <Card className="bg-gradient-to-r from-teal-50 to-blue-50">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Name</p>
+                  <p className="text-lg font-semibold">{selectedPractitionerData.full_name}</p>
                 </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Role</p>
+                  <p className="text-lg font-semibold">{selectedPractitionerData.role}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <Badge className="mt-1">
+                    {onboarding?.status || 'not_started'}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Progress Overview */}
+          {onboarding && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Onboarding Progress</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Progress</span>
-                    <span>{progress}%</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">Checklist Completion</span>
+                    <span className="text-sm text-muted-foreground">
+                      {completedItems}/{checklistItems.length}
+                    </span>
                   </div>
-                  <Progress value={progress} />
+                  <Progress value={completionPercentage} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {completionPercentage.toFixed(0)}% complete
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2">
-                  <div className={`p-3 rounded-lg text-center ${onboarding.document_verification_status === 'verified' ? 'bg-green-50' : 'bg-gray-50'}`}>
-                    <FileCheck className={`w-5 h-5 mx-auto mb-1 ${onboarding.document_verification_status === 'verified' ? 'text-green-600' : 'text-gray-400'}`} />
-                    <p className="text-xs">Documents</p>
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  <div className="p-2 bg-blue-50 rounded">
+                    <p className="text-muted-foreground text-xs">Total Items</p>
+                    <p className="font-bold text-lg">{checklistItems.length}</p>
                   </div>
-                  <div className={`p-3 rounded-lg text-center ${onboarding.training_modules_assigned ? 'bg-green-50' : 'bg-gray-50'}`}>
-                    <CheckCircle className={`w-5 h-5 mx-auto mb-1 ${onboarding.training_modules_assigned ? 'text-green-600' : 'text-gray-400'}`} />
-                    <p className="text-xs">Training</p>
+                  <div className="p-2 bg-emerald-50 rounded">
+                    <p className="text-muted-foreground text-xs">Completed</p>
+                    <p className="font-bold text-lg text-emerald-600">{completedItems}</p>
                   </div>
-                  <div className={`p-3 rounded-lg text-center ${onboarding.system_access_created ? 'bg-green-50' : 'bg-gray-50'}`}>
-                    <Key className={`w-5 h-5 mx-auto mb-1 ${onboarding.system_access_created ? 'text-green-600' : 'text-gray-400'}`} />
-                    <p className="text-xs">Access</p>
+                  <div className="p-2 bg-amber-50 rounded">
+                    <p className="text-muted-foreground text-xs">Pending</p>
+                    <p className="font-bold text-lg text-amber-600">{checklistItems.length - completedItems}</p>
                   </div>
-                  <div className={`p-3 rounded-lg text-center ${onboarding.onboarding_stage === 'completed' ? 'bg-green-50' : 'bg-gray-50'}`}>
-                    <User className={`w-5 h-5 mx-auto mb-1 ${onboarding.onboarding_stage === 'completed' ? 'text-green-600' : 'text-gray-400'}`} />
-                    <p className="text-xs">Complete</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {onboarding.onboarding_stage === 'document_verification' && (
-                    <Button size="sm" onClick={() => verifyDocuments.mutate({ onboardingId: onboarding.id, documents: [] })}>
-                      <FileCheck className="w-4 h-4 mr-2" />
-                      Verify Documents
-                    </Button>
-                  )}
-                  {onboarding.onboarding_stage === 'training_assignment' && (
-                    <Button size="sm" onClick={() => assignTraining.mutate(onboarding.id)}>
-                      Assign Training
-                    </Button>
-                  )}
-                  {onboarding.onboarding_stage === 'system_access' && (
-                    <Button size="sm" onClick={() => createSystemAccess.mutate(onboarding)}>
-                      <Key className="w-4 h-4 mr-2" />
-                      Create Access
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+          )}
 
-      <Dialog open={showNewOnboarding} onOpenChange={setShowNewOnboarding}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Start New Practitioner Onboarding</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Full Name</label>
-              <Input
-                value={newPractitioner.practitioner_name}
-                onChange={(e) => setNewPractitioner({ ...newPractitioner, practitioner_name: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <Input
-                type="email"
-                value={newPractitioner.practitioner_email}
-                onChange={(e) => setNewPractitioner({ ...newPractitioner, practitioner_email: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Start Date</label>
-              <Input
-                type="date"
-                value={newPractitioner.start_date}
-                onChange={(e) => setNewPractitioner({ ...newPractitioner, start_date: e.target.value })}
-              />
-            </div>
-            <Button onClick={() => createOnboarding.mutate(newPractitioner)} className="w-full">
-              Create Onboarding
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button 
+              onClick={generateChecklist}
+              disabled={isGenerating || !!onboarding}
+              className="flex-1 bg-teal-600 hover:bg-teal-700"
+            >
+              {isGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {onboarding ? 'Checklist Generated' : 'Generate Onboarding Checklist'}
+            </Button>
+            <Button 
+              onClick={scheduleTraining}
+              disabled={isScheduling || !onboarding}
+              variant="outline"
+              className="flex-1"
+            >
+              {isScheduling ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Calendar className="w-4 h-4 mr-2" />}
+              Schedule Training
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {/* Tabs for Details */}
+          {onboarding && (
+            <Tabs defaultValue="checklist" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="checklist">Checklist</TabsTrigger>
+                <TabsTrigger value="training">Training</TabsTrigger>
+                <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              </TabsList>
+
+              {/* Checklist Tab */}
+              <TabsContent value="checklist" className="space-y-3">
+                {checklistItems.length === 0 ? (
+                  <Alert>
+                    <AlertDescription>No checklist items. Generate a checklist first.</AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="space-y-3">
+                    {checklistItems.reduce((groups, item) => {
+                      const section = item.section || 'Other';
+                      if (!groups[section]) groups[section] = [];
+                      groups[section].push(item);
+                      return groups;
+                    }, {}) && Object.entries(
+                      checklistItems.reduce((groups, item) => {
+                        const section = item.section || 'Other';
+                        if (!groups[section]) groups[section] = [];
+                        groups[section].push(item);
+                        return groups;
+                      }, {})
+                    ).map(([section, items]) => (
+                      <Card key={section}>
+                        <CardHeader>
+                          <CardTitle className="text-base">{section}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          {items.map((item, idx) => (
+                            <div key={idx} className="p-3 border rounded flex items-start gap-3">
+                              <div className={`mt-1 ${item.status === 'completed' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                <CheckCircle2 className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between mb-1">
+                                  <h4 className="font-medium text-sm">{item.task_name}</h4>
+                                  <Badge variant="outline" className="text-xs">
+                                    {item.priority}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-slate-600 mb-2">
+                                  {item.success_criteria}
+                                </p>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                  <span>Responsible: {item.responsible_party}</span>
+                                  <span>Est: {item.estimated_days}d</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Training Tab */}
+              <TabsContent value="training" className="space-y-3">
+                {trainingAssignments.length === 0 ? (
+                  <Alert>
+                    <AlertDescription>No training scheduled. Click "Schedule Training" to assign modules.</AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="space-y-3">
+                    {trainingAssignments.map(assignment => (
+                      <Card key={assignment.id} className="border-l-4 border-l-blue-500">
+                        <CardContent className="pt-6">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-semibold">{assignment.module_name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Scheduled: {assignment.scheduled_start_date}
+                              </p>
+                            </div>
+                            <Badge className={
+                              assignment.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
+                              assignment.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                              'bg-slate-100 text-slate-800'
+                            }>
+                              {assignment.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-600 mt-2">{assignment.notes}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Timeline Tab */}
+              <TabsContent value="timeline" className="space-y-3">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Onboarding Timeline</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        First Day Priorities
+                      </h4>
+                      <ul className="space-y-1 text-sm">
+                        {onboarding.first_day_priorities && JSON.parse(onboarding.first_day_priorities).map((item, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-slate-700">
+                            <span className="text-teal-600">→</span> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        First Week Goals
+                      </h4>
+                      <ul className="space-y-1 text-sm">
+                        {onboarding.first_week_goals && JSON.parse(onboarding.first_week_goals).map((item, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-slate-700">
+                            <span className="text-teal-600">→</span> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        First Month Milestones
+                      </h4>
+                      <ul className="space-y-1 text-sm">
+                        {onboarding.first_month_milestones && JSON.parse(onboarding.first_month_milestones).map((item, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-slate-700">
+                            <span className="text-teal-600">→</span> {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          )}
+        </>
+      )}
     </div>
   );
 }
