@@ -33,6 +33,7 @@ export default function ClientDetail() {
   const [isLoadingRisk, setIsLoadingRisk] = useState(false);
   const [comprehensiveSummary, setComprehensiveSummary] = useState(null);
   const [isLoadingComprehensive, setIsLoadingComprehensive] = useState(false);
+  const [activeAlerts, setActiveAlerts] = useState([]);
 
   const queryClient = useQueryClient();
 
@@ -149,11 +150,22 @@ export default function ClientDetail() {
         client_id: clientId,
       });
       setRiskAssessment(result.data);
+      queryClient.invalidateQueries({ queryKey: ['riskAlerts', clientId] });
     } catch (error) {
       alert('Failed to calculate risk: ' + error.message);
     } finally {
       setIsLoadingRisk(false);
     }
+  };
+
+  const handleAcknowledgeAlert = async (alertId) => {
+    const user = await base44.auth.me();
+    await base44.entities.RiskAlert.update(alertId, {
+      status: 'acknowledged',
+      acknowledged_by: user.email,
+      acknowledged_date: new Date().toISOString(),
+    });
+    queryClient.invalidateQueries({ queryKey: ['riskAlerts', clientId] });
   };
 
   const handleGenerateComprehensive = async () => {

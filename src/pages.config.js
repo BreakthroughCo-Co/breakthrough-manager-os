@@ -65,6 +65,7 @@ import ClinicalHub from './pages/ClinicalHub';
 import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
+import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import ComplianceReadiness from './pages/ComplianceReadiness';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
@@ -90,13 +91,12 @@ import ServiceAgreements from './pages/ServiceAgreements';
 import Settings from './pages/Settings';
 import SocialStories from './pages/SocialStories';
 import StaffInduction from './pages/StaffInduction';
+import StaffPerformance from './pages/StaffPerformance';
 import StaffTraining from './pages/StaffTraining';
 import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
-import StaffPerformance from './pages/StaffPerformance';
 import __Layout from './Layout.jsx';
 
 
@@ -119,6 +119,7 @@ export const PAGES = {
     "CommunicationHub": CommunicationHub,
     "Compliance": Compliance,
     "ComplianceAuditCenter": ComplianceAuditCenter,
+    "ComplianceBreachManagement": ComplianceBreachManagement,
     "ComplianceReadiness": ComplianceReadiness,
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
@@ -144,13 +145,12 @@ export const PAGES = {
     "Settings": Settings,
     "SocialStories": SocialStories,
     "StaffInduction": StaffInduction,
+    "StaffPerformance": StaffPerformance,
     "StaffTraining": StaffTraining,
     "TaskQueue": TaskQueue,
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "ComplianceBreachManagement": ComplianceBreachManagement,
-    "StaffPerformance": StaffPerformance,
 }
 
 export const pagesConfig = {
