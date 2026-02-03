@@ -8,12 +8,23 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { TrendingUp, Award, AlertTriangle, CheckCircle, Users, GraduationCap, Activity } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 export default function StaffPerformance() {
   const [selectedPractitioner, setSelectedPractitioner] = useState('all');
   const [timeframe, setTimeframe] = useState('30');
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportType, setReportType] = useState('General Performance Review');
+  const [customDateRange, setCustomDateRange] = useState({ from: '', to: '' });
+  const [useCustomRange, setUseCustomRange] = useState(false);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState({
+    frequency: 'weekly',
+    recipients: '',
+  });
 
   const { data: practitioners = [] } = useQuery({
     queryKey: ['practitioners'],
@@ -96,12 +107,45 @@ export default function StaffPerformance() {
     return Math.max(0, Math.round(score));
   }
 
+  const handleScheduleReport = async () => {
+    try {
+      const user = await base44.auth.me();
+      const recipients = scheduleForm.recipients.split(',').map(e => e.trim()).filter(e => e);
+      
+      await base44.entities.ScheduledReport.create({
+        report_name: `${reportType} - ${scheduleForm.frequency}`,
+        report_type: 'staff_performance',
+        frequency: scheduleForm.frequency,
+        recipients: JSON.stringify(recipients),
+        parameters: JSON.stringify({
+          report_type: reportType,
+          timeframe_days: parseInt(timeframe),
+          practitioner_id: selectedPractitioner !== 'all' ? selectedPractitioner : null,
+        }),
+        created_by: user.email,
+        next_run_date: new Date().toISOString(),
+      });
+      
+      setIsScheduleDialogOpen(false);
+      alert('Report scheduled successfully');
+    } catch (error) {
+      alert('Failed to schedule report: ' + error.message);
+    }
+  };
+
   const handleGenerateReport = async (format) => {
     setIsGeneratingReport(true);
     try {
+      let days = parseInt(timeframe);
+      if (useCustomRange && customDateRange.from && customDateRange.to) {
+        const from = new Date(customDateRange.from);
+        const to = new Date(customDateRange.to);
+        days = Math.floor((to - from) / (1000 * 60 * 60 * 24));
+      }
+      
       const result = await base44.functions.invoke('generatePerformanceReport', {
         report_type: reportType,
-        timeframe_days: parseInt(timeframe),
+        timeframe_days: days,
         practitioner_id: selectedPractitioner !== 'all' ? selectedPractitioner : null,
         format,
       });
@@ -171,16 +215,40 @@ export default function StaffPerformance() {
           <p className="text-muted-foreground">Comprehensive performance tracking and insights</p>
         </div>
         <div className="flex gap-2">
-          <Select value={timeframe} onValueChange={setTimeframe}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 Days</SelectItem>
-              <SelectItem value="30">Last 30 Days</SelectItem>
-              <SelectItem value="90">Last 90 Days</SelectItem>
-            </SelectContent>
-          </Select>
+          {!useCustomRange ? (
+            <Select value={timeframe} onValueChange={setTimeframe}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Last 7 Days</SelectItem>
+                <SelectItem value="30">Last 30 Days</SelectItem>
+                <SelectItem value="90">Last 90 Days</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <>
+              <Input
+                type="date"
+                value={customDateRange.from}
+                onChange={(e) => setCustomDateRange({...customDateRange, from: e.target.value})}
+                className="w-[150px]"
+              />
+              <Input
+                type="date"
+                value={customDateRange.to}
+                onChange={(e) => setCustomDateRange({...customDateRange, to: e.target.value})}
+                className="w-[150px]"
+              />
+            </>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => setUseCustomRange(!useCustomRange)}
+            size="sm"
+          >
+            {useCustomRange ? 'Use Preset' : 'Custom Range'}
+          </Button>
           <Select value={selectedPractitioner} onValueChange={setSelectedPractitioner}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="All Practitioners" />
@@ -205,6 +273,46 @@ export default function StaffPerformance() {
           >
             Generate Report
           </Button>
+          <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Schedule Report</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Schedule Automated Report</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label>Frequency</Label>
+                  <Select
+                    value={scheduleForm.frequency}
+                    onValueChange={(v) => setScheduleForm({...scheduleForm, frequency: v})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Recipients (comma-separated emails)</Label>
+                  <Textarea
+                    value={scheduleForm.recipients}
+                    onChange={(e) => setScheduleForm({...scheduleForm, recipients: e.target.value})}
+                    placeholder="manager@example.com, admin@example.com"
+                    rows={3}
+                  />
+                </div>
+                <Button onClick={handleScheduleReport} className="w-full">
+                  Schedule Report
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
