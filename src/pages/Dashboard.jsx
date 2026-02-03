@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { format, differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
+import { useTheme } from '@/components/theme/ThemeContext';
+import { cn } from '@/lib/utils';
 import {
   Users,
   UserCheck,
