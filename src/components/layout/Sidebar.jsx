@@ -87,6 +87,7 @@ const complianceItems = [
 ];
 
 const adminItems = [
+  { name: 'Command Center', icon: BarChart3, page: 'CommandCenter' },
   { name: 'NDIS Plans', icon: FileText, page: 'NDISPlans' },
   { name: 'Plan Utilisation', icon: Gauge, page: 'PlanUtilisation' },
   { name: 'Service Agreements', icon: ScrollText, page: 'ServiceAgreements' },
@@ -98,6 +99,7 @@ const adminItems = [
   { name: 'Staff Performance', icon: TrendingUp, page: 'StaffPerformance' },
   { name: 'Practitioner Onboarding', icon: UserCheck, page: 'PractitionerOnboarding', managerOnly: true },
   { name: 'Client Transitions', icon: Calendar, page: 'ClientTransitions' },
+  { name: 'Incident Analysis', icon: AlertTriangle, page: 'IncidentAnalysis' },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Comprehensive Reports', icon: BarChart3, page: 'ComprehensiveReports' },
   { name: 'Automated Reports', icon: FileText, page: 'AutomatedReports' },
