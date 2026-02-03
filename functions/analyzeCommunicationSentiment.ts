@@ -1,5 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+/**
+ * AI-Assisted Communication Sentiment Analysis
+ * Analyzes client messages to identify urgent or negative communications
+ */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,134 +13,107 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { communication_ids, client_id } = await req.json();
-
-    let communications = [];
-
-    if (communication_ids && Array.isArray(communication_ids)) {
-      // Fetch specific communications
-      for (const id of communication_ids) {
-        const comms = await base44.asServiceRole.entities.ClientCommunication.filter({ id });
-        if (comms.length > 0) communications.push(comms[0]);
-      }
-    } else if (client_id) {
-      // Fetch all communications for a client
-      communications = await base44.asServiceRole.entities.ClientCommunication.filter({ client_id });
-    } else {
-      return Response.json({ error: 'Either communication_ids or client_id is required' }, { status: 400 });
-    }
+    // Fetch recent communications for sentiment analysis
+    const communications = await base44.entities.ClientCommunication.list('-sent_date', 50);
 
     if (communications.length === 0) {
-      return Response.json({ error: 'No communications found' }, { status: 404 });
+      return Response.json({
+        communications_analyzed: 0,
+        flagged_count: 0,
+        summary: 'No recent communications to analyze'
+      });
     }
 
-    // Prepare communications for analysis
-    const commsSummary = communications.map(c => ({
-      id: c.id,
-      date: c.sent_date || c.created_date,
-      type: c.communication_type,
-      subject: c.subject,
-      message: c.message_body,
-      sender: c.sent_by,
-      recipient: c.recipient_name || c.client_name,
-      direction: c.direction || 'outbound'
-    }));
+    // Build communication context
+    const commContext = `
+RECENT CLIENT COMMUNICATIONS TO ANALYZE:
 
-    // AI sentiment and theme analysis
-    const analysisPrompt = `You are an expert communication analyst for NDIS service providers. Analyze the following client communications for sentiment, themes, and urgency:
+${communications.slice(0, 20).map(c => `
+Communication from ${c.client_name} (${c.sent_date}):
+Subject: ${c.subject}
+Message: ${c.message_body?.substring(0, 200)}
+Communication Type: ${c.communication_type}
+`).join('\n')}`;
 
-COMMUNICATIONS:
-${JSON.stringify(commsSummary, null, 2)}
+    const sentimentAnalysis = await base44.integrations.Core.InvokeLLM({
+      prompt: `${commContext}
 
-For each communication, analyze:
-1. Sentiment (positive, neutral, negative, concerned, frustrated, satisfied, anxious)
-2. Urgency level (urgent, high, normal, low)
-3. Key themes and topics
-4. Emotional tone
-5. Relationship quality indicators
-6. Action items or requests
+Analyze each communication and provide:
 
-Also provide an overall analysis of the communication pattern for this client/conversation.
+1. **Overall Sentiment** - Positive, Neutral, Negative, or Mixed
+2. **Urgency Assessment** - Routine, Standard, High-Priority, Critical/Immediate
+3. **Flagged Communications** - Any requiring immediate management attention
+4. **Tone Indicators** - Keywords/phrases indicating concerns or issues
+5. **Recommended Response** - Brief guidance on response approach
+6. **Risk Indicators** - Any signs of disengagement, dissatisfaction, or safety concerns
 
-Return your analysis as JSON with this structure:
-{
-  "individual_analyses": [
-    {
-      "communication_id": "id",
-      "sentiment": "sentiment classification",
-      "sentiment_score": number (0-100, where 0=very negative, 100=very positive),
-      "urgency": "urgent/high/normal/low",
-      "emotional_tone": "description",
-      "key_themes": ["theme1", "theme2"],
-      "action_items": ["action1", "action2"],
-      "relationship_indicators": {
-        "satisfaction_level": "high/medium/low",
-        "engagement_level": "high/medium/low",
-        "concern_areas": ["concern1", "concern2"]
-      },
-      "requires_followup": boolean,
-      "suggested_response_tone": "description"
-    }
-  ],
-  "overall_pattern": {
-    "communication_frequency": "description",
-    "sentiment_trend": "improving/stable/declining",
-    "primary_themes": ["theme1", "theme2"],
-    "relationship_health": "excellent/good/concerning/poor",
-    "engagement_quality": "description",
-    "risk_indicators": ["indicator1", "indicator2"] or [],
-    "strengths": ["strength1", "strength2"]
-  },
-  "recommendations": [
-    {
-      "priority": "high/medium/low",
-      "action": "recommended action",
-      "rationale": "why",
-      "timeline": "when"
-    }
-  ]
-}`;
-
-    const analysis = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: analysisPrompt,
+Focus on identifying communications that indicate:
+- Client dissatisfaction or frustration
+- Potential safety or risk concerns
+- Disengagement or withdrawal
+- Urgent needs or crises
+- Positive progress/engagement to celebrate`,
       response_json_schema: {
         type: "object",
         properties: {
-          individual_analyses: {
+          flagged_communications: {
             type: "array",
-            items: { type: "object" }
+            items: {
+              type: "object",
+              properties: {
+                client_name: { type: "string" },
+                date: { type: "string" },
+                subject: { type: "string" },
+                sentiment: { type: "string", enum: ["positive", "neutral", "negative", "mixed"] },
+                urgency: { type: "string", enum: ["routine", "standard", "high", "critical"] },
+                key_concerns: { type: "array", items: { type: "string" } },
+                recommended_action: { type: "string" },
+                risk_indicators: { type: "array", items: { type: "string" } }
+              }
+            }
           },
-          overall_pattern: { type: "object" },
-          recommendations: { type: "array" }
+          summary: { type: "string" },
+          critical_flags: { type: "array", items: { type: "string" } },
+          positive_engagement: { type: "array", items: { type: "string" } }
         }
       }
     });
 
-    // Update communications with sentiment data
-    for (const individualAnalysis of analysis.individual_analyses) {
-      try {
-        await base44.asServiceRole.entities.ClientCommunication.update(
-          individualAnalysis.communication_id,
-          {
-            ai_sentiment: individualAnalysis.sentiment,
-            ai_sentiment_score: individualAnalysis.sentiment_score,
-            ai_urgency: individualAnalysis.urgency,
-            ai_themes: JSON.stringify(individualAnalysis.key_themes)
-          }
-        );
-      } catch (e) {
-        console.error('Error updating communication:', e);
+    // Create alerts for critical/high-urgency communications
+    const criticalComms = sentimentAnalysis.flagged_communications.filter(
+      f => f.urgency === 'critical' || (f.sentiment === 'negative' && f.urgency === 'high')
+    );
+
+    for (const comm of criticalComms) {
+      // Find the actual communication to get client_id
+      const actualComm = communications.find(c => c.client_name === comm.client_name && c.subject === comm.subject);
+      
+      if (actualComm?.client_id) {
+        // Create task for follow-up
+        await base44.entities.Task.create({
+          title: `⚠️ Communication Alert: ${comm.client_name}`,
+          description: `${comm.recommended_action}\n\nOriginal Message: ${comm.subject}\n\nRisk Indicators: ${comm.risk_indicators.join(', ')}`,
+          category: 'Clinical',
+          priority: comm.urgency === 'critical' ? 'urgent' : 'high',
+          status: 'pending',
+          due_date: new Date().toISOString().split('T')[0],
+          related_entity_type: 'Client',
+          related_entity_id: actualComm.client_id
+        });
       }
     }
 
     return Response.json({
-      analysis,
+      analysis_date: new Date().toISOString(),
       communications_analyzed: communications.length,
-      analysis_date: new Date().toISOString()
+      flagged_count: sentimentAnalysis.flagged_communications.length,
+      critical_count: criticalComms.length,
+      sentiment_analysis: sentimentAnalysis,
+      alerts_created: criticalComms.length
     });
 
   } catch (error) {
-    console.error('Error analyzing communication sentiment:', error);
+    console.error('Sentiment analysis error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
