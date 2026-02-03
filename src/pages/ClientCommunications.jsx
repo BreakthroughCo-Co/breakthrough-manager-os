@@ -21,6 +21,11 @@ export default function ClientCommunications() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isQuerying, setIsQuerying] = useState(false);
+  const [selectedCommForAnalysis, setSelectedCommForAnalysis] = useState(null);
+  const [sentimentAnalysis, setSentimentAnalysis] = useState(null);
+  const [isAnalyzingSentiment, setIsAnalyzingSentiment] = useState(false);
+  const [responseSuggestion, setResponseSuggestion] = useState(null);
+  const [isGeneratingSuggestion, setIsGeneratingSuggestion] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -180,6 +185,34 @@ Tone: Supportive, understanding, professional.`;
     }
   };
 
+  const handleAnalyzeSentiment = async (clientId) => {
+    setIsAnalyzingSentiment(true);
+    try {
+      const result = await base44.functions.invoke('analyzeCommunicationSentiment', {
+        client_id: clientId
+      });
+      setSentimentAnalysis(result.data);
+    } catch (error) {
+      alert('Failed to analyze sentiment: ' + error.message);
+    } finally {
+      setIsAnalyzingSentiment(false);
+    }
+  };
+
+  const handleSuggestResponse = async (commId) => {
+    setIsGeneratingSuggestion(true);
+    try {
+      const result = await base44.functions.invoke('suggestCommunicationResponse', {
+        communication_id: commId
+      });
+      setResponseSuggestion(result.data);
+    } catch (error) {
+      alert('Failed to generate response suggestion: ' + error.message);
+    } finally {
+      setIsGeneratingSuggestion(false);
+    }
+  };
+
   const handleSend = async () => {
     if (!selectedClient || !subject || !messageBody) {
       alert('Please fill in all required fields');
@@ -249,6 +282,14 @@ Tone: Supportive, understanding, professional.`;
         >
           <FileText className="w-4 h-4 mr-2" />
           Communication History
+        </Button>
+        <Button
+          variant={activeView === 'analysis' ? 'default' : 'ghost'}
+          onClick={() => setActiveView('analysis')}
+          size="sm"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          AI Analysis
         </Button>
       </div>
 
@@ -486,7 +527,204 @@ Tone: Supportive, understanding, professional.`;
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : activeView === 'analysis' ? (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Communication Sentiment Analysis</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-3">
+                <Select value={selectedClient} onValueChange={setSelectedClient}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select a client to analyze..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.filter(c => c.status === 'active').map(client => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={() => handleAnalyzeSentiment(selectedClient)}
+                  disabled={!selectedClient || isAnalyzingSentiment}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {isAnalyzingSentiment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Analyze Sentiment
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {sentimentAnalysis && (
+                <div className="space-y-4">
+                  <Alert>
+                    <AlertDescription>
+                      <div className="space-y-2">
+                        <p><strong>Relationship Health:</strong> {sentimentAnalysis.analysis.overall_pattern.relationship_health}</p>
+                        <p><strong>Sentiment Trend:</strong> {sentimentAnalysis.analysis.overall_pattern.sentiment_trend}</p>
+                        <p><strong>Primary Themes:</strong> {sentimentAnalysis.analysis.overall_pattern.primary_themes?.join(', ')}</p>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+
+                  {sentimentAnalysis.analysis.individual_analyses?.map((analysis, idx) => {
+                    const comm = communications.find(c => c.id === analysis.communication_id);
+                    return (
+                      <Card key={idx} className="border-l-4" style={{
+                        borderLeftColor: 
+                          analysis.sentiment_score >= 70 ? '#22c55e' :
+                          analysis.sentiment_score >= 40 ? '#eab308' : '#ef4444'
+                      }}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <CardTitle className="text-base">{comm?.subject}</CardTitle>
+                              <p className="text-xs text-slate-600 mt-1">
+                                {comm ? new Date(comm.sent_date).toLocaleDateString() : ''}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Badge className={
+                                analysis.sentiment_score >= 70 ? 'bg-green-100 text-green-800' :
+                                analysis.sentiment_score >= 40 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }>
+                                {analysis.sentiment} ({analysis.sentiment_score})
+                              </Badge>
+                              <Badge variant={
+                                analysis.urgency === 'urgent' ? 'destructive' :
+                                analysis.urgency === 'high' ? 'default' : 'outline'
+                              }>
+                                {analysis.urgency}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div>
+                            <p className="text-sm font-medium mb-1">Emotional Tone:</p>
+                            <p className="text-sm text-slate-600">{analysis.emotional_tone}</p>
+                          </div>
+                          {analysis.key_themes?.length > 0 && (
+                            <div>
+                              <p className="text-sm font-medium mb-1">Key Themes:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {analysis.key_themes.map((theme, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs">{theme}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {analysis.requires_followup && (
+                            <Alert>
+                              <AlertDescription className="text-sm">
+                                <strong>Follow-up Required:</strong> {analysis.suggested_response_tone}
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedCommForAnalysis(comm);
+                              handleSuggestResponse(analysis.communication_id);
+                            }}
+                          >
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            Suggest Response
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+
+              {!sentimentAnalysis && !isAnalyzingSentiment && (
+                <div className="text-center py-12 text-slate-600">
+                  <Sparkles className="w-12 h-12 mx-auto text-purple-400 mb-4" />
+                  <p>Select a client to analyze communication patterns and sentiment</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Response Suggestion */}
+          {responseSuggestion && selectedCommForAnalysis && (
+            <Card className="border-indigo-200">
+              <CardHeader>
+                <CardTitle>AI Response Suggestions</CardTitle>
+                <p className="text-sm text-slate-600 mt-1">For: {selectedCommForAnalysis.subject}</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-3 bg-indigo-50 rounded-lg">
+                  <p className="text-sm font-medium text-indigo-900 mb-2">Strategy:</p>
+                  <p className="text-sm text-indigo-800">{responseSuggestion.suggestion.response_strategy.approach}</p>
+                  <p className="text-xs text-indigo-700 mt-2">
+                    <strong>Tone:</strong> {responseSuggestion.suggestion.response_strategy.recommended_tone}
+                  </p>
+                </div>
+
+                {responseSuggestion.suggestion.draft_responses?.map((draft, idx) => (
+                  <Card key={idx}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <Badge>{draft.style}</Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setSubject(draft.subject);
+                            setMessageBody(draft.body);
+                            setActiveView('draft');
+                          }}
+                        >
+                          Use This Draft
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div>
+                        <p className="text-xs font-medium text-slate-700">Subject:</p>
+                        <p className="text-sm">{draft.subject}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-slate-700">Body:</p>
+                        <p className="text-sm text-slate-600 whitespace-pre-wrap">{draft.body}</p>
+                      </div>
+                      <p className="text-xs text-slate-500 italic">{draft.rationale}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {responseSuggestion.suggestion.follow_up_actions?.length > 0 && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm font-medium text-blue-900 mb-2">Recommended Follow-up Actions:</p>
+                    <ul className="space-y-1">
+                      {responseSuggestion.suggestion.follow_up_actions.map((action, i) => (
+                        <li key={i} className="text-xs text-blue-800">
+                          • {action.action} ({action.timeline})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

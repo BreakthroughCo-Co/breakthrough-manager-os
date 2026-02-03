@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, Users, TrendingUp, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { Brain, Users, TrendingUp, AlertTriangle, CheckCircle, Loader2, Target, Award, BookOpen } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import PractitionerCoaching from '../components/training/PractitionerCoaching';
 
 export default function TeamTrainingManagement() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -283,26 +285,7 @@ export default function TeamTrainingManagement() {
 
           {/* Recommendations Tab */}
           <TabsContent value="recommendations">
-            <Card>
-              <CardHeader>
-                <CardTitle>Adaptive Learning Recommendations</CardTitle>
-                <CardDescription>
-                  AI-generated personalized training recommendations for each practitioner
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-slate-600">
-                  Select a practitioner to view personalized recommendations based on:
-                  <ul className="mt-4 space-y-2 text-sm text-left max-w-md mx-auto">
-                    <li>• Team-wide skill gaps</li>
-                    <li>• Individual training history and ratings</li>
-                    <li>• Upcoming service demands</li>
-                    <li>• Module effectiveness data</li>
-                    <li>• Career development pathways</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+            <PractitionerCoaching practitioners={practitioners} />
           </TabsContent>
         </Tabs>
       </div>
