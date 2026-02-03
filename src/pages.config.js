@@ -84,6 +84,7 @@ import WorkflowTriggers from './pages/WorkflowTriggers';
 import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import ComplianceReadiness from './pages/ComplianceReadiness';
 import HybridIntelligence from './pages/HybridIntelligence';
+import RiskMonitoring from './pages/RiskMonitoring';
 import __Layout from './Layout.jsx';
 
 
@@ -125,6 +126,7 @@ export const PAGES = {
     "ObservabilityDashboard": ObservabilityDashboard,
     "ComplianceReadiness": ComplianceReadiness,
     "HybridIntelligence": HybridIntelligence,
+    "RiskMonitoring": RiskMonitoring,
 }
 
 export const pagesConfig = {
