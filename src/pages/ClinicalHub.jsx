@@ -75,6 +75,8 @@ const clinicalTools = [
 ];
 
 export default function ClinicalHub() {
+  const [activeTab, setActiveTab] = useState('overview');
+
   const { data: clients = [] } = useQuery({
     queryKey: ['clients'],
     queryFn: () => base44.entities.Client.list(),
@@ -102,93 +104,112 @@ export default function ClinicalHub() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Brain className="w-7 h-7 text-teal-600" />
-          PBS Clinical Hub
-        </h2>
-        <p className="text-slate-500 mt-1">Behaviour Support tools and clinical documentation</p>
+        <h1 className="text-3xl font-bold">Clinical Hub</h1>
+        <p className="text-muted-foreground">Centralized clinical workflows and documentation</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
-                <Users className="w-5 h-5 text-teal-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-slate-900">{activeClients}</p>
-                <p className="text-xs text-slate-500">Active Clients</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <FileSearch className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-blue-600">{draftFBAs}</p>
-                <p className="text-xs text-slate-500">FBAs In Progress</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <ScrollText className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-emerald-600">{activeBSPs}</p>
-                <p className="text-xs text-slate-500">Active BSPs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                <Lock className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-red-600">{unauthorisedRP}</p>
-                <p className="text-xs text-slate-500">Unauthorised RP</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex gap-2 border-b border-slate-200 pb-2">
+        <Button
+          variant={activeTab === 'overview' ? 'default' : 'ghost'}
+          onClick={() => setActiveTab('overview')}
+          size="sm"
+        >
+          Overview
+        </Button>
+        <Button
+          variant={activeTab === 'summarizer' ? 'default' : 'ghost'}
+          onClick={() => setActiveTab('summarizer')}
+          size="sm"
+        >
+          Case Note Summarizer
+        </Button>
       </div>
 
-      {/* Clinical Tools Grid */}
-      <div>
-        <h3 className="font-semibold text-slate-900 mb-4">Clinical Tools</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {clinicalTools.map((tool) => (
-            <Link key={tool.page} to={createPageUrl(tool.page)}>
-              <Card className="h-full hover:shadow-lg transition-all hover:border-teal-200 cursor-pointer">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-4">
-                    <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", tool.color)}>
-                      <tool.icon className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-slate-900">{tool.name}</h4>
-                      <p className="text-sm text-slate-500 mt-1">{tool.description}</p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-slate-300" />
+      {activeTab === 'summarizer' ? (
+        <CaseNoteSummarizer />
+      ) : (
+        <div className="space-y-6">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-teal-600" />
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                  <div>
+                    <p className="text-2xl font-bold text-slate-900">{activeClients}</p>
+                    <p className="text-xs text-slate-500">Active Clients</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <FileSearch className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-blue-600">{draftFBAs}</p>
+                    <p className="text-xs text-slate-500">FBAs In Progress</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <ScrollText className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-emerald-600">{activeBSPs}</p>
+                    <p className="text-xs text-slate-500">Active BSPs</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-red-600">{unauthorisedRP}</p>
+                    <p className="text-xs text-slate-500">Unauthorised RP</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Clinical Tools Grid */}
+          <div>
+            <h3 className="font-semibold text-slate-900 mb-4">Clinical Tools</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {clinicalTools.map((tool) => (
+                <Link key={tool.page} to={createPageUrl(tool.page)}>
+                  <Card className="h-full hover:shadow-lg transition-all hover:border-teal-200 cursor-pointer">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-4">
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", tool.color)}>
+                          <tool.icon className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-slate-900">{tool.name}</h4>
+                          <p className="text-sm text-slate-500 mt-1">{tool.description}</p>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-slate-300" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
