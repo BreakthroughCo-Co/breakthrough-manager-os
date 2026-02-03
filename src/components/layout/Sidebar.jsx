@@ -115,6 +115,7 @@ export default function Sidebar({ currentPage }) {
   const [complianceOpen, setComplianceOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [userRole, setUserRole] = useState('user');
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const loadUser = async () => {
