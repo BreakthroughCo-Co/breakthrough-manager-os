@@ -65,6 +65,16 @@ export default function ClientTransitionManager() {
         status: 'planned'
       });
 
+      // Risk reassessment & task generation
+      await base44.functions.invoke('reassessClientRiskOnTransition', {
+        client_id: data.client_id,
+        transition_id: transition.id
+      });
+      await base44.functions.invoke('generateTransitionTasks', {
+        transition_id: transition.id,
+        new_practitioner_id: data.to_practitioner_id
+      });
+
       return transition;
     },
     onSuccess: () => {
