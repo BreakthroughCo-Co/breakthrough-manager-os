@@ -86,6 +86,8 @@ import ComplianceReadiness from './pages/ComplianceReadiness';
 import HybridIntelligence from './pages/HybridIntelligence';
 import RiskMonitoring from './pages/RiskMonitoring';
 import TaskQueue from './pages/TaskQueue';
+import ClientPortal from './pages/ClientPortal';
+import CommunicationHub from './pages/CommunicationHub';
 import __Layout from './Layout.jsx';
 
 
@@ -129,6 +131,8 @@ export const PAGES = {
     "HybridIntelligence": HybridIntelligence,
     "RiskMonitoring": RiskMonitoring,
     "TaskQueue": TaskQueue,
+    "ClientPortal": ClientPortal,
+    "CommunicationHub": CommunicationHub,
 }
 
 export const pagesConfig = {
