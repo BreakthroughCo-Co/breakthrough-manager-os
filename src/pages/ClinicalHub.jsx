@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import CaseNoteSummarizer from '@/components/clinical/CaseNoteSummarizer';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import {
@@ -188,7 +190,8 @@ export default function ClinicalHub() {
             </Link>
           ))}
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
