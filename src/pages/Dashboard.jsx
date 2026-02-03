@@ -149,13 +149,21 @@ export default function Dashboard() {
   // Pending tasks count
   const pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in_progress').length;
 
+  const { isDark } = useTheme();
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Good {getGreeting()}</h2>
-          <p className="text-slate-500 mt-1">Here's your operational overview for {format(new Date(), 'EEEE, MMMM d')}</p>
+          <h2 className={cn(
+            "text-2xl font-bold transition-colors duration-300",
+            isDark ? "text-slate-50" : "text-slate-900"
+          )}>Good {getGreeting()}</h2>
+          <p className={cn(
+            "mt-1 transition-colors duration-300",
+            isDark ? "text-slate-400" : "text-slate-500"
+          )}>Here's your operational overview for {format(new Date(), 'EEEE, MMMM d')}</p>
         </div>
       </div>
 
