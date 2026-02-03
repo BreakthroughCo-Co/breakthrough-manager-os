@@ -131,6 +131,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import MentorshipProgram from './pages/MentorshipProgram';
+import CommandCenter from './pages/CommandCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -219,6 +220,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "MentorshipProgram": MentorshipProgram,
+    "CommandCenter": CommandCenter,
 }
 
 export const pagesConfig = {
