@@ -111,6 +111,9 @@ import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
 import NDISComplianceDashboard from './pages/NDISComplianceDashboard';
 import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
 import ClientProgressReports from './pages/ClientProgressReports';
+import FinancialOperations from './pages/FinancialOperations';
+import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
+import PractitionerDevelopment from './pages/PractitionerDevelopment';
 import __Layout from './Layout.jsx';
 
 
@@ -179,6 +182,9 @@ export const PAGES = {
     "NDISComplianceDashboard": NDISComplianceDashboard,
     "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
     "ClientProgressReports": ClientProgressReports,
+    "FinancialOperations": FinancialOperations,
+    "ClientOutcomePrediction": ClientOutcomePrediction,
+    "PractitionerDevelopment": PractitionerDevelopment,
 }
 
 export const pagesConfig = {
