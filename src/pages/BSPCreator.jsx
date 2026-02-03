@@ -11,8 +11,10 @@ import {
   Sparkles,
   Loader2,
   User,
-  Download
+  Download,
+  Target
 } from 'lucide-react';
+import SmartGoalSuggester from '@/components/clinical/SmartGoalSuggester';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -256,11 +258,21 @@ Output as JSON with keys: behaviour_summary, functional_analysis, environmental_
                 {bsp.review_date && <p>Review: {format(new Date(bsp.review_date), 'MMM d, yyyy')}</p>}
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button variant="outline" size="sm" onClick={() => handleOpenDialog(bsp)}>
                   <Edit className="w-3 h-3 mr-1" />
                   Edit
                 </Button>
+                <SmartGoalSuggester
+                  clientId={bsp.client_id}
+                  clientName={bsp.client_name}
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <Target className="w-3 h-3 mr-1" />
+                      Goals
+                    </Button>
+                  }
+                />
                 <Button variant="outline" size="sm" onClick={() => deleteMutation.mutate(bsp.id)} className="text-red-600">
                   <Trash2 className="w-3 h-3 mr-1" />
                   Delete

@@ -77,6 +77,7 @@ export default function CaseNotes() {
   const [formData, setFormData] = useState(emptyNote);
   const [isRefining, setIsRefining] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -186,6 +187,18 @@ Output a single cohesive professional case note.`
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSummarize = async (noteId) => {
+    setIsSummarizing(noteId);
+    try {
+      await base44.functions.invoke('summarizeCaseNote', { case_note_id: noteId });
+      queryClient.invalidateQueries({ queryKey: ['caseNotes'] });
+    } catch (error) {
+      alert('Failed to summarize: ' + error.message);
+    } finally {
+      setIsSummarizing(null);
+    }
+  };
+
   const handleSubmit = () => {
     if (editingNote) updateMutation.mutate({ id: editingNote.id, data: formData });
     else createMutation.mutate(formData);
@@ -237,6 +250,21 @@ Output a single cohesive professional case note.`
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(note)}><Edit className="w-4 h-4" /></Button>
+                      {!note.ai_summary && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleSummarize(note.id)}
+                          disabled={isSummarizing === note.id}
+                          title="Generate AI Summary"
+                        >
+                          {isSummarizing === note.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-4 h-4" />
+                          )}
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(note.id)} className="text-red-500"><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </TableCell>

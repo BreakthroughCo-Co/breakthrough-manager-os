@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@antml:tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, FileUp } from 'lucide-react';
+import { AlertCircle, FileUp, Sparkles, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function IncidentReportDialog({ clientId, clientName, trigger }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,8 @@ export default function IncidentReportDialog({ clientId, clientName, trigger }) 
     injuries_sustained: false,
     restrictive_practice_used: false,
   });
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -46,6 +49,34 @@ export default function IncidentReportDialog({ clientId, clientName, trigger }) 
       injuries_sustained: false,
       restrictive_practice_used: false,
     });
+  };
+
+  const handleAnalyze = async () => {
+    if (!form.description) return;
+
+    setIsAnalyzing(true);
+    try {
+      const result = await base44.functions.invoke('suggestIncidentClassification', {
+        description: form.description,
+        additional_context: form.location ? `Location: ${form.location}` : null,
+      });
+
+      setAiSuggestion(result.data);
+    } catch (error) {
+      alert('Failed to analyze incident: ' + error.message);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const applyAiSuggestion = () => {
+    if (aiSuggestion) {
+      setForm({
+        ...form,
+        category: aiSuggestion.suggested_category,
+        severity: aiSuggestion.suggested_severity,
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -133,11 +164,55 @@ export default function IncidentReportDialog({ clientId, clientName, trigger }) 
             <Label>Description *</Label>
             <Textarea
               value={form.description}
-              onChange={(e) => setForm({...form, description: e.target.value})}
+              onChange={(e) => {
+                setForm({...form, description: e.target.value});
+                setAiSuggestion(null);
+              }}
               placeholder="Provide a detailed description of what occurred..."
               rows={4}
             />
+            <Button
+              onClick={handleAnalyze}
+              disabled={!form.description || isAnalyzing}
+              variant="outline"
+              size="sm"
+              className="mt-2"
+            >
+              {isAnalyzing ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              AI Analyze & Suggest
+            </Button>
           </div>
+
+          {aiSuggestion && (
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-blue-900">AI Suggestions</h4>
+                <Button size="sm" onClick={applyAiSuggestion}>Apply Suggestions</Button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-blue-700 font-medium">Category:</p>
+                  <Badge variant="outline">{aiSuggestion.suggested_category}</Badge>
+                  <p className="text-xs text-blue-600 mt-1">{aiSuggestion.category_justification}</p>
+                </div>
+                <div>
+                  <p className="text-blue-700 font-medium">Severity:</p>
+                  <Badge variant="outline">{aiSuggestion.suggested_severity}</Badge>
+                  <p className="text-xs text-blue-600 mt-1">{aiSuggestion.severity_justification}</p>
+                </div>
+              </div>
+              {aiSuggestion.ndis_reportable && (
+                <Alert>
+                  <AlertCircle className="w-4 h-4" />
+                  <AlertDescription>AI suggests this incident is NDIS reportable</AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
 
           <div>
             <Label>Location</Label>
