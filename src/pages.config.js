@@ -126,6 +126,9 @@ import ClientRiskManagement from './pages/ClientRiskManagement';
 import PractitionerPerformance from './pages/PractitionerPerformance';
 import IncidentDetection from './pages/IncidentDetection';
 import ClientGoalReview from './pages/ClientGoalReview';
+import ClientTransitions from './pages/ClientTransitions';
+import ReportDistribution from './pages/ReportDistribution';
+import TeamDevelopment from './pages/TeamDevelopment';
 import __Layout from './Layout.jsx';
 
 
@@ -209,6 +212,9 @@ export const PAGES = {
     "PractitionerPerformance": PractitionerPerformance,
     "IncidentDetection": IncidentDetection,
     "ClientGoalReview": ClientGoalReview,
+    "ClientTransitions": ClientTransitions,
+    "ReportDistribution": ReportDistribution,
+    "TeamDevelopment": TeamDevelopment,
 }
 
 export const pagesConfig = {
