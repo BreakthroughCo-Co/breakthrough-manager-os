@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import IncidentReportDialog from '@/components/incidents/IncidentReportDialog';
-import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity } from 'lucide-react';
+import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search } from 'lucide-react';
 
 export default function ClientDetail() {
   const [searchParams] = useSearchParams();
@@ -24,6 +24,11 @@ export default function ClientDetail() {
     phone: '',
     email: '',
   });
+  const [summaries, setSummaries] = useState({});
+  const [loadingSummary, setLoadingSummary] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [filterSeverity, setFilterSeverity] = useState('all');
 
   const queryClient = useQueryClient();
 
@@ -91,7 +96,22 @@ export default function ClientDetail() {
   const activeBsp = bsps.find(b => b.status === 'active');
   const recentComms = communications.slice(0, 5);
   const recentNotes = caseNotes.slice(0, 5);
-  const recentIncidents = incidents.slice(0, 5);
+  
+  // Apply filters to incidents
+  let filteredIncidents = incidents;
+  if (searchTerm) {
+    filteredIncidents = filteredIncidents.filter(i => 
+      i.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      i.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+  if (filterCategory !== 'all') {
+    filteredIncidents = filteredIncidents.filter(i => i.category === filterCategory);
+  }
+  if (filterSeverity !== 'all') {
+    filteredIncidents = filteredIncidents.filter(i => i.severity === filterSeverity);
+  }
+  const recentIncidents = filteredIncidents.slice(0, 10);
 
   // Find compliance issues related to this client
   const clientComplianceIssues = auditReports.flatMap(report => {
@@ -102,6 +122,21 @@ export default function ClientDetail() {
       return [];
     }
   });
+
+  const generateSummary = async (section) => {
+    setLoadingSummary(section);
+    try {
+      const result = await base44.functions.invoke('generateClientHistorySummary', {
+        client_id: clientId,
+        section: section,
+      });
+      setSummaries({ ...summaries, [section]: result.data.summary });
+    } catch (error) {
+      alert('Failed to generate summary: ' + error.message);
+    } finally {
+      setLoadingSummary(null);
+    }
+  };
 
   if (!client) {
     return (
@@ -255,9 +290,30 @@ export default function ClientDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Recent Activity</CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateSummary('case_notes')}
+                  disabled={loadingSummary === 'case_notes'}
+                >
+                  {loadingSummary === 'case_notes' ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  AI Summary
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
+              {summaries.case_notes && (
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-xs font-medium text-blue-900 mb-1">AI-Generated Summary:</p>
+                  <p className="text-sm text-blue-800">{summaries.case_notes}</p>
+                </div>
+              )}
               <div className="space-y-3">
                 {recentNotes.map(note => (
                   <div key={note.id} className="border-l-2 border-teal-200 pl-3 py-1">
@@ -421,7 +477,88 @@ export default function ClientDetail() {
           </div>
         </TabsContent>
 
-        <TabsContent value="incidents">
+        <TabsContent value="incidents" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Incident Analysis</CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateSummary('incidents')}
+                  disabled={loadingSummary === 'incidents'}
+                >
+                  {loadingSummary === 'incidents' ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  AI Risk Assessment
+                </Button>
+              </div>
+            </CardHeader>
+            {summaries.incidents && (
+              <CardContent>
+                <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                  <p className="text-xs font-medium text-orange-900 mb-1">AI Risk Assessment:</p>
+                  <p className="text-sm text-orange-800">{summaries.incidents}</p>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Filter & Search</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Search</Label>
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search incidents..."
+                      className="pl-8"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs">Category</Label>
+                  <Select value={filterCategory} onValueChange={setFilterCategory}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="client_behaviour">Client Behaviour</SelectItem>
+                      <SelectItem value="safety_concern">Safety Concern</SelectItem>
+                      <SelectItem value="policy_breach">Policy Breach</SelectItem>
+                      <SelectItem value="injury">Injury</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Severity</Label>
+                  <Select value={filterSeverity} onValueChange={setFilterSeverity}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Severities</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="space-y-3">
             {recentIncidents.map(incident => (
               <Card key={incident.id} className={
@@ -464,9 +601,30 @@ export default function ClientDetail() {
         <TabsContent value="compliance">
           <Card>
             <CardHeader>
-              <CardTitle>Compliance Audit Findings</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Compliance Audit Findings</CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateSummary('compliance')}
+                  disabled={loadingSummary === 'compliance'}
+                >
+                  {loadingSummary === 'compliance' ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  AI Analysis
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
+              {summaries.compliance && (
+                <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <p className="text-xs font-medium text-purple-900 mb-1">AI Compliance Analysis:</p>
+                  <p className="text-sm text-purple-800">{summaries.compliance}</p>
+                </div>
+              )}
               {clientComplianceIssues.length > 0 ? (
                 <div className="space-y-3">
                   {clientComplianceIssues.map((issue, idx) => (

@@ -56,12 +56,15 @@ import Billing from './pages/Billing';
 import CapabilityAssessment from './pages/CapabilityAssessment';
 import CaseNotes from './pages/CaseNotes';
 import ClientCommunications from './pages/ClientCommunications';
+import ClientDetail from './pages/ClientDetail';
 import ClientFeedback from './pages/ClientFeedback';
+import ClientIntake from './pages/ClientIntake';
 import ClientPortal from './pages/ClientPortal';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
 import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
+import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
 import ComplianceReadiness from './pages/ComplianceReadiness';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
@@ -87,14 +90,12 @@ import ServiceAgreements from './pages/ServiceAgreements';
 import Settings from './pages/Settings';
 import SocialStories from './pages/SocialStories';
 import StaffInduction from './pages/StaffInduction';
+import StaffTraining from './pages/StaffTraining';
 import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import ClientIntake from './pages/ClientIntake';
-import StaffTraining from './pages/StaffTraining';
-import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
-import ClientDetail from './pages/ClientDetail';
+import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -108,12 +109,15 @@ export const PAGES = {
     "CapabilityAssessment": CapabilityAssessment,
     "CaseNotes": CaseNotes,
     "ClientCommunications": ClientCommunications,
+    "ClientDetail": ClientDetail,
     "ClientFeedback": ClientFeedback,
+    "ClientIntake": ClientIntake,
     "ClientPortal": ClientPortal,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
     "CommunicationHub": CommunicationHub,
     "Compliance": Compliance,
+    "ComplianceAuditCenter": ComplianceAuditCenter,
     "ComplianceReadiness": ComplianceReadiness,
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
@@ -139,14 +143,12 @@ export const PAGES = {
     "Settings": Settings,
     "SocialStories": SocialStories,
     "StaffInduction": StaffInduction,
+    "StaffTraining": StaffTraining,
     "TaskQueue": TaskQueue,
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "ClientIntake": ClientIntake,
-    "StaffTraining": StaffTraining,
-    "ComplianceAuditCenter": ComplianceAuditCenter,
-    "ClientDetail": ClientDetail,
+    "ComplianceBreachManagement": ComplianceBreachManagement,
 }
 
 export const pagesConfig = {
