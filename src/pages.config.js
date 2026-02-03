@@ -93,6 +93,8 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import ClientIntake from './pages/ClientIntake';
 import StaffTraining from './pages/StaffTraining';
+import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
+import ClientDetail from './pages/ClientDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -143,6 +145,8 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "ClientIntake": ClientIntake,
     "StaffTraining": StaffTraining,
+    "ComplianceAuditCenter": ComplianceAuditCenter,
+    "ClientDetail": ClientDetail,
 }
 
 export const pagesConfig = {
