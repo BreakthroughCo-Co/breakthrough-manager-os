@@ -82,6 +82,7 @@ import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import ObservabilityDashboard from './pages/ObservabilityDashboard';
+import ComplianceReadiness from './pages/ComplianceReadiness';
 import __Layout from './Layout.jsx';
 
 
@@ -121,6 +122,7 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "ObservabilityDashboard": ObservabilityDashboard,
+    "ComplianceReadiness": ComplianceReadiness,
 }
 
 export const pagesConfig = {
