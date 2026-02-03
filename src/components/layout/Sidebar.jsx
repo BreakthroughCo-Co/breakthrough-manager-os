@@ -80,6 +80,7 @@ const adminItems = [
   { name: 'Plan Utilisation', icon: Gauge, page: 'PlanUtilisation' },
   { name: 'Service Agreements', icon: ScrollText, page: 'ServiceAgreements' },
   { name: 'Staff Induction', icon: UserCog, page: 'StaffInduction', managerOnly: true },
+  { name: 'Practitioner Onboarding', icon: UserCheck, page: 'PractitionerOnboarding', managerOnly: true },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Reports', icon: BarChart3, page: 'Reports' },
   { name: 'Practitioner Analytics', icon: TrendingUp, page: 'PractitionerAnalytics' },

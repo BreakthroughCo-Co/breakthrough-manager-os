@@ -426,6 +426,7 @@ function ClientAIAssistant({ client }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -436,17 +437,76 @@ function ClientAIAssistant({ client }) {
     setLoading(true);
 
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a helpful NDIS support assistant. Answer questions about NDIS services, plans, and support options.
-        
+      // Check if it's an appointment-related request
+      const isAppointmentRequest = /appointment|schedule|book|meet|session|see|practitioner|next week|available/i.test(input);
+      
+      if (isAppointmentRequest) {
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `You are an appointment scheduling assistant for NDIS clients.
+
+Client request: "${input}"
+
+Client context:
+- Client ID: ${client?.id}
+- Practitioner: ${client?.assigned_practitioner_name || 'assigned practitioner'}
+- Service Type: ${client?.service_type}
+
+Extract the following information:
+1. Preferred timeframe (e.g., next week, this Friday, ASAP)
+2. Session type (assessment, support, review, or general)
+3. Any specific concerns mentioned
+4. Preferred time of day if mentioned
+
+Return JSON with:
+{
+  "timeframe": "specific timeframe mentioned or 'flexible'",
+  "session_type": "Direct Support" | "Assessment" | "Review" | "Consultation",
+  "concerns": "brief description of any concerns mentioned",
+  "time_preference": "morning/afternoon/evening or 'any'",
+  "suggested_response": "friendly response acknowledging request and proposing next steps"
+}`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              timeframe: { type: "string" },
+              session_type: { type: "string" },
+              concerns: { type: "string" },
+              time_preference: { type: "string" },
+              suggested_response: { type: "string" }
+            }
+          }
+        });
+
+        // Create appointment request
+        await base44.entities.Appointment.create({
+          client_id: client.id,
+          client_name: client.full_name,
+          practitioner_id: client.assigned_practitioner_id,
+          practitioner_name: client.assigned_practitioner_name,
+          appointment_date: '', // To be confirmed by practitioner
+          session_type: response.session_type,
+          status: 'requested',
+          notes: `AI Assistant: ${response.concerns}\nPreferred: ${response.timeframe}, ${response.time_preference}`
+        });
+
+        queryClient.invalidateQueries(['appointments']);
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: response.suggested_response + "\n\nI've sent your appointment request to your practitioner. They'll review your availability and confirm a time soon. You can track the request in the Appointments section above." 
+        }]);
+      } else {
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: `You are a helpful NDIS support assistant. Answer questions about NDIS services, plans, and support options.
+          
 Client context: ${JSON.stringify({ service_type: client?.service_type })}
 
 Question: ${input}
 
 Provide a clear, supportive answer. Focus on NDIS rules, available services, and how they can access support.`,
-      });
+        });
 
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      }
     } catch (error) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
     } finally {

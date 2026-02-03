@@ -90,6 +90,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import AgentManagement from './pages/AgentManagement';
 import PractitionerAnalytics from './pages/PractitionerAnalytics';
+import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -137,6 +138,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "AgentManagement": AgentManagement,
     "PractitionerAnalytics": PractitionerAnalytics,
+    "PractitionerOnboarding": PractitionerOnboarding,
 }
 
 export const pagesConfig = {

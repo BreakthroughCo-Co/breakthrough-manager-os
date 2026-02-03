@@ -22,7 +22,8 @@ import {
   PieChart,
   TrendingUp,
   LayoutDashboard,
-  LineChart as LineChartIcon
+  LineChart as LineChartIcon,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,7 +55,8 @@ import {
 } from '@/components/ui/dialog';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart as RechartsPie, Pie, Cell, Legend, LineChart, Line
+  PieChart as RechartsPie, Pie, Cell, Legend, LineChart, Line,
+  ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import { cn } from '@/lib/utils';
 
@@ -206,6 +208,13 @@ export default function Reports() {
   const [reportName, setReportName] = useState('');
   const [chartType, setChartType] = useState('pie');
   const [chartField, setChartField] = useState('');
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [scheduleConfig, setScheduleConfig] = useState({
+    report_name: '',
+    frequency: 'monthly',
+    recipients: '',
+    format: 'pdf'
+  });
 
   const queryClient = useQueryClient();
 
@@ -593,6 +602,7 @@ export default function Reports() {
                                 <SelectItem value="pie"><div className="flex items-center gap-2"><PieChart className="w-4 h-4" />Pie Chart</div></SelectItem>
                                 <SelectItem value="bar"><div className="flex items-center gap-2"><BarChart3 className="w-4 h-4" />Bar Chart</div></SelectItem>
                                 <SelectItem value="line"><div className="flex items-center gap-2"><LineChartIcon className="w-4 h-4" />Line Chart (Time Series)</div></SelectItem>
+                                <SelectItem value="scatter">Scatter Plot</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -614,7 +624,10 @@ export default function Reports() {
                   </Tabs>
 
                   <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setSaveDialogOpen(true)} disabled={selectedFields.length === 0}><Save className="w-4 h-4 mr-2" />Save Configuration</Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={() => setSaveDialogOpen(true)} disabled={selectedFields.length === 0}><Save className="w-4 h-4 mr-2" />Save</Button>
+                      <Button variant="outline" onClick={() => setShowScheduleDialog(true)} disabled={selectedFields.length === 0}>Schedule Report</Button>
+                    </div>
                     <Button onClick={generateReport} disabled={selectedFields.length === 0} className="bg-teal-600 hover:bg-teal-700">{isGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <BarChart3 className="w-4 h-4 mr-2" />}Generate Report</Button>
                   </div>
 
@@ -698,6 +711,53 @@ export default function Reports() {
         <DialogContent><DialogHeader><DialogTitle>Save Report Configuration</DialogTitle></DialogHeader>
           <div className="py-4"><Label>Report Name</Label><Input value={reportName} onChange={(e) => setReportName(e.target.value)} placeholder="e.g., Monthly Client Status" className="mt-2" /></div>
           <DialogFooter><Button variant="outline" onClick={() => setSaveDialogOpen(false)}>Cancel</Button><Button onClick={handleSaveReport} disabled={!reportName} className="bg-teal-600 hover:bg-teal-700">Save Report</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Schedule Report Dialog */}
+      <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Schedule Recurring Report</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label>Report Name</Label>
+              <Input value={scheduleConfig.report_name} onChange={(e) => setScheduleConfig({...scheduleConfig, report_name: e.target.value})} placeholder="e.g., Weekly Client Report" />
+            </div>
+            <div>
+              <Label>Frequency</Label>
+              <Select value={scheduleConfig.frequency} onValueChange={(v) => setScheduleConfig({...scheduleConfig, frequency: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Recipients (comma separated emails)</Label>
+              <Input value={scheduleConfig.recipients} onChange={(e) => setScheduleConfig({...scheduleConfig, recipients: e.target.value})} placeholder="email1@example.com, email2@example.com" />
+            </div>
+            <div>
+              <Label>Format</Label>
+              <Select value={scheduleConfig.format} onValueChange={(v) => setScheduleConfig({...scheduleConfig, format: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="csv">CSV</SelectItem>
+                  <SelectItem value="both">Both</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>Cancel</Button>
+            <Button onClick={() => {
+              /* TODO: Create scheduled report */
+              setShowScheduleDialog(false);
+            }} className="bg-teal-600">Schedule Report</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
