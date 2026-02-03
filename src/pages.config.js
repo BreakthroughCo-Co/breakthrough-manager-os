@@ -49,6 +49,7 @@
  */
 import ABCAnalyser from './pages/ABCAnalyser';
 import AIAssistant from './pages/AIAssistant';
+import AgentManagement from './pages/AgentManagement';
 import BIPQualityAudit from './pages/BIPQualityAudit';
 import BSPCreator from './pages/BSPCreator';
 import Billing from './pages/Billing';
@@ -72,7 +73,9 @@ import NDISCalculator from './pages/NDISCalculator';
 import NDISPlans from './pages/NDISPlans';
 import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import PlanUtilisation from './pages/PlanUtilisation';
+import PractitionerAnalytics from './pages/PractitionerAnalytics';
 import PractitionerDetail from './pages/PractitionerDetail';
+import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import Practitioners from './pages/Practitioners';
 import Programs from './pages/Programs';
 import Reports from './pages/Reports';
@@ -88,15 +91,14 @@ import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import AgentManagement from './pages/AgentManagement';
-import PractitionerAnalytics from './pages/PractitionerAnalytics';
-import PractitionerOnboarding from './pages/PractitionerOnboarding';
+import ClientIntake from './pages/ClientIntake';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ABCAnalyser": ABCAnalyser,
     "AIAssistant": AIAssistant,
+    "AgentManagement": AgentManagement,
     "BIPQualityAudit": BIPQualityAudit,
     "BSPCreator": BSPCreator,
     "Billing": Billing,
@@ -120,7 +122,9 @@ export const PAGES = {
     "NDISPlans": NDISPlans,
     "ObservabilityDashboard": ObservabilityDashboard,
     "PlanUtilisation": PlanUtilisation,
+    "PractitionerAnalytics": PractitionerAnalytics,
     "PractitionerDetail": PractitionerDetail,
+    "PractitionerOnboarding": PractitionerOnboarding,
     "Practitioners": Practitioners,
     "Programs": Programs,
     "Reports": Reports,
@@ -136,9 +140,7 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "AgentManagement": AgentManagement,
-    "PractitionerAnalytics": PractitionerAnalytics,
-    "PractitionerOnboarding": PractitionerOnboarding,
+    "ClientIntake": ClientIntake,
 }
 
 export const pagesConfig = {
