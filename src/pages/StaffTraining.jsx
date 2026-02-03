@@ -55,6 +55,11 @@ export default function StaffTraining() {
     queryFn: () => base44.entities.TrainingAssignment.list('-assigned_date'),
   });
 
+  const { data: trainingRequests = [] } = useQuery({
+    queryKey: ['trainingRequests'],
+    queryFn: () => base44.entities.TrainingRequest.list('-requested_date'),
+  });
+
   const createAssignmentMutation = useMutation({
     mutationFn: (data) => base44.entities.TrainingAssignment.create(data),
     onSuccess: () => {
@@ -511,65 +516,270 @@ export default function StaffTraining() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Training Assignments</CardTitle>
-            <Select value={selectedPractitioner} onValueChange={setSelectedPractitioner}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Practitioners</SelectItem>
-                {practitioners.map(p => (
-                  <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {filteredAssignments.map(assignment => {
-              const isOverdue = new Date(assignment.due_date) < new Date() && assignment.completion_status !== 'completed';
-              return (
-                <div key={assignment.id} className="border rounded-lg p-4 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{assignment.module_name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Assigned to: {assignment.practitioner_name} • Due: {new Date(assignment.due_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={
-                        assignment.completion_status === 'completed' ? 'default' :
-                        isOverdue ? 'destructive' : 'outline'
-                      }>
-                        {assignment.completion_status}
-                      </Badge>
-                      {assignment.completion_status !== 'completed' && (
-                        <Button size="sm" variant="outline" onClick={() => handleMarkCompleted(assignment)}>
-                          Mark Complete
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+          <TabsTrigger value="skill-gaps">AI Skill Analysis</TabsTrigger>
+          <TabsTrigger value="requests">Training Requests</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Practitioner Training Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {practitionerStats.map(p => (
+                  <div key={p.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="font-semibold">{p.full_name}</h4>
+                        <p className="text-sm text-muted-foreground">{p.role}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <p className="text-sm font-medium">{p.completed} / {p.total_assignments}</p>
+                          {p.overdue > 0 && (
+                            <Badge variant="destructive" className="text-xs">
+                              {p.overdue} overdue
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAnalyzeSkillGaps(p.id)}
+                          disabled={isAnalyzingSkills}
+                        >
+                          <Brain className="w-4 h-4" />
                         </Button>
-                      )}
+                      </div>
                     </div>
+                    <Progress value={p.completion_rate} className="h-2" />
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Reason: {assignment.assignment_reason.replace(/_/g, ' ')}</span>
-                    {assignment.completed_date && (
-                      <span>Completed: {new Date(assignment.completed_date).toLocaleDateString()}</span>
-                    )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="assignments" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Training Assignments</CardTitle>
+                <Select value={selectedPractitioner} onValueChange={setSelectedPractitioner}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Practitioners</SelectItem>
+                    {practitioners.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {filteredAssignments.map(assignment => {
+                  const isOverdue = new Date(assignment.due_date) < new Date() && assignment.completion_status !== 'completed';
+                  return (
+                    <div key={assignment.id} className="border rounded-lg p-4 space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{assignment.module_name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Assigned to: {assignment.practitioner_name} • Due: {new Date(assignment.due_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={
+                            assignment.completion_status === 'completed' ? 'default' :
+                            isOverdue ? 'destructive' : 'outline'
+                          }>
+                            {assignment.completion_status}
+                          </Badge>
+                          {assignment.completion_status !== 'completed' && (
+                            <Button size="sm" variant="outline" onClick={() => handleMarkCompleted(assignment)}>
+                              Mark Complete
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span>Reason: {assignment.assignment_reason.replace(/_/g, ' ')}</span>
+                        {assignment.completed_date && (
+                          <span>Completed: {new Date(assignment.completed_date).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {filteredAssignments.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">No training assignments found</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="skill-gaps" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI-Powered Skill Gap Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label>Select Practitioner</Label>
+                  <div className="flex gap-2">
+                    <Select value={selectedPractitioner} onValueChange={setSelectedPractitioner}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose practitioner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {practitioners.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.full_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      onClick={() => selectedPractitioner && selectedPractitioner !== 'all' && handleAnalyzeSkillGaps(selectedPractitioner)}
+                      disabled={!selectedPractitioner || selectedPractitioner === 'all' || isAnalyzingSkills}
+                    >
+                      {isAnalyzingSkills ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Brain className="w-4 h-4 mr-2" />
+                      )}
+                      Analyze
+                    </Button>
                   </div>
                 </div>
-              );
-            })}
-            {filteredAssignments.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">No training assignments found</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+
+                {skillGapResults && (
+                  <div className="space-y-4 mt-6">
+                    <Card className="border-blue-200 bg-blue-50">
+                      <CardContent className="pt-6">
+                        <h4 className="font-semibold text-blue-900 mb-2">Overall Assessment</h4>
+                        <p className="text-sm text-blue-800">{skillGapResults.analysis.overall_assessment}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Identified Skill Gaps</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {skillGapResults.analysis.identified_gaps.map((gap, idx) => (
+                            <div key={idx} className="border-l-4 border-l-orange-500 pl-3 py-2">
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="font-medium text-sm">{gap.gap_area}</p>
+                                <Badge variant={gap.severity === 'high' ? 'destructive' : 'secondary'}>
+                                  {gap.severity}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground">{gap.evidence}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Recommended Training</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {skillGapResults.analysis.recommended_modules.map((rec, idx) => (
+                            <div key={idx} className="flex items-start justify-between p-3 border rounded">
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">{rec.module_name}</p>
+                                <p className="text-xs text-muted-foreground mt-1">{rec.justification}</p>
+                              </div>
+                              <Badge variant={rec.priority === 'urgent' ? 'destructive' : 'outline'}>
+                                {rec.priority}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Development Priorities</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-2">
+                          {skillGapResults.analysis.development_priorities.map((priority, idx) => (
+                            <li key={idx} className="text-sm flex items-start gap-2">
+                              <span className="text-teal-600 font-bold">{idx + 1}.</span>
+                              {priority}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-4 p-3 bg-slate-50 rounded">
+                          <p className="text-xs text-slate-600">
+                            <strong>Timeline:</strong> {skillGapResults.analysis.suggested_timeline}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Training Requests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {trainingRequests.map(request => (
+                  <div key={request.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-medium">{request.requested_module_name}</h4>
+                          <Badge variant={
+                            request.request_status === 'approved' ? 'default' :
+                            request.request_status === 'rejected' ? 'destructive' :
+                            request.request_status === 'assigned' ? 'secondary' : 'outline'
+                          }>
+                            {request.request_status}
+                          </Badge>
+                          <Badge variant={request.priority === 'urgent' ? 'destructive' : 'outline'}>
+                            {request.priority}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground mb-2">
+                          <p>By: {request.practitioner_name} • {request.training_category}</p>
+                          <p>Date: {new Date(request.requested_date).toLocaleDateString()}</p>
+                        </div>
+                        <p className="text-sm">{request.justification}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {trainingRequests.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">No training requests</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

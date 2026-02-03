@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import IncidentReportDialog from '@/components/incidents/IncidentReportDialog';
-import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search, AlertCircle } from 'lucide-react';
+import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search, AlertCircle, Upload } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import DocumentManager from '@/components/client/DocumentManager';
 
 export default function ClientDetail() {
   const [searchParams] = useSearchParams();
@@ -305,6 +306,7 @@ export default function ClientDetail() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="history">Comprehensive History</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="bsps">BSPs</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
@@ -619,6 +621,10 @@ export default function ClientDetail() {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-4">
+          <DocumentManager clientId={clientId} clientName={client.full_name} />
         </TabsContent>
 
         <TabsContent value="bsps">
