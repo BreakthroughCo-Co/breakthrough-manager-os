@@ -164,7 +164,10 @@ export default function Sidebar({ currentPage }) {
       <CollapsibleTrigger asChild>
         <button
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all",
+            "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
+            isDark
+              ? "text-slate-300 hover:text-slate-100 hover:bg-slate-700/50"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50",
             collapsed && "justify-center px-2"
           )}
         >
