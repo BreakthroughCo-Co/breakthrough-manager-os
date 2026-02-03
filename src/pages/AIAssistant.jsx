@@ -16,7 +16,13 @@ import {
   Users,
   DollarSign,
   Shield,
-  TrendingUp
+  TrendingUp,
+  Calendar,
+  BookOpen,
+  BarChart3,
+  Zap,
+  Target,
+  Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,40 +41,60 @@ import { Label } from '@/components/ui/label';
 
 const quickPrompts = [
   {
-    icon: FileText,
-    title: 'Draft Behaviour Support Plan',
-    prompt: 'Help me draft a behaviour support plan outline for a participant with the following characteristics:',
-    category: 'Clinical'
+    icon: PenTool,
+    title: 'Draft Case Note',
+    prompt: 'Draft a case note for today\'s session with a client who:',
+    category: 'Clinical',
+    action: 'draft_case_note'
+  },
+  {
+    icon: Calendar,
+    title: 'Schedule Appointment',
+    prompt: 'I need to schedule an appointment for:',
+    category: 'Scheduling',
+    action: 'schedule_appointment'
+  },
+  {
+    icon: Activity,
+    title: 'Analyze Client Progress',
+    prompt: 'Analyze progress patterns and identify any concerns for:',
+    category: 'Analysis',
+    action: 'analyze_client_progress'
+  },
+  {
+    icon: Target,
+    title: 'Prioritize My Tasks',
+    prompt: 'Help me prioritize my pending tasks considering:',
+    category: 'Productivity',
+    action: 'prioritize_tasks'
+  },
+  {
+    icon: BookOpen,
+    title: 'Draft BSP Section',
+    prompt: 'Draft the environmental strategies section for:',
+    category: 'Clinical',
+    action: 'draft_bsp_section'
   },
   {
     icon: Mail,
-    title: 'Parent Communication',
-    prompt: 'Help me write a professional email to a parent/guardian about:',
-    category: 'Communication'
+    title: 'Generate Email',
+    prompt: 'Write a professional email to a parent about:',
+    category: 'Communication',
+    action: 'generate_email'
+  },
+  {
+    icon: BarChart3,
+    title: 'Summarize Caseload',
+    prompt: 'Provide a summary of my current caseload status and any urgent items',
+    category: 'Overview',
+    action: null
   },
   {
     icon: ClipboardCheck,
-    title: 'Compliance Checklist',
-    prompt: 'Create a compliance checklist for NDIS behaviour support practitioners covering:',
-    category: 'Compliance'
-  },
-  {
-    icon: Calculator,
-    title: 'Service Agreement',
-    prompt: 'Help me draft a service agreement section explaining:',
-    category: 'Admin'
-  },
-  {
-    icon: PenTool,
-    title: 'Progress Notes',
-    prompt: 'Help me write professional progress notes for a session where:',
-    category: 'Clinical'
-  },
-  {
-    icon: FileText,
-    title: 'NDIS Report Section',
-    prompt: 'Help me write a section of an NDIS report covering:',
-    category: 'Clinical'
+    title: 'Compliance Check',
+    prompt: 'Review compliance status and highlight any items needing immediate attention',
+    category: 'Compliance',
+    action: null
   },
 ];
 
@@ -107,6 +133,8 @@ export default function AIAssistant() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [activeTab, setActiveTab] = useState('assistant');
   const [selectedClient, setSelectedClient] = useState('');
+  const [actionMode, setActionMode] = useState(null);
+  const [actionResult, setActionResult] = useState(null);
 
   const { data: clients = [] } = useQuery({
     queryKey: ['clients'],
@@ -133,27 +161,267 @@ export default function AIAssistant() {
     queryFn: () => base44.entities.Task.list(),
   });
 
+  const { data: caseNotes = [] } = useQuery({
+    queryKey: ['casenotes'],
+    queryFn: () => base44.entities.CaseNote.list('-created_date', 50),
+  });
+
+  const { data: bsps = [] } = useQuery({
+    queryKey: ['bsps'],
+    queryFn: () => base44.entities.BehaviourSupportPlan.list('-created_date', 20),
+  });
+
+  const { data: appointments = [] } = useQuery({
+    queryKey: ['appointments'],
+    queryFn: () => base44.entities.Appointment.list('-appointment_date', 100),
+  });
+
   const handleSubmit = async () => {
     if (!prompt.trim()) return;
     
     setIsLoading(true);
     setResponse('');
+    setActionResult(null);
     
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are an expert NDIS Practice Manager and Behaviour Support specialist at Breakthrough Coaching & Consulting. You help with clinical documentation, compliance requirements, parent communications, and operational tasks. Be professional, thorough, and ensure all responses align with NDIS Practice Standards and the Behaviour Support Competency Framework.
+      // Detect if this is an actionable request
+      const actionDetection = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this request and determine if it requires system actions.
+
+Request: "${prompt}"
+
+Available Actions:
+- draft_case_note: Create a case note summary
+- schedule_appointment: Schedule or suggest appointments  
+- analyze_client_progress: Analyze client data patterns
+- prioritize_tasks: Analyze and prioritize pending tasks
+- draft_bsp_section: Draft BSP content
+- generate_email: Create email communication
+
+Return JSON:
+{
+  "requires_action": boolean,
+  "action_type": "one of the above or null",
+  "confidence": "high/medium/low"
+}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            requires_action: { type: "boolean" },
+            action_type: { type: "string" },
+            confidence: { type: "string" }
+          }
+        }
+      });
+
+      if (actionDetection.requires_action && actionDetection.confidence !== 'low') {
+        setActionMode(actionDetection.action_type);
+        await executeAction(actionDetection.action_type, prompt);
+      } else {
+        // Standard response
+        const result = await base44.integrations.Core.InvokeLLM({
+          prompt: `You are an expert NDIS Practice Manager and Behaviour Support specialist at Breakthrough Coaching & Consulting. You help with clinical documentation, compliance requirements, parent communications, and operational tasks. Be professional, thorough, and ensure all responses align with NDIS Practice Standards and the Behaviour Support Competency Framework.
 
 User Request:
 ${prompt}
 
 Provide a helpful, professional response. Use markdown formatting where appropriate.`,
-      });
-      setResponse(result);
+        });
+        setResponse(result);
+      }
     } catch (error) {
       setResponse('Sorry, there was an error processing your request. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const executeAction = async (actionType, userPrompt) => {
+    let result;
+    
+    switch (actionType) {
+      case 'draft_case_note':
+        result = await draftCaseNote(userPrompt);
+        break;
+      case 'schedule_appointment':
+        result = await scheduleAppointment(userPrompt);
+        break;
+      case 'analyze_client_progress':
+        result = await analyzeClientProgress(userPrompt);
+        break;
+      case 'prioritize_tasks':
+        result = await prioritizeTasks(userPrompt);
+        break;
+      case 'draft_bsp_section':
+        result = await draftBSPSection(userPrompt);
+        break;
+      case 'generate_email':
+        result = await generateEmail(userPrompt);
+        break;
+      default:
+        result = { summary: 'Action not implemented', details: '' };
+    }
+    
+    setActionResult(result);
+    setResponse(result.details);
+  };
+
+  const draftCaseNote = async (userPrompt) => {
+    const clientInfo = selectedClient ? clients.find(c => c.id === selectedClient) : null;
+    const recentNotes = clientInfo ? caseNotes.filter(n => n.client_id === selectedClient).slice(0, 5) : [];
+    
+    const draft = await base44.integrations.Core.InvokeLLM({
+      prompt: `Draft a professional case note based on this request: "${userPrompt}"
+
+Client Context: ${clientInfo ? `${clientInfo.full_name} - ${clientInfo.service_type}` : 'General'}
+Recent Notes Pattern: ${recentNotes.map(n => n.session_type).join(', ')}
+
+Format the case note with:
+1. Session Type & Duration
+2. Observations
+3. Interventions Applied
+4. Client Response
+5. Goals Progress
+6. Next Steps
+
+Use professional NDIS-compliant language.`
+    });
+
+    return {
+      summary: '📝 Case Note Draft Created',
+      details: draft,
+      action: 'draft_case_note'
+    };
+  };
+
+  const scheduleAppointment = async (userPrompt) => {
+    const upcomingAppts = appointments.filter(a => a.status === 'confirmed').slice(0, 10);
+    
+    const suggestion = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze this scheduling request: "${userPrompt}"
+
+Current Schedule Context:
+${upcomingAppts.map(a => `- ${a.practitioner_name}: ${a.appointment_date} ${a.appointment_time}`).join('\n')}
+
+Practitioners Available:
+${practitioners.filter(p => p.status === 'active').map(p => `- ${p.full_name} (${p.current_caseload}/${p.caseload_capacity} capacity)`).join('\n')}
+
+Provide:
+1. Suggested appointment slots (avoid conflicts)
+2. Best practitioner match
+3. Session type recommendation
+4. Duration suggestion
+
+Format as actionable scheduling guidance.`
+    });
+
+    return {
+      summary: '📅 Appointment Scheduling Analysis',
+      details: suggestion,
+      action: 'schedule_appointment'
+    };
+  };
+
+  const analyzeClientProgress = async (userPrompt) => {
+    const clientInfo = selectedClient ? clients.find(c => c.id === selectedClient) : null;
+    const clientNotes = clientInfo ? caseNotes.filter(n => n.client_id === selectedClient) : [];
+    const clientBSPs = clientInfo ? bsps.filter(b => b.client_id === selectedClient) : [];
+    
+    const analysis = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze client progress for: "${userPrompt}"
+
+Client: ${clientInfo?.full_name || 'All Clients'}
+Service Type: ${clientInfo?.service_type}
+Funding Utilization: ${clientInfo ? Math.round((clientInfo.funding_utilised / clientInfo.funding_allocated) * 100) : 0}%
+Recent Sessions: ${clientNotes.length} notes in system
+Active BSPs: ${clientBSPs.filter(b => b.status === 'active').length}
+
+Provide:
+1. Progress Summary
+2. Pattern Analysis
+3. Red Flags or Concerns
+4. Recommendations
+5. Next Review Suggestions`
+    });
+
+    return {
+      summary: '📊 Client Progress Analysis',
+      details: analysis,
+      action: 'analyze_client_progress'
+    };
+  };
+
+  const prioritizeTasks = async (userPrompt) => {
+    const pendingTasks = tasks.filter(t => t.status === 'pending');
+    const urgentTasks = pendingTasks.filter(t => t.priority === 'urgent');
+    
+    const prioritization = await base44.integrations.Core.InvokeLLM({
+      prompt: `Prioritize tasks based on: "${userPrompt}"
+
+Current Task Load:
+- Total Pending: ${pendingTasks.length}
+- Urgent: ${urgentTasks.length}
+- High Priority: ${pendingTasks.filter(t => t.priority === 'high').length}
+
+Tasks:
+${pendingTasks.slice(0, 20).map(t => `- [${t.priority}] ${t.title} - Due: ${t.due_date || 'No date'}`).join('\n')}
+
+Provide:
+1. Priority Rankings
+2. Time Estimates
+3. Dependencies
+4. Recommended Sequence
+5. Delegation Suggestions`
+    });
+
+    return {
+      summary: '🎯 Task Prioritization',
+      details: prioritization,
+      action: 'prioritize_tasks'
+    };
+  };
+
+  const draftBSPSection = async (userPrompt) => {
+    const clientInfo = selectedClient ? clients.find(c => c.id === selectedClient) : null;
+    const clientBSP = clientInfo ? bsps.find(b => b.client_id === selectedClient && b.is_latest_version) : null;
+    
+    const draft = await base44.integrations.Core.InvokeLLM({
+      prompt: `Draft BSP section for: "${userPrompt}"
+
+Client: ${clientInfo?.full_name}
+Existing BSP Context: ${clientBSP ? 'Active BSP exists' : 'New BSP'}
+
+Draft content using:
+- Evidence-based strategies
+- NDIS Practice Standards alignment
+- PBS framework principles
+- Functional analysis approach
+
+Format professionally for practitioner review.`
+    });
+
+    return {
+      summary: '📋 BSP Section Drafted',
+      details: draft,
+      action: 'draft_bsp_section'
+    };
+  };
+
+  const generateEmail = async (userPrompt) => {
+    const email = await base44.integrations.Core.InvokeLLM({
+      prompt: `Generate professional email for: "${userPrompt}"
+
+Style: Professional, empathetic, NDIS-appropriate
+Include: Subject line, body, signature placeholder
+
+Ensure communication is clear and family-friendly.`
+    });
+
+    return {
+      summary: '✉️ Email Draft Generated',
+      details: email,
+      action: 'generate_email'
+    };
   };
 
   const handleTemplateClick = (template) => {
@@ -312,6 +580,27 @@ Use markdown formatting for clear structure.`
         <p className="text-slate-500 mt-1">Get help with documentation, reports, and operational tasks</p>
       </div>
 
+      {/* Capabilities Overview */}
+      <Card className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+        <CardContent className="pt-4">
+          <div className="flex items-start gap-4">
+            <Sparkles className="w-6 h-6 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="font-semibold text-lg">Enhanced AI Capabilities</h3>
+              <p className="text-sm text-purple-100 mt-1">
+                This assistant can draft case notes, schedule appointments, analyze client progress, 
+                prioritize tasks, generate emails, and provide strategic insights—all automatically.
+              </p>
+              <div className="flex gap-2 mt-3 flex-wrap">
+                <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30">Automated Actions</Badge>
+                <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30">Context-Aware</Badge>
+                <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30">Data Analysis</Badge>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
       <div className="flex gap-2 border-b border-slate-200 pb-2">
         <Button
@@ -319,14 +608,16 @@ Use markdown formatting for clear structure.`
           onClick={() => setActiveTab('assistant')}
           className={activeTab === 'assistant' ? 'bg-purple-600 hover:bg-purple-700' : ''}
         >
-          General Assistant
+          <Zap className="w-4 h-4 mr-2" />
+          AI Assistant
         </Button>
         <Button
           variant={activeTab === 'reports' ? 'default' : 'ghost'}
           onClick={() => setActiveTab('reports')}
           className={activeTab === 'reports' ? 'bg-purple-600 hover:bg-purple-700' : ''}
         >
-          Auto-Generate Reports
+          <BarChart3 className="w-4 h-4 mr-2" />
+          Reports
         </Button>
       </div>
 
@@ -403,13 +694,41 @@ Use markdown formatting for clear structure.`
               </CardContent>
             </Card>
 
+            {/* Client Selector */}
+            <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+              <CardContent className="pt-4">
+                <Label className="text-sm font-medium">Context: Select Client (Optional)</Label>
+                <Select value={selectedClient} onValueChange={setSelectedClient}>
+                  <SelectTrigger className="mt-2 bg-white">
+                    <SelectValue placeholder="All clients / General" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>All Clients / General</SelectItem>
+                    {clients.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.full_name} - {c.service_type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-500 mt-2">Selected client context will enhance AI responses</p>
+              </CardContent>
+            </Card>
+
             {/* Response Area */}
             {(response || isLoading) && (
               <Card>
                 <CardHeader className="pb-3 flex flex-row items-center justify-between">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    AI Response
+                    {actionResult ? (
+                      <>
+                        <Zap className="w-4 h-4 text-purple-600" />
+                        {actionResult.summary}
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-purple-600" />
+                        AI Response
+                      </>
+                    )}
                   </CardTitle>
                   {response && (
                     <Button variant="ghost" size="sm" onClick={handleCopy}>
@@ -432,13 +751,23 @@ Use markdown formatting for clear structure.`
                     <div className="flex items-center justify-center py-12">
                       <div className="text-center">
                         <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-3" />
-                        <p className="text-sm text-slate-500">Generating response...</p>
+                        <p className="text-sm text-slate-500">
+                          {actionMode ? 'Executing action...' : 'Generating response...'}
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="prose prose-sm prose-slate max-w-none">
-                      <ReactMarkdown>{response}</ReactMarkdown>
-                    </div>
+                    <>
+                      {actionResult && (
+                        <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                          <p className="text-sm text-purple-900 font-medium">✨ Action Completed</p>
+                          <p className="text-xs text-purple-700 mt-1">The AI assistant performed an automated action based on your request</p>
+                        </div>
+                      )}
+                      <div className="prose prose-sm prose-slate max-w-none">
+                        <ReactMarkdown>{response}</ReactMarkdown>
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
