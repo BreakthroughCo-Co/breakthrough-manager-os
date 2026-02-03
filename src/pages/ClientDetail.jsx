@@ -1,876 +1,257 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import IncidentReportDialog from '@/components/incidents/IncidentReportDialog';
-import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search, AlertCircle, Upload } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import DocumentManager from '@/components/client/DocumentManager';
-import PersonalizedSupportPlanPanel from '@/components/client/PersonalizedSupportPlanPanel';
-import ClientInterventionInsights from '@/components/clinical/ClientInterventionInsights';
+import { Button } from '@/components/ui/button';
+import { Loader2, AlertTriangle, Edit2, ArrowLeft } from 'lucide-react';
+import ClientProfileForm from '@/components/client/ClientProfileForm';
+import ClientPractitionerLink from '@/components/client/ClientPractitionerLink';
+import ClientContactNetwork from '@/components/client/ClientContactNetwork';
+import ClientGoalsSection from '@/components/client/ClientGoalsSection';
+import ClientAppointmentsSection from '@/components/client/ClientAppointmentsSection';
 
-export default function ClientDetail() {
-  const [searchParams] = useSearchParams();
-  const clientId = searchParams.get('id');
-  const [isAddContactOpen, setIsAddContactOpen] = useState(false);
-  const [contactForm, setContactForm] = useState({
-    full_name: '',
-    contact_type: 'parent',
-    relationship: '',
-    phone: '',
-    email: '',
-  });
-  const [summaries, setSummaries] = useState({});
-  const [loadingSummary, setLoadingSummary] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [filterSeverity, setFilterSeverity] = useState('all');
-  const [riskAssessment, setRiskAssessment] = useState(null);
-  const [isLoadingRisk, setIsLoadingRisk] = useState(false);
-  const [comprehensiveSummary, setComprehensiveSummary] = useState(null);
-  const [isLoadingComprehensive, setIsLoadingComprehensive] = useState(false);
-  const [activeAlerts, setActiveAlerts] = useState([]);
-  const [supportPlan, setSupportPlan] = useState(null);
-  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+export default function ClientDetailPage() {
+  const { clientId } = useParams();
+  const navigate = useNavigate();
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
-  const queryClient = useQueryClient();
-
-  const { data: client } = useQuery({
-    queryKey: ['client', clientId],
-    queryFn: async () => {
-      const clients = await base44.entities.Client.filter({ id: clientId });
-      return clients[0];
-    },
-    enabled: !!clientId,
+  const { data: client, isLoading, error } = useQuery({
+    queryKey: ['clientDetail', clientId],
+    queryFn: () => base44.entities.Client.get(clientId),
+    enabled: !!clientId
   });
 
-  const { data: alerts = [] } = useQuery({
-    queryKey: ['riskAlerts', clientId],
-    queryFn: () => base44.entities.RiskAlert.filter({ client_id: clientId, status: 'active' }),
-    enabled: !!clientId,
+  const { data: riskProfile } = useQuery({
+    queryKey: ['clientRiskProfile', clientId],
+    queryFn: () => base44.entities.ClientRiskProfile.filter({ client_id: clientId }, '-analysis_date', 1),
+    enabled: !!clientId
   });
 
-  const { data: contacts = [] } = useQuery({
-    queryKey: ['clientContacts', clientId],
-    queryFn: () => base44.entities.ClientContact.filter({ client_id: clientId }),
-    enabled: !!clientId,
-  });
-
-  const { data: bsps = [] } = useQuery({
-    queryKey: ['clientBsps', clientId],
-    queryFn: () => base44.entities.BehaviourSupportPlan.filter({ client_id: clientId }),
-    enabled: !!clientId,
-  });
-
-  const { data: communications = [] } = useQuery({
-    queryKey: ['clientCommunications', clientId],
-    queryFn: () => base44.entities.ClientCommunication.filter({ client_id: clientId }),
-    enabled: !!clientId,
-  });
-
-  const { data: caseNotes = [] } = useQuery({
-    queryKey: ['clientCaseNotes', clientId],
-    queryFn: () => base44.entities.CaseNote.filter({ client_id: clientId }),
-    enabled: !!clientId,
-  });
-
-  const { data: incidents = [] } = useQuery({
-    queryKey: ['clientIncidents', clientId],
-    queryFn: () => base44.entities.Incident.filter({ client_id: clientId }),
-    enabled: !!clientId,
-  });
-
-  const { data: auditReports = [] } = useQuery({
-    queryKey: ['auditReports'],
-    queryFn: () => base44.entities.ComplianceAuditReport.list('-audit_date', 10),
-  });
-
-  const createContactMutation = useMutation({
-    mutationFn: (data) => base44.entities.ClientContact.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clientContacts'] });
-      setIsAddContactOpen(false);
-      setContactForm({ full_name: '', contact_type: 'parent', relationship: '', phone: '', email: '' });
-    },
-  });
-
-  const handleAddContact = async () => {
-    await createContactMutation.mutateAsync({
-      ...contactForm,
-      client_id: clientId,
-      is_active: true,
-    });
-  };
-
-  const activeBsp = bsps.find(b => b.status === 'active');
-  const recentComms = communications.slice(0, 5);
-  const recentNotes = caseNotes.slice(0, 5);
-  
-  // Apply filters to incidents
-  let filteredIncidents = incidents;
-  if (searchTerm) {
-    filteredIncidents = filteredIncidents.filter(i => 
-      i.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      i.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-  if (filterCategory !== 'all') {
-    filteredIncidents = filteredIncidents.filter(i => i.category === filterCategory);
-  }
-  if (filterSeverity !== 'all') {
-    filteredIncidents = filteredIncidents.filter(i => i.severity === filterSeverity);
-  }
-  const recentIncidents = filteredIncidents.slice(0, 10);
-
-  // Find compliance issues related to this client
-  const clientComplianceIssues = auditReports.flatMap(report => {
-    try {
-      const findings = JSON.parse(report.findings || '[]');
-      return findings.filter(f => f.client_id === clientId || f.related_to?.includes(clientId));
-    } catch {
-      return [];
-    }
-  });
-
-  const generateSummary = async (section) => {
-    setLoadingSummary(section);
-    try {
-      const result = await base44.functions.invoke('generateClientHistorySummary', {
-        client_id: clientId,
-        section: section,
-      });
-      setSummaries({ ...summaries, [section]: result.data.summary });
-    } catch (error) {
-      alert('Failed to generate summary: ' + error.message);
-    } finally {
-      setLoadingSummary(null);
-    }
-  };
-
-  const handleCalculateRisk = async () => {
-    setIsLoadingRisk(true);
-    try {
-      const result = await base44.functions.invoke('calculateClientRiskScore', {
-        client_id: clientId,
-      });
-      setRiskAssessment(result.data);
-      queryClient.invalidateQueries({ queryKey: ['riskAlerts', clientId] });
-    } catch (error) {
-      alert('Failed to calculate risk: ' + error.message);
-    } finally {
-      setIsLoadingRisk(false);
-    }
-  };
-
-  const handleAcknowledgeAlert = async (alertId) => {
-    const user = await base44.auth.me();
-    await base44.entities.RiskAlert.update(alertId, {
-      status: 'acknowledged',
-      acknowledged_by: user.email,
-      acknowledged_date: new Date().toISOString(),
-    });
-    queryClient.invalidateQueries({ queryKey: ['riskAlerts', clientId] });
-  };
-
-  const handleGenerateComprehensive = async () => {
-    setIsLoadingComprehensive(true);
-    try {
-      const result = await base44.functions.invoke('generateClientHistorySummary', {
-        client_id: clientId,
-        include_sections: ['overview', 'bsp', 'intake', 'progress', 'risks'],
-      });
-      setComprehensiveSummary(result.data);
-    } catch (error) {
-      alert('Failed to generate summary: ' + error.message);
-    } finally {
-      setIsLoadingComprehensive(false);
-    }
-  };
-
-  const handleGenerateSupportPlan = async () => {
-    setIsGeneratingPlan(true);
-    try {
-      const result = await base44.functions.invoke('generatePersonalizedSupportPlan', {
-        client_id: clientId,
-      });
-      setSupportPlan(result.data);
-    } catch (error) {
-      alert('Failed to generate support plan: ' + error.message);
-    } finally {
-      setIsGeneratingPlan(false);
-    }
-  };
-
-  if (!client) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Loading client information...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
       </div>
     );
   }
+
+  if (error || !client) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Failed to load client details</AlertTitle>
+      </Alert>
+    );
+  }
+
+  const riskConfig = {
+    low: { color: 'bg-green-100 text-green-800 border-green-300' },
+    medium: { color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+    high: { color: 'bg-red-100 text-red-800 border-red-300' }
+  };
+
+  const statusConfig = {
+    active: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800' },
+    waitlist: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800' },
+    on_hold: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-800' },
+    discharged: { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-800' },
+    plan_review: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800' }
+  };
+
+  const status = statusConfig[client.status] || statusConfig.active;
+  const riskColor = riskConfig[client.risk_level] || riskConfig.low;
+  const currentRisk = riskProfile?.[0];
 
   return (
     <div className="space-y-6">
-      {alerts.length > 0 && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <div className="flex-1">
-            <AlertDescription>
-              <strong>{alerts.length} Active Risk Alert{alerts.length > 1 ? 's' : ''}</strong>
-              {alerts.slice(0, 2).map(alert => (
-                <div key={alert.id} className="mt-2 text-sm">
-                  • {alert.alert_type.replace(/_/g, ' ')} - Risk Score: {alert.risk_score}/100
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/Clients')}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Clients
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsEditingProfile(!isEditingProfile)}
+          className="gap-2"
+        >
+          <Edit2 className="h-4 w-4" />
+          {isEditingProfile ? 'View' : 'Edit'} Profile
+        </Button>
+      </div>
+
+      {/* Profile Summary Header */}
+      {!isEditingProfile && (
+        <Card className={`${status.bg} border ${status.border}`}>
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">{client.full_name}</h1>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge className="text-lg">{client.service_type}</Badge>
+                  <Badge className={riskColor.color}>{client.risk_level.toUpperCase()} Risk</Badge>
+                  <Badge variant="outline">{client.status.toUpperCase()}</Badge>
                 </div>
-              ))}
-            </AlertDescription>
-          </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handleAcknowledgeAlert(alerts[0].id)}
-          >
-            Acknowledge
-          </Button>
-        </Alert>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-slate-600">NDIS Participant</p>
+                <p className="text-xl font-mono font-bold">{client.ndis_number}</p>
+              </div>
+            </div>
+
+            {client.date_of_birth && (
+              <p className="text-sm text-slate-600 mt-2">
+                <strong>DOB:</strong> {new Date(client.date_of_birth).toLocaleDateString()}
+              </p>
+            )}
+
+            {client.plan_end_date && (
+              <p className="text-sm text-slate-600">
+                <strong>Plan Expires:</strong> {new Date(client.plan_end_date).toLocaleDateString()}
+              </p>
+            )}
+          </CardContent>
+        </Card>
       )}
-      
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{client.full_name}</h1>
-          <p className="text-muted-foreground">NDIS #: {client.ndis_number}</p>
-        </div>
-        <div className="flex gap-2">
-          <IncidentReportDialog 
-            clientId={clientId} 
-            clientName={client.full_name}
-            trigger={
-              <Button variant="outline">
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Report Incident
-              </Button>
-            }
-          />
-          <Badge variant={client.status === 'active' ? 'default' : 'outline'}>
-            {client.status}
-          </Badge>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{bsps.length}</p>
-                <p className="text-xs text-muted-foreground">BSPs</p>
-              </div>
+      {/* Edit Profile Form */}
+      {isEditingProfile && (
+        <ClientProfileForm
+          clientId={clientId}
+          onSave={() => setIsEditingProfile(false)}
+        />
+      )}
+
+      {/* Main Content Tabs */}
+      {!isEditingProfile && (
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger value="contacts">Contacts & Services</TabsTrigger>
+          </TabsList>
+
+          {/* OVERVIEW TAB */}
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Funding Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">NDIS Funding Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {client.funding_allocated ? (
+                    <>
+                      <div>
+                        <p className="text-xs text-slate-600">Allocated</p>
+                        <p className="text-2xl font-bold">${client.funding_allocated.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-600">Utilised</p>
+                        <p className="text-lg font-semibold">${(client.funding_utilised || 0).toFixed(2)}</p>
+                      </div>
+                      <div className="pt-2">
+                        <p className="text-xs text-slate-600 mb-1">Available</p>
+                        <p className="text-lg font-bold text-green-600">
+                          ${(client.funding_allocated - (client.funding_utilised || 0)).toFixed(2)}
+                        </p>
+                        <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{
+                              width: `${((client.funding_utilised || 0) / client.funding_allocated) * 100}%`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-slate-600 text-sm">No funding allocated</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Risk Assessment */}
+              {currentRisk && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Current Risk Profile</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div>
+                      <p className="text-xs text-slate-600">Overall Risk Level</p>
+                      <Badge className={riskColor.color} style={{ width: 'fit-content' }}>
+                        {currentRisk.overall_risk_level.toUpperCase()}
+                      </Badge>
+                    </div>
+                    {currentRisk.overall_risk_score !== undefined && (
+                      <div>
+                        <p className="text-xs text-slate-600">Risk Score</p>
+                        <p className="text-2xl font-bold">{currentRisk.overall_risk_score}/100</p>
+                      </div>
+                    )}
+                    {currentRisk.trend_direction && (
+                      <p className="text-xs text-slate-600 mt-2">
+                        <strong>Trend:</strong> {currentRisk.trend_direction}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{communications.length}</p>
-                <p className="text-xs text-muted-foreground">Messages</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{incidents.length}</p>
-                <p className="text-xs text-muted-foreground">Incidents</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <Users className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{contacts.length}</p>
-                <p className="text-xs text-muted-foreground">Contacts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="support-plan">AI Support Plan</TabsTrigger>
-          <TabsTrigger value="interventions">Interventions</TabsTrigger>
-          <TabsTrigger value="history">Comprehensive History</TabsTrigger>
-          <TabsTrigger value="contacts">Contacts</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="bsps">BSPs</TabsTrigger>
-          <TabsTrigger value="communications">Communications</TabsTrigger>
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="support-plan" className="space-y-4">
-          <PersonalizedSupportPlanPanel
-            supportPlan={supportPlan}
-            isGenerating={isGeneratingPlan}
-            onGenerate={handleGenerateSupportPlan}
-          />
-        </TabsContent>
-
-        <TabsContent value="interventions" className="space-y-4">
-          <ClientInterventionInsights clientId={clientId} clientName={client.full_name} />
-        </TabsContent>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Plan Details */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Client Information</CardTitle>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleCalculateRisk}
-                    disabled={isLoadingRisk}
-                  >
-                    {isLoadingRisk ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Activity className="w-4 h-4 mr-2" />
-                    )}
-                    AI Risk Assessment
-                  </Button>
-                </div>
+                <CardTitle className="text-sm">Plan Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {riskAssessment && (
-                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200 mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-orange-900">AI Risk Analysis</h4>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={
-                          riskAssessment.assessment.risk_level === 'critical' ? 'destructive' :
-                          riskAssessment.assessment.risk_level === 'high' ? 'destructive' :
-                          riskAssessment.assessment.risk_level === 'medium' ? 'secondary' : 'default'
-                        }>
-                          {riskAssessment.assessment.risk_level}
-                        </Badge>
-                        <span className="text-2xl font-bold text-orange-900">
-                          {riskAssessment.assessment.risk_score}/100
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div>
-                        <p className="font-medium text-orange-800">Contributing Factors:</p>
-                        <ul className="list-disc list-inside text-orange-700">
-                          {riskAssessment.assessment.contributing_factors?.map((factor, idx) => (
-                            <li key={idx}>{factor}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="font-medium text-orange-800">Trend: <span className="text-orange-900">{riskAssessment.assessment.risk_trend}</span></p>
-                      </div>
-                      {riskAssessment.assessment.immediate_concerns?.length > 0 && (
-                        <div className="mt-2 p-2 bg-red-100 rounded border border-red-300">
-                          <p className="font-medium text-red-900">Immediate Concerns:</p>
-                          <ul className="list-disc list-inside text-red-800 text-xs">
-                            {riskAssessment.assessment.immediate_concerns.map((concern, idx) => (
-                              <li key={idx}>{concern}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+              <CardContent>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Date of Birth</p>
-                    <p className="font-medium">{client.date_of_birth ? new Date(client.date_of_birth).toLocaleDateString() : 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Service Type</p>
-                    <p className="font-medium">{client.service_type || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Plan Period</p>
+                    <p className="text-slate-600">Start Date</p>
                     <p className="font-medium">
-                      {client.plan_start_date && client.plan_end_date
-                        ? `${new Date(client.plan_start_date).toLocaleDateString()} - ${new Date(client.plan_end_date).toLocaleDateString()}`
-                        : 'N/A'}
+                      {client.plan_start_date ? new Date(client.plan_start_date).toLocaleDateString() : '-'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Risk Level</p>
-                    <Badge variant={client.risk_level === 'high' ? 'destructive' : 'secondary'}>
-                      {client.risk_level || 'low'}
-                    </Badge>
+                    <p className="text-slate-600">End Date</p>
+                    <p className="font-medium">
+                      {client.plan_end_date ? new Date(client.plan_end_date).toLocaleDateString() : '-'}
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Active BSP</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {activeBsp ? (
-                  <div className="space-y-2">
-                    <p className="text-sm"><span className="font-medium">Version:</span> {activeBsp.plan_version}</p>
-                    <p className="text-sm"><span className="font-medium">Start Date:</span> {new Date(activeBsp.start_date).toLocaleDateString()}</p>
-                    <p className="text-sm"><span className="font-medium">Review Date:</span> {new Date(activeBsp.review_date).toLocaleDateString()}</p>
-                    <p className="text-sm text-muted-foreground">{activeBsp.behaviour_summary?.substring(0, 150)}...</p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No active BSP</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          {/* APPOINTMENTS TAB */}
+          <TabsContent value="appointments">
+            <ClientAppointmentsSection clientId={clientId} />
+          </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Recent Activity</CardTitle>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => generateSummary('case_notes')}
-                  disabled={loadingSummary === 'case_notes'}
-                >
-                  {loadingSummary === 'case_notes' ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
-                  )}
-                  AI Summary
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {summaries.case_notes && (
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-xs font-medium text-blue-900 mb-1">AI-Generated Summary:</p>
-                  <p className="text-sm text-blue-800">{summaries.case_notes}</p>
-                </div>
-              )}
-              <div className="space-y-3">
-                {recentNotes.map(note => (
-                  <div key={note.id} className="border-l-2 border-teal-200 pl-3 py-1">
-                    <p className="text-sm font-medium">{note.session_date}</p>
-                    <p className="text-xs text-muted-foreground">{note.summary?.substring(0, 100)}...</p>
-                  </div>
-                ))}
-                {recentNotes.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No recent case notes</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {/* GOALS TAB */}
+          <TabsContent value="goals">
+            <ClientGoalsSection clientId={clientId} />
+          </TabsContent>
 
-        <TabsContent value="history" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Comprehensive Client History</CardTitle>
-                <Button
-                  onClick={handleGenerateComprehensive}
-                  disabled={isLoadingComprehensive}
-                >
-                  {isLoadingComprehensive ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
-                  )}
-                  Generate AI Summary
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {comprehensiveSummary && (
-                <div className="prose prose-sm max-w-none">
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 mb-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">AI-Generated Comprehensive Summary</h4>
-                    <div className="text-sm text-blue-800 whitespace-pre-wrap">{comprehensiveSummary.comprehensive_summary}</div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="p-3 bg-white rounded border">
-                      <p className="text-xs text-muted-foreground">BSPs</p>
-                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.bsp_count || 0}</p>
-                    </div>
-                    <div className="p-3 bg-white rounded border">
-                      <p className="text-xs text-muted-foreground">Case Notes</p>
-                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.case_notes_count || 0}</p>
-                    </div>
-                    <div className="p-3 bg-white rounded border">
-                      <p className="text-xs text-muted-foreground">Incidents</p>
-                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.incidents_count || 0}</p>
-                    </div>
-                    <div className="p-3 bg-white rounded border">
-                      <p className="text-xs text-muted-foreground">Communications</p>
-                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.communications_count || 0}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {!comprehensiveSummary && (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  Click "Generate AI Summary" to create a comprehensive analysis of this client's history, including BSPs, intake assessments, progress trends, and risk factors.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="contacts" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="font-semibold">Contact Network</h3>
-            <Dialog open={isAddContactOpen} onOpenChange={setIsAddContactOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Contact
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Contact</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label>Full Name</Label>
-                    <Input
-                      value={contactForm.full_name}
-                      onChange={(e) => setContactForm({...contactForm, full_name: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label>Contact Type</Label>
-                    <Select value={contactForm.contact_type} onValueChange={(val) => setContactForm({...contactForm, contact_type: val})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="parent">Parent</SelectItem>
-                        <SelectItem value="guardian">Guardian</SelectItem>
-                        <SelectItem value="family_member">Family Member</SelectItem>
-                        <SelectItem value="support_coordinator">Support Coordinator</SelectItem>
-                        <SelectItem value="case_manager">Case Manager</SelectItem>
-                        <SelectItem value="advocate">Advocate</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Relationship</Label>
-                    <Input
-                      value={contactForm.relationship}
-                      onChange={(e) => setContactForm({...contactForm, relationship: e.target.value})}
-                      placeholder="e.g., Mother, Support Coordinator"
-                    />
-                  </div>
-                  <div>
-                    <Label>Phone</Label>
-                    <Input
-                      value={contactForm.phone}
-                      onChange={(e) => setContactForm({...contactForm, phone: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label>Email</Label>
-                    <Input
-                      type="email"
-                      value={contactForm.email}
-                      onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                    />
-                  </div>
-                  <Button
-                    onClick={handleAddContact}
-                    disabled={!contactForm.full_name}
-                    className="w-full"
-                  >
-                    Add Contact
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {contacts.map(contact => (
-              <Card key={contact.id}>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-semibold">{contact.full_name}</h4>
-                        <p className="text-sm text-muted-foreground">{contact.relationship}</p>
-                      </div>
-                      <Badge variant="secondary">{contact.contact_type.replace('_', ' ')}</Badge>
-                    </div>
-                    {contact.phone && (
-                      <p className="text-sm flex items-center gap-2">
-                        <Phone className="w-4 h-4" />
-                        {contact.phone}
-                      </p>
-                    )}
-                    {contact.email && (
-                      <p className="text-sm flex items-center gap-2">
-                        <Mail className="w-4 h-4" />
-                        {contact.email}
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="documents" className="space-y-4">
-          <DocumentManager clientId={clientId} clientName={client.full_name} />
-        </TabsContent>
-
-        <TabsContent value="bsps">
-          <div className="space-y-3">
-            {bsps.map(bsp => (
-              <Card key={bsp.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">Version {bsp.plan_version}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(bsp.start_date).toLocaleDateString()} - Review: {new Date(bsp.review_date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge variant={bsp.status === 'active' ? 'default' : 'outline'}>
-                      {bsp.status}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="communications">
-          <div className="space-y-3">
-            {recentComms.map(comm => (
-              <Card key={comm.id}>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold">{comm.subject}</h4>
-                      <Badge variant="secondary">{comm.communication_type}</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(comm.sent_date).toLocaleDateString()} • {comm.sent_by}
-                    </p>
-                    <p className="text-sm">{comm.message_body.substring(0, 150)}...</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="incidents" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Incident Analysis</CardTitle>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => generateSummary('incidents')}
-                  disabled={loadingSummary === 'incidents'}
-                >
-                  {loadingSummary === 'incidents' ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
-                  )}
-                  AI Risk Assessment
-                </Button>
-              </div>
-            </CardHeader>
-            {summaries.incidents && (
-              <CardContent>
-                <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
-                  <p className="text-xs font-medium text-orange-900 mb-1">AI Risk Assessment:</p>
-                  <p className="text-sm text-orange-800">{summaries.incidents}</p>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Filter & Search</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <Label className="text-xs">Search</Label>
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search incidents..."
-                      className="pl-8"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs">Category</Label>
-                  <Select value={filterCategory} onValueChange={setFilterCategory}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="client_behaviour">Client Behaviour</SelectItem>
-                      <SelectItem value="safety_concern">Safety Concern</SelectItem>
-                      <SelectItem value="policy_breach">Policy Breach</SelectItem>
-                      <SelectItem value="injury">Injury</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-xs">Severity</Label>
-                  <Select value={filterSeverity} onValueChange={setFilterSeverity}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Severities</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="critical">Critical</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="space-y-3">
-            {recentIncidents.map(incident => (
-              <Card key={incident.id} className={
-                incident.severity === 'critical' || incident.severity === 'high' 
-                  ? 'border-l-4 border-l-red-500' 
-                  : ''
-              }>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className={
-                          incident.severity === 'critical' || incident.severity === 'high'
-                            ? 'w-5 h-5 text-red-600'
-                            : 'w-5 h-5 text-orange-600'
-                        } />
-                        <h4 className="font-semibold capitalize">{incident.category.replace(/_/g, ' ')}</h4>
-                      </div>
-                      <Badge variant={incident.severity === 'critical' || incident.severity === 'high' ? 'destructive' : 'secondary'}>
-                        {incident.severity}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(incident.incident_date).toLocaleString()}
-                    </p>
-                    <p className="text-sm">{incident.description.substring(0, 200)}...</p>
-                    {incident.ndis_reportable && (
-                      <Badge variant="outline" className="text-xs">
-                        <Shield className="w-3 h-3 mr-1" />
-                        NDIS Reportable
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="compliance">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Compliance Audit Findings</CardTitle>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => generateSummary('compliance')}
-                  disabled={loadingSummary === 'compliance'}
-                >
-                  {loadingSummary === 'compliance' ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
-                  )}
-                  AI Analysis
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {summaries.compliance && (
-                <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                  <p className="text-xs font-medium text-purple-900 mb-1">AI Compliance Analysis:</p>
-                  <p className="text-sm text-purple-800">{summaries.compliance}</p>
-                </div>
-              )}
-              {clientComplianceIssues.length > 0 ? (
-                <div className="space-y-3">
-                  {clientComplianceIssues.map((issue, idx) => (
-                    <div key={idx} className="border-l-2 border-orange-200 pl-3 py-2">
-                      <p className="font-medium text-sm">{issue.standard}</p>
-                      <p className="text-xs text-muted-foreground">{issue.issue}</p>
-                      {issue.remediation && (
-                        <p className="text-xs text-blue-600 mt-1">→ {issue.remediation}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  No compliance issues identified for this client
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          {/* CONTACTS & SERVICES TAB */}
+          <TabsContent value="contacts" className="space-y-4">
+            <ClientPractitionerLink clientId={clientId} currentPractitionerId={client.assigned_practitioner_id} />
+            <ClientContactNetwork clientId={clientId} />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }

@@ -133,6 +133,7 @@ import WorkloadManagement from './pages/WorkloadManagement';
 import MentorshipProgram from './pages/MentorshipProgram';
 import CommandCenter from './pages/CommandCenter';
 import IncidentAnalysis from './pages/IncidentAnalysis';
+import ClientForm from './pages/ClientForm';
 import __Layout from './Layout.jsx';
 
 
@@ -223,6 +224,7 @@ export const PAGES = {
     "MentorshipProgram": MentorshipProgram,
     "CommandCenter": CommandCenter,
     "IncidentAnalysis": IncidentAnalysis,
+    "ClientForm": ClientForm,
 }
 
 export const pagesConfig = {
