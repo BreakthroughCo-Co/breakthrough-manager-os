@@ -43,6 +43,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BillingAIInsights from '@/components/billing/BillingAIInsights';
 
 const emptyRecord = {
   client_id: '',
@@ -232,6 +234,13 @@ export default function Billing() {
         </Button>
       </div>
 
+      <Tabs defaultValue="records" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="records">Billing Records</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="records" className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-4">
@@ -516,6 +525,12 @@ export default function Billing() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </TabsContent>
+
+        <TabsContent value="ai-insights">
+          <BillingAIInsights />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
