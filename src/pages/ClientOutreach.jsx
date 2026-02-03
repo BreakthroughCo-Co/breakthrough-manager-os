@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Send, Calendar, MessageSquare, Sparkles, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SchedulingRulesManager from '@/components/outreach/SchedulingRulesManager';
 
 export default function ClientOutreach() {
   const [selectedClient, setSelectedClient] = useState('all');
@@ -119,6 +121,15 @@ export default function ClientOutreach() {
           <p className="text-muted-foreground">AI-powered personalized client communications</p>
         </div>
       </div>
+
+      <Tabs defaultValue="manual" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="manual">Manual Outreach</TabsTrigger>
+          <TabsTrigger value="automation">Automation Rules</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="manual" className="space-y-6">
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -384,6 +395,13 @@ export default function ClientOutreach() {
         </CardContent>
       </Card>
 
+        </TabsContent>
+
+        <TabsContent value="automation">
+          <SchedulingRulesManager />
+        </TabsContent>
+
+        <TabsContent value="history">
       <Card>
         <CardHeader>
           <CardTitle>Scheduled & Sent Messages</CardTitle>
@@ -421,6 +439,8 @@ export default function ClientOutreach() {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
