@@ -10,17 +10,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { GraduationCap, Users, Calendar, TrendingUp, AlertCircle, CheckCircle, Clock, Plus } from 'lucide-react';
+import { GraduationCap, Users, Calendar, TrendingUp, AlertCircle, CheckCircle, Clock, Plus, Zap } from 'lucide-react';
 
 export default function StaffTraining() {
   const [selectedPractitioner, setSelectedPractitioner] = useState('all');
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isPolicyDialogOpen, setIsPolicyDialogOpen] = useState(false);
   const [assignmentForm, setAssignmentForm] = useState({
     practitioner_id: '',
     module_id: '',
     due_date: '',
     assignment_reason: 'manual',
   });
+  const [policyForm, setPolicyForm] = useState({ 
+    title: '', 
+    category: 'NDIS Compliance', 
+    roles: '' 
+  });
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -86,6 +93,26 @@ export default function StaffTraining() {
     });
   };
 
+  const handleAutoAssignPolicy = async () => {
+    setIsAssigning(true);
+    try {
+      const rolesArray = policyForm.roles.split(',').map(r => r.trim()).filter(r => r);
+      const result = await base44.functions.invoke('autoAssignPolicyTraining', {
+        policy_title: policyForm.title,
+        policy_category: policyForm.category,
+        affected_roles: rolesArray.length > 0 ? rolesArray : null,
+      });
+      queryClient.invalidateQueries({ queryKey: ['trainingAssignments'] });
+      alert(`Assigned "${result.data.module_assigned}" to ${result.data.practitioners_assigned} practitioners`);
+      setIsPolicyDialogOpen(false);
+      setPolicyForm({ title: '', category: 'NDIS Compliance', roles: '' });
+    } catch (error) {
+      alert('Failed to assign training: ' + error.message);
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   const filteredAssignments = selectedPractitioner === 'all'
     ? assignments
     : assignments.filter(a => a.practitioner_id === selectedPractitioner);
@@ -125,13 +152,69 @@ export default function StaffTraining() {
           <h1 className="text-3xl font-bold">Staff Training Dashboard</h1>
           <p className="text-muted-foreground">Manage training modules and track staff progress</p>
         </div>
-        <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Assign Training
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Dialog open={isPolicyDialogOpen} onOpenChange={setIsPolicyDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Zap className="w-4 h-4 mr-2" />
+                Auto-Assign Policy Training
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Auto-Assign Training for New Policy</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label>Policy Title</Label>
+                  <Input
+                    value={policyForm.title}
+                    onChange={(e) => setPolicyForm({...policyForm, title: e.target.value})}
+                    placeholder="e.g., Updated Restrictive Practice Guidelines"
+                  />
+                </div>
+                <div>
+                  <Label>Training Category</Label>
+                  <Select
+                    value={policyForm.category}
+                    onValueChange={(v) => setPolicyForm({...policyForm, category: v})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NDIS Compliance">NDIS Compliance</SelectItem>
+                      <SelectItem value="Behaviour Support">Behaviour Support</SelectItem>
+                      <SelectItem value="Policy & Procedure">Policy & Procedure</SelectItem>
+                      <SelectItem value="Safety & Risk">Safety & Risk</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Affected Roles (comma-separated, leave empty for all)</Label>
+                  <Input
+                    value={policyForm.roles}
+                    onChange={(e) => setPolicyForm({...policyForm, roles: e.target.value})}
+                    placeholder="e.g., Behaviour Support Practitioner, Senior Practitioner"
+                  />
+                </div>
+                <Button
+                  onClick={handleAutoAssignPolicy}
+                  disabled={!policyForm.title || isAssigning}
+                  className="w-full"
+                >
+                  {isAssigning ? 'Assigning...' : 'Auto-Assign Training'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Assign Training
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Assign Training Module</DialogTitle>
@@ -212,6 +295,7 @@ export default function StaffTraining() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

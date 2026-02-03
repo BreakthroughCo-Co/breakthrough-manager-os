@@ -29,6 +29,10 @@ export default function ClientDetail() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterSeverity, setFilterSeverity] = useState('all');
+  const [riskAssessment, setRiskAssessment] = useState(null);
+  const [isLoadingRisk, setIsLoadingRisk] = useState(false);
+  const [comprehensiveSummary, setComprehensiveSummary] = useState(null);
+  const [isLoadingComprehensive, setIsLoadingComprehensive] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -138,6 +142,35 @@ export default function ClientDetail() {
     }
   };
 
+  const handleCalculateRisk = async () => {
+    setIsLoadingRisk(true);
+    try {
+      const result = await base44.functions.invoke('calculateClientRiskScore', {
+        client_id: clientId,
+      });
+      setRiskAssessment(result.data);
+    } catch (error) {
+      alert('Failed to calculate risk: ' + error.message);
+    } finally {
+      setIsLoadingRisk(false);
+    }
+  };
+
+  const handleGenerateComprehensive = async () => {
+    setIsLoadingComprehensive(true);
+    try {
+      const result = await base44.functions.invoke('generateClientHistorySummary', {
+        client_id: clientId,
+        include_sections: ['overview', 'bsp', 'intake', 'progress', 'risks'],
+      });
+      setComprehensiveSummary(result.data);
+    } catch (error) {
+      alert('Failed to generate summary: ' + error.message);
+    } finally {
+      setIsLoadingComprehensive(false);
+    }
+  };
+
   if (!client) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -228,6 +261,7 @@ export default function ClientDetail() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="history">Comprehensive History</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="bsps">BSPs</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
@@ -382,6 +416,60 @@ export default function ClientDetail() {
                   <p className="text-sm text-muted-foreground text-center py-4">No recent case notes</p>
                 )}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Comprehensive Client History</CardTitle>
+                <Button
+                  onClick={handleGenerateComprehensive}
+                  disabled={isLoadingComprehensive}
+                >
+                  {isLoadingComprehensive ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  Generate AI Summary
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {comprehensiveSummary && (
+                <div className="prose prose-sm max-w-none">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 mb-4">
+                    <h4 className="font-semibold text-blue-900 mb-2">AI-Generated Comprehensive Summary</h4>
+                    <div className="text-sm text-blue-800 whitespace-pre-wrap">{comprehensiveSummary.comprehensive_summary}</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="p-3 bg-white rounded border">
+                      <p className="text-xs text-muted-foreground">BSPs</p>
+                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.bsp_count || 0}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded border">
+                      <p className="text-xs text-muted-foreground">Case Notes</p>
+                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.case_notes_count || 0}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded border">
+                      <p className="text-xs text-muted-foreground">Incidents</p>
+                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.incidents_count || 0}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded border">
+                      <p className="text-xs text-muted-foreground">Communications</p>
+                      <p className="text-2xl font-bold">{comprehensiveSummary.data_summary?.communications_count || 0}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {!comprehensiveSummary && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  Click "Generate AI Summary" to create a comprehensive analysis of this client's history, including BSPs, intake assessments, progress trends, and risk factors.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
