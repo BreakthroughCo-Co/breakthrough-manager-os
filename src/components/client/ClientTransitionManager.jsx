@@ -14,6 +14,8 @@ import { format } from 'date-fns';
 export default function ClientTransitionManager() {
   const [selectedTransition, setSelectedTransition] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [approvalNotes, setApprovalNotes] = useState('');
+  const [approvingId, setApprovingId] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -239,6 +241,54 @@ export default function ClientTransitionManager() {
                                         <li key={idx} className="text-blue-800">→ {r}</li>
                                       ))}
                                     </ul>
+                                  </div>
+                                )}
+
+                                {t.status === 'planned' && approvingId !== t.id && (
+                                  <button
+                                    onClick={() => setApprovingId(t.id)}
+                                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+                                  >
+                                    Review & Approve
+                                  </button>
+                                )}
+
+                                {approvingId === t.id && (
+                                  <div className="bg-green-50 border border-green-200 p-2 rounded space-y-2">
+                                    <p className="text-xs font-semibold text-green-900">Manager Review</p>
+                                    <textarea
+                                      placeholder="Approval notes (optional)"
+                                      value={approvalNotes}
+                                      onChange={(e) => setApprovalNotes(e.target.value)}
+                                      className="w-full text-xs p-2 border rounded"
+                                      rows="2"
+                                    />
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={async () => {
+                                          await base44.entities.ClientTransition.update(t.id, {
+                                            status: 'in_progress',
+                                            handover_completed_date: new Date().toISOString(),
+                                            notes: approvalNotes
+                                          });
+                                          queryClient.invalidateQueries({ queryKey: ['clientTransitions'] });
+                                          setApprovingId(null);
+                                          setApprovalNotes('');
+                                        }}
+                                        className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+                                      >
+                                        Approve
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setApprovingId(null);
+                                          setApprovalNotes('');
+                                        }}
+                                        className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded hover:bg-slate-300"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
                                   </div>
                                 )}
                               </>
