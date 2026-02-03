@@ -89,6 +89,7 @@ import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import AgentManagement from './pages/AgentManagement';
+import PractitionerAnalytics from './pages/PractitionerAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -135,6 +136,7 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "AgentManagement": AgentManagement,
+    "PractitionerAnalytics": PractitionerAnalytics,
 }
 
 export const pagesConfig = {

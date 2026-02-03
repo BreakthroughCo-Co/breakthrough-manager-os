@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calendar, FileText, MessageSquare, TrendingUp, User, Shield } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function ClientPortal() {
   const [user, setUser] = useState(null);
@@ -126,6 +127,10 @@ export default function ClientPortal() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          <AppointmentSection clientId={client?.id} clientAccess={clientAccess} />
+        </TabsContent>
+
+        <TabsContent value="overview-rest" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Your Support Team</CardTitle>
@@ -242,7 +247,178 @@ export default function ClientPortal() {
           <ClientAIAssistant client={client} />
         </TabsContent>
       </Tabs>
+
+      <SessionFeedback clientId={client?.id} />
     </div>
+  );
+}
+
+function AppointmentSection({ clientId, clientAccess }) {
+  const [showRequest, setShowRequest] = useState(false);
+  const [requestData, setRequestData] = useState({
+    appointment_date: '',
+    appointment_time: '',
+    session_type: 'Direct Support',
+    notes: '',
+  });
+  const queryClient = useQueryClient();
+
+  const { data: appointments = [] } = useQuery({
+    queryKey: ['appointments', clientId],
+    queryFn: () => base44.entities.Appointment.filter({ 
+      client_id: clientId,
+      status: { $in: ['requested', 'confirmed'] }
+    }),
+    enabled: !!clientId,
+  });
+
+  const requestMutation = useMutation({
+    mutationFn: async () => {
+      return base44.entities.Appointment.create({
+        ...requestData,
+        client_id: clientId,
+        status: 'requested',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['appointments']);
+      setShowRequest(false);
+      setRequestData({ appointment_date: '', appointment_time: '', session_type: 'Direct Support', notes: '' });
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle>Upcoming Appointments</CardTitle>
+          <Button size="sm" onClick={() => setShowRequest(!showRequest)}>
+            <Calendar className="w-4 h-4 mr-2" />
+            Request Appointment
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {showRequest && (
+          <div className="border rounded-lg p-4 space-y-3 bg-slate-50">
+            <h3 className="font-medium">Request New Appointment</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <Input 
+                type="date" 
+                value={requestData.appointment_date}
+                onChange={(e) => setRequestData({...requestData, appointment_date: e.target.value})}
+              />
+              <Input 
+                type="time" 
+                value={requestData.appointment_time}
+                onChange={(e) => setRequestData({...requestData, appointment_time: e.target.value})}
+              />
+            </div>
+            <select 
+              value={requestData.session_type}
+              onChange={(e) => setRequestData({...requestData, session_type: e.target.value})}
+              className="w-full border rounded-md px-3 py-2"
+            >
+              <option value="Direct Support">Direct Support</option>
+              <option value="Assessment">Assessment</option>
+              <option value="Review">Review</option>
+              <option value="Consultation">Consultation</option>
+            </select>
+            <textarea 
+              placeholder="Additional notes or preferences..."
+              value={requestData.notes}
+              onChange={(e) => setRequestData({...requestData, notes: e.target.value})}
+              className="w-full border rounded-md px-3 py-2"
+              rows={2}
+            />
+            <Button onClick={() => requestMutation.mutate()}>Submit Request</Button>
+          </div>
+        )}
+
+        {appointments.length > 0 ? (
+          appointments.map(apt => (
+            <div key={apt.id} className="border rounded-lg p-3">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-medium">{apt.session_type}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {apt.appointment_date} at {apt.appointment_time}
+                  </p>
+                  <Badge className="mt-2">{apt.status}</Badge>
+                </div>
+                <Badge variant="outline">{apt.location || 'Office'}</Badge>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-muted-foreground">No upcoming appointments scheduled</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function SessionFeedback({ clientId }) {
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackData, setFeedbackData] = useState({
+    session_rating: 5,
+    feedback_text: '',
+  });
+  const queryClient = useQueryClient();
+
+  const submitFeedback = useMutation({
+    mutationFn: async () => {
+      return base44.entities.ClientFeedback.create({
+        ...feedbackData,
+        client_id: clientId,
+        feedback_date: new Date().toISOString().split('T')[0],
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['feedback']);
+      setShowFeedback(false);
+      setFeedbackData({ session_rating: 5, feedback_text: '' });
+    },
+  });
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="text-base">Session Feedback</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {!showFeedback ? (
+          <Button onClick={() => setShowFeedback(true)}>Provide Session Feedback</Button>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Rate Your Last Session (1-10)</label>
+              <Input 
+                type="number" 
+                min="1" 
+                max="10"
+                value={feedbackData.session_rating}
+                onChange={(e) => setFeedbackData({...feedbackData, session_rating: parseInt(e.target.value)})}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Additional Comments</label>
+              <textarea 
+                value={feedbackData.feedback_text}
+                onChange={(e) => setFeedbackData({...feedbackData, feedback_text: e.target.value})}
+                className="w-full border rounded-md px-3 py-2"
+                rows={3}
+                placeholder="Tell us about your experience..."
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => submitFeedback.mutate()}>Submit Feedback</Button>
+              <Button variant="outline" onClick={() => setShowFeedback(false)}>Cancel</Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
