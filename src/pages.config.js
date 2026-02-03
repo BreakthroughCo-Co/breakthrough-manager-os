@@ -56,16 +56,21 @@ import CapabilityAssessment from './pages/CapabilityAssessment';
 import CaseNotes from './pages/CaseNotes';
 import ClientCommunications from './pages/ClientCommunications';
 import ClientFeedback from './pages/ClientFeedback';
+import ClientPortal from './pages/ClientPortal';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
+import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
+import ComplianceReadiness from './pages/ComplianceReadiness';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
 import FBAAssessment from './pages/FBAAssessment';
+import HybridIntelligence from './pages/HybridIntelligence';
 import Integrations from './pages/Integrations';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
 import NDISPlans from './pages/NDISPlans';
+import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerDetail from './pages/PractitionerDetail';
 import Practitioners from './pages/Practitioners';
@@ -73,21 +78,17 @@ import Programs from './pages/Programs';
 import Reports from './pages/Reports';
 import RestrictivePractices from './pages/RestrictivePractices';
 import RiskAssessmentTool from './pages/RiskAssessmentTool';
+import RiskMonitoring from './pages/RiskMonitoring';
 import RootCauseAnalysis from './pages/RootCauseAnalysis';
 import ServiceAgreements from './pages/ServiceAgreements';
 import Settings from './pages/Settings';
 import SocialStories from './pages/SocialStories';
 import StaffInduction from './pages/StaffInduction';
+import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import ObservabilityDashboard from './pages/ObservabilityDashboard';
-import ComplianceReadiness from './pages/ComplianceReadiness';
-import HybridIntelligence from './pages/HybridIntelligence';
-import RiskMonitoring from './pages/RiskMonitoring';
-import TaskQueue from './pages/TaskQueue';
-import ClientPortal from './pages/ClientPortal';
-import CommunicationHub from './pages/CommunicationHub';
+import AgentManagement from './pages/AgentManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -101,16 +102,21 @@ export const PAGES = {
     "CaseNotes": CaseNotes,
     "ClientCommunications": ClientCommunications,
     "ClientFeedback": ClientFeedback,
+    "ClientPortal": ClientPortal,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
+    "CommunicationHub": CommunicationHub,
     "Compliance": Compliance,
+    "ComplianceReadiness": ComplianceReadiness,
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
     "FBAAssessment": FBAAssessment,
+    "HybridIntelligence": HybridIntelligence,
     "Integrations": Integrations,
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
     "NDISPlans": NDISPlans,
+    "ObservabilityDashboard": ObservabilityDashboard,
     "PlanUtilisation": PlanUtilisation,
     "PractitionerDetail": PractitionerDetail,
     "Practitioners": Practitioners,
@@ -118,21 +124,17 @@ export const PAGES = {
     "Reports": Reports,
     "RestrictivePractices": RestrictivePractices,
     "RiskAssessmentTool": RiskAssessmentTool,
+    "RiskMonitoring": RiskMonitoring,
     "RootCauseAnalysis": RootCauseAnalysis,
     "ServiceAgreements": ServiceAgreements,
     "Settings": Settings,
     "SocialStories": SocialStories,
     "StaffInduction": StaffInduction,
+    "TaskQueue": TaskQueue,
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "ObservabilityDashboard": ObservabilityDashboard,
-    "ComplianceReadiness": ComplianceReadiness,
-    "HybridIntelligence": HybridIntelligence,
-    "RiskMonitoring": RiskMonitoring,
-    "TaskQueue": TaskQueue,
-    "ClientPortal": ClientPortal,
-    "CommunicationHub": CommunicationHub,
+    "AgentManagement": AgentManagement,
 }
 
 export const pagesConfig = {
