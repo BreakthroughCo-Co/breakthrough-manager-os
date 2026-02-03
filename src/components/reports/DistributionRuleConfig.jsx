@@ -70,10 +70,18 @@ export default function DistributionRuleConfig() {
   return (
     <div className="space-y-4">
       {!isCreating ? (
-        <Button onClick={() => setIsCreating(true)} className="mb-4">
-          <Plus className="h-4 w-4 mr-2" />
-          New Distribution Rule
-        </Button>
+        <div className="flex gap-2 mb-4">
+          <Button onClick={() => setIsCreating(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Distribution Rule
+          </Button>
+          <Button variant="outline" size="sm" className="text-xs">
+            Load Template: Compliance
+          </Button>
+          <Button variant="outline" size="sm" className="text-xs">
+            Load Template: Clinical
+          </Button>
+        </div>
       ) : (
         <Card className="border-blue-200 bg-blue-50">
           <CardHeader>
