@@ -120,6 +120,8 @@ import ComplianceCenter from './pages/ComplianceCenter';
 import DocumentProcessing from './pages/DocumentProcessing';
 import PractitionerMatching from './pages/PractitionerMatching';
 import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
+import SessionSupport from './pages/SessionSupport';
+import SessionLogs from './pages/SessionLogs';
 import __Layout from './Layout.jsx';
 
 
@@ -197,6 +199,8 @@ export const PAGES = {
     "DocumentProcessing": DocumentProcessing,
     "PractitionerMatching": PractitionerMatching,
     "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
+    "SessionSupport": SessionSupport,
+    "SessionLogs": SessionLogs,
 }
 
 export const pagesConfig = {
