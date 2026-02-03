@@ -33,7 +33,10 @@ import {
   Star,
   Gauge,
   Lock,
-  Link2
+  Link2,
+  TrendingUp,
+  BarChart3,
+  Bot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -78,14 +81,18 @@ const adminItems = [
   { name: 'Service Agreements', icon: ScrollText, page: 'ServiceAgreements' },
   { name: 'Staff Induction', icon: UserCog, page: 'StaffInduction', managerOnly: true },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
-  { name: 'Reports', icon: FileText, page: 'Reports' },
+  { name: 'Reports', icon: BarChart3, page: 'Reports' },
+  { name: 'Practitioner Analytics', icon: TrendingUp, page: 'PractitionerAnalytics' },
   { name: 'Custom Dashboard', icon: LayoutDashboard, page: 'CustomDashboard' },
   { name: 'Workflows', icon: Zap, page: 'WorkflowTriggers' },
+  { name: 'Agents', icon: Bot, page: 'AgentManagement' },
 ];
 
 const toolItems = [
   { name: 'Calculator', icon: Calculator, page: 'NDISCalculator' },
   { name: 'AI Assistant', icon: Sparkles, page: 'AIAssistant' },
+  { name: 'Client Portal', icon: Users, page: 'ClientPortal' },
+  { name: 'Communication Hub', icon: MessageSquare, page: 'CommunicationHub' },
   { name: 'Integrations', icon: Link2, page: 'Integrations' },
 ];
 
