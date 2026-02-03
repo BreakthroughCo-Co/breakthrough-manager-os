@@ -18,6 +18,8 @@ export default function ClientOutreach() {
   const [generatedMessage, setGeneratedMessage] = useState(null);
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
+  const [outreachNeeds, setOutreachNeeds] = useState(null);
+  const [isAnalyzingNeeds, setIsAnalyzingNeeds] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -39,6 +41,26 @@ export default function ClientOutreach() {
       setGeneratedMessage(null);
     },
   });
+
+  const handleAnalyzeOutreachNeeds = async () => {
+    if (selectedClient === 'all') {
+      alert('Please select a specific client');
+      return;
+    }
+
+    setIsAnalyzingNeeds(true);
+    try {
+      const result = await base44.functions.invoke('generatePersonalizedOutreach', {
+        client_id: selectedClient,
+        analyze_outreach_needs: true,
+      });
+      setOutreachNeeds(result.data);
+    } catch (error) {
+      alert('Failed to analyze outreach needs: ' + error.message);
+    } finally {
+      setIsAnalyzingNeeds(false);
+    }
+  };
 
   const handleGenerateMessage = async () => {
     if (selectedClient === 'all') {
@@ -180,23 +202,90 @@ export default function ClientOutreach() {
               </div>
             </div>
 
-            <Button
-              onClick={handleGenerateMessage}
-              disabled={selectedClient === 'all' || isGenerating}
-              className="w-full"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating AI Message...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate Personalized Message
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAnalyzeOutreachNeeds}
+                disabled={selectedClient === 'all' || isAnalyzingNeeds}
+                variant="outline"
+                className="flex-1"
+              >
+                {isAnalyzingNeeds ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Analyze Needs
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={handleGenerateMessage}
+                disabled={selectedClient === 'all' || isGenerating}
+                className="flex-1"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Message
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {outreachNeeds && (
+              <Card className="border-purple-200 bg-purple-50">
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-purple-700" />
+                    Outreach Strategy Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div>
+                    <Badge className={
+                      outreachNeeds.outreach_analysis.outreach_priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                      outreachNeeds.outreach_analysis.outreach_priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                      'bg-blue-100 text-blue-800'
+                    }>
+                      {outreachNeeds.outreach_analysis.outreach_priority} priority
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-purple-900">Communication Style:</p>
+                    <p className="text-purple-800">{outreachNeeds.outreach_analysis.communication_style}</p>
+                  </div>
+                  {outreachNeeds.outreach_analysis.priority_topics?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-purple-900">Priority Topics:</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {outreachNeeds.outreach_analysis.priority_topics.map((topic, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">{topic}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {outreachNeeds.outreach_analysis.celebration_opportunities?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-green-900">Celebration Opportunities:</p>
+                      <ul className="text-xs text-green-800 mt-1 space-y-0.5">
+                        {outreachNeeds.outreach_analysis.celebration_opportunities.map((c, i) => (
+                          <li key={i}>• {c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <p className="text-xs text-purple-700 italic">{outreachNeeds.outreach_analysis.rationale}</p>
+                </CardContent>
+              </Card>
+            )}
 
             {generatedMessage && (
               <div className="mt-6 space-y-4">

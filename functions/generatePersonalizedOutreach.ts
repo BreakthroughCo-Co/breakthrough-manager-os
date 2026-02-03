@@ -9,20 +9,96 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { client_id, message_type = 'general_checkin' } = await req.json();
+    const { client_id, message_type = 'general_checkin', analyze_outreach_needs = false } = await req.json();
 
     // Fetch client and related data
-    const [client, bsps, caseNotes, communications, incidents, riskAlerts] = await Promise.all([
-      base44.entities.Client.filter({ id: client_id }).then(c => c[0]),
-      base44.entities.BehaviourSupportPlan.filter({ client_id, status: 'active' }),
-      base44.entities.CaseNote.filter({ client_id }),
-      base44.entities.ClientCommunication.filter({ client_id }),
-      base44.entities.Incident.filter({ client_id }),
-      base44.entities.RiskAlert.filter({ client_id, status: 'active' }),
+    const [client, bsps, caseNotes, communications, incidents, riskAlerts, ndisPlans] = await Promise.all([
+      base44.asServiceRole.entities.Client.filter({ id: client_id }).then(c => c[0]),
+      base44.asServiceRole.entities.BehaviourSupportPlan.filter({ client_id, status: 'active' }),
+      base44.asServiceRole.entities.CaseNote.filter({ client_id }),
+      base44.asServiceRole.entities.ClientCommunication.filter({ client_id }),
+      base44.asServiceRole.entities.Incident.filter({ client_id }),
+      base44.asServiceRole.entities.RiskAlert.filter({ client_id, status: 'active' }),
+      base44.asServiceRole.entities.NDISPlan.filter({ client_id }),
     ]);
 
     if (!client) {
       return Response.json({ error: 'Client not found' }, { status: 404 });
+    }
+
+    const activePlan = ndisPlans.find(p => p.status === 'active');
+    const planReviewDue = activePlan && activePlan.review_date 
+      ? Math.ceil((new Date(activePlan.review_date) - new Date()) / (1000 * 60 * 60 * 24))
+      : null;
+
+    // Analyze outreach needs if requested
+    if (analyze_outreach_needs) {
+      const analysisPrompt = `Analyze this client's data and recommend optimal outreach strategy:
+
+CLIENT: ${client.full_name}
+PLAN REVIEW: ${planReviewDue ? `Due in ${planReviewDue} days` : 'Not scheduled'}
+RISK LEVEL: ${client.risk_level}
+
+RECENT CASE NOTES:
+${caseNotes.slice(0, 5).map(n => `- ${n.session_date}: ${n.progress_rating || 'No rating'} - ${n.summary?.substring(0, 150)}`).join('\n')}
+
+RECENT INCIDENTS: ${incidents.length} total
+${incidents.slice(0, 3).map(i => `- ${i.incident_date}: ${i.category} (${i.severity})`).join('\n')}
+
+RECENT COMMUNICATIONS: ${communications.length} sent
+Last: ${communications[0] ? new Date(communications[0].sent_date).toLocaleDateString() : 'None'}
+
+Recommend:
+1. Priority topics for outreach
+2. Optimal communication timing
+3. Recommended communication style
+4. Specific concerns to address
+5. Celebration opportunities
+
+Return as JSON:
+{
+  "outreach_priority": "urgent/high/normal/low",
+  "recommended_timing": "description",
+  "priority_topics": ["topic1", "topic2"],
+  "communication_style": "description",
+  "concerns_to_address": ["concern1", "concern2"],
+  "celebration_opportunities": ["achievement1", "achievement2"],
+  "plan_review_prep": boolean,
+  "rationale": "why this approach"
+}`;
+
+      const outreachAnalysis = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: analysisPrompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            outreach_priority: { type: "string" },
+            recommended_timing: { type: "string" },
+            priority_topics: { type: "array" },
+            communication_style: { type: "string" },
+            concerns_to_address: { type: "array" },
+            celebration_opportunities: { type: "array" },
+            plan_review_prep: { type: "boolean" },
+            rationale: { type: "string" }
+          }
+        }
+      });
+
+      return Response.json({
+        client_id,
+        client_name: client.full_name,
+        outreach_analysis: outreachAnalysis,
+        context: {
+          plan_review_due: planReviewDue,
+          risk_level: client.risk_level,
+          recent_activity: {
+            case_notes: caseNotes.length,
+            incidents: incidents.length,
+            communications: communications.length
+          }
+        },
+        analysis_date: new Date().toISOString()
+      });
     }
 
     // Get recent activity
@@ -82,8 +158,16 @@ IMPORTANT: Tailor the message based on the client's current risk level, recent p
       support_offer: "Draft a supportive message offering additional resources or assistance based on recent challenges.",
     };
 
-    const aiMessage = await base44.integrations.Core.InvokeLLM({
-      prompt: `${contextData}\n\n${messageTypePrompts[message_type] || messageTypePrompts.general_checkin}\n\nThe message should be professional, empathetic, and specific to this client's situation. Include 2-3 specific references to their recent progress or goals.`,
+    const enhancedPrompt = `${contextData}\n\n${messageTypePrompts[message_type] || messageTypePrompts.general_checkin}
+
+${planReviewDue && planReviewDue <= 30 ? `\nIMPORTANT: The client's plan review is coming up in ${planReviewDue} days. Consider incorporating plan review preparation into the message.` : ''}
+
+${riskAlerts.length > 0 ? `\nNOTE: There are ${riskAlerts.length} active risk alerts. Approach with sensitivity and offer appropriate support.` : ''}
+
+The message should be professional, empathetic, and specific to this client's situation. Include 2-3 specific references to their recent progress or goals. Tailor the communication style based on the client's current needs and risk profile.`;
+
+    const aiMessage = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: enhancedPrompt,
       response_json_schema: {
         type: "object",
         properties: {
