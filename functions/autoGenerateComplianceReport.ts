@@ -1,256 +1,203 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { jsPDF } from 'npm:jspdf@4.0.0';
 
 Deno.serve(async (req) => {
-  try {
-    const base44 = createClientFromRequest(req);
-
-    // Can be called by automation or admin user
-    let isScheduled = false;
     try {
-      const user = await base44.auth.me();
-      if (user?.role !== 'admin') {
-        return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-      }
-    } catch {
-      isScheduled = true;
+        const base44 = createClientFromRequest(req);
+        const user = await base44.auth.me();
+
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Fetch compliance data
+        const [complianceItems, incidents, auditReports, breaches] = await Promise.all([
+            base44.entities.ComplianceItem.list('-due_date', 200),
+            base44.entities.Incident.list('-incident_date', 100),
+            base44.entities.ComplianceAuditReport.list('-audit_date', 50),
+            base44.entities.ComplianceBreach.list('-breach_date', 50)
+        ]);
+
+        // Run AI gap analysis
+        const gapAnalysis = await base44.functions.invoke('detectComplianceGaps', {});
+
+        // Generate comprehensive compliance summary
+        const reportContent = await base44.integrations.Core.InvokeLLM({
+            prompt: `Generate a comprehensive monthly compliance report for an NDIS provider.
+
+Compliance Items (${complianceItems.length}):
+${JSON.stringify(complianceItems.slice(0, 50), null, 2)}
+
+Recent Incidents (${incidents.length}):
+${JSON.stringify(incidents.slice(0, 30), null, 2)}
+
+Recent Audit Reports (${auditReports.length}):
+${JSON.stringify(auditReports.slice(0, 20), null, 2)}
+
+Compliance Breaches (${breaches.length}):
+${JSON.stringify(breaches, null, 2)}
+
+AI Gap Analysis:
+${JSON.stringify(gapAnalysis.data, null, 2)}
+
+Generate a structured report including:
+1. Executive Summary (key findings, overall compliance status)
+2. Critical Issues (high-priority items requiring immediate attention)
+3. Compliance Status by Category (breakdown of NDIS Registration, Quality & Safeguards, etc.)
+4. Incident Analysis (patterns, trends, risk areas)
+5. Gap Analysis Summary (from AI analysis)
+6. Action Items (prioritized recommendations)
+7. Positive Progress (improvements and achievements)
+8. Next Review Date and Focus Areas
+
+Make it professional, actionable, and NDIS-focused.`,
+            response_json_schema: {
+                type: "object",
+                properties: {
+                    report_title: { type: "string" },
+                    report_date: { type: "string" },
+                    executive_summary: { type: "string" },
+                    overall_compliance_score: { type: "number" },
+                    critical_issues: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                issue: { type: "string" },
+                                severity: { type: "string" },
+                                action_required: { type: "string" },
+                                deadline: { type: "string" }
+                            }
+                        }
+                    },
+                    compliance_by_category: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                category: { type: "string" },
+                                status: { type: "string" },
+                                items_compliant: { type: "number" },
+                                items_requiring_attention: { type: "number" },
+                                notes: { type: "string" }
+                            }
+                        }
+                    },
+                    incident_analysis: {
+                        type: "object",
+                        properties: {
+                            total_incidents: { type: "number" },
+                            critical_incidents: { type: "number" },
+                            trends: { type: "array", items: { type: "string" } },
+                            risk_areas: { type: "array", items: { type: "string" } }
+                        }
+                    },
+                    gap_analysis_summary: { type: "string" },
+                    action_items: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                priority: { type: "string" },
+                                action: { type: "string" },
+                                responsible: { type: "string" },
+                                timeline: { type: "string" }
+                            }
+                        }
+                    },
+                    positive_progress: { type: "array", items: { type: "string" } },
+                    next_review_date: { type: "string" },
+                    next_focus_areas: { type: "array", items: { type: "string" } }
+                }
+            }
+        });
+
+        // Generate PDF
+        const doc = new jsPDF();
+        let yPos = 20;
+
+        // Title
+        doc.setFontSize(18);
+        doc.text(reportContent.report_title || 'Monthly Compliance Report', 20, yPos);
+        yPos += 10;
+        doc.setFontSize(10);
+        doc.text(reportContent.report_date || new Date().toLocaleDateString(), 20, yPos);
+        yPos += 15;
+
+        // Executive Summary
+        doc.setFontSize(14);
+        doc.text('Executive Summary', 20, yPos);
+        yPos += 7;
+        doc.setFontSize(10);
+        const summaryLines = doc.splitTextToSize(reportContent.executive_summary, 170);
+        doc.text(summaryLines, 20, yPos);
+        yPos += summaryLines.length * 5 + 10;
+
+        // Compliance Score
+        if (yPos > 250) { doc.addPage(); yPos = 20; }
+        doc.setFontSize(12);
+        doc.text(`Overall Compliance Score: ${reportContent.overall_compliance_score || 'N/A'}%`, 20, yPos);
+        yPos += 10;
+
+        // Critical Issues
+        if (reportContent.critical_issues && reportContent.critical_issues.length > 0) {
+            if (yPos > 240) { doc.addPage(); yPos = 20; }
+            doc.setFontSize(14);
+            doc.text('Critical Issues', 20, yPos);
+            yPos += 7;
+            doc.setFontSize(10);
+            reportContent.critical_issues.forEach((issue, idx) => {
+                if (yPos > 270) { doc.addPage(); yPos = 20; }
+                doc.text(`${idx + 1}. ${issue.issue}`, 25, yPos);
+                yPos += 5;
+                doc.text(`   Severity: ${issue.severity} | Deadline: ${issue.deadline}`, 25, yPos);
+                yPos += 5;
+                const actionLines = doc.splitTextToSize(`   Action: ${issue.action_required}`, 165);
+                doc.text(actionLines, 25, yPos);
+                yPos += actionLines.length * 5 + 3;
+            });
+            yPos += 5;
+        }
+
+        // Action Items
+        if (reportContent.action_items && reportContent.action_items.length > 0) {
+            if (yPos > 240) { doc.addPage(); yPos = 20; }
+            doc.setFontSize(14);
+            doc.text('Action Items', 20, yPos);
+            yPos += 7;
+            doc.setFontSize(10);
+            reportContent.action_items.slice(0, 10).forEach((item, idx) => {
+                if (yPos > 270) { doc.addPage(); yPos = 20; }
+                doc.text(`${idx + 1}. [${item.priority}] ${item.action}`, 25, yPos);
+                yPos += 5;
+            });
+        }
+
+        const pdfBytes = doc.output('arraybuffer');
+
+        // Save report to database
+        const savedReport = await base44.asServiceRole.entities.SavedReport.create({
+            report_name: reportContent.report_title || 'Monthly Compliance Report',
+            report_type: 'compliance',
+            report_date: new Date().toISOString(),
+            report_data: JSON.stringify(reportContent),
+            generated_by: user.email
+        });
+
+        return new Response(pdfBytes, {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename=Compliance_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+                'X-Report-ID': savedReport.id
+            }
+        });
+
+    } catch (error) {
+        console.error('Error generating compliance report:', error);
+        return Response.json({ 
+            error: error.message,
+            success: false 
+        }, { status: 500 });
     }
-
-    const payload = await req.json().catch(() => ({}));
-    const {
-      report_type = 'monthly_compliance_summary',
-      period_start,
-      period_end,
-      include_recommendations = true,
-    } = payload;
-
-    const today = new Date();
-    const start = period_start ? new Date(period_start) : new Date(today.getFullYear(), today.getMonth(), 1);
-    const end = period_end ? new Date(period_end) : new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-    // Fetch compliance-related data for the period
-    const complianceItems = await base44.asServiceRole.entities.ComplianceItem.list();
-    const breaches = await base44.asServiceRole.entities.ComplianceBreach.list();
-    const audits = await base44.asServiceRole.entities.ComplianceAudit.list('-audit_date', 50);
-    const incidents = await base44.asServiceRole.entities.Incident.list('-incident_date', 100);
-    const workerScreenings = await base44.asServiceRole.entities.WorkerScreening.list();
-    const riskAlerts = await base44.asServiceRole.entities.RiskAlert.list('-triggered_date', 50);
-
-    // Filter data for the period
-    const periodBreaches = breaches.filter(b => {
-      const breachDate = new Date(b.identified_date);
-      return breachDate >= start && breachDate <= end;
-    });
-
-    const periodIncidents = incidents.filter(i => {
-      const incidentDate = new Date(i.incident_date);
-      return incidentDate >= start && incidentDate <= end;
-    });
-
-    const periodAlerts = riskAlerts.filter(a => {
-      const alertDate = new Date(a.triggered_date);
-      return alertDate >= start && alertDate <= end;
-    });
-
-    // Analyze compliance status
-    const complianceByCategory = {};
-    complianceItems.forEach(item => {
-      const cat = item.category || 'Other';
-      if (!complianceByCategory[cat]) {
-        complianceByCategory[cat] = {
-          total: 0,
-          compliant: 0,
-          attention_needed: 0,
-          non_compliant: 0,
-        };
-      }
-      complianceByCategory[cat].total++;
-      complianceByCategory[cat][item.status] = (complianceByCategory[cat][item.status] || 0) + 1;
-    });
-
-    // Analyze breach patterns
-    const breachByCategory = {};
-    periodBreaches.forEach(breach => {
-      const cat = breach.breach_category || 'Other';
-      breachByCategory[cat] = (breachByCategory[cat] || 0) + 1;
-    });
-
-    // Analyze incident patterns
-    const incidentByCategory = {};
-    const incidentBySeverity = { low: 0, moderate: 0, high: 0, critical: 0 };
-    periodIncidents.forEach(incident => {
-      const cat = incident.category || 'Other';
-      incidentByCategory[cat] = (incidentByCategory[cat] || 0) + 1;
-      incidentBySeverity[incident.severity_level] = (incidentBySeverity[incident.severity_level] || 0) + 1;
-    });
-
-    // Check worker screening compliance
-    const screeningsExpiringSoon = workerScreenings.filter(ws => {
-      if (ws.expiry_date) {
-        const expiryDate = new Date(ws.expiry_date);
-        const daysUntilExpiry = (expiryDate - today) / (1000 * 60 * 60 * 24);
-        return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
-      }
-      return false;
-    });
-
-    const aiPrompt = `You are an NDIS compliance officer generating a comprehensive compliance report.
-
-REPORT TYPE: ${report_type}
-REPORTING PERIOD: ${start.toISOString().split('T')[0]} to ${end.toISOString().split('T')[0]}
-
-COMPLIANCE STATUS BY CATEGORY:
-${JSON.stringify(complianceByCategory, null, 2)}
-
-BREACHES THIS PERIOD (${periodBreaches.length} total):
-${JSON.stringify(breachByCategory, null, 2)}
-
-INCIDENTS THIS PERIOD (${periodIncidents.length} total):
-By Category: ${JSON.stringify(incidentByCategory, null, 2)}
-By Severity: ${JSON.stringify(incidentBySeverity, null, 2)}
-
-RISK ALERTS THIS PERIOD: ${periodAlerts.length}
-
-WORKER SCREENING STATUS:
-- Total screenings: ${workerScreenings.length}
-- Expiring within 30 days: ${screeningsExpiringSoon.length}
-
-RECENT AUDIT RESULTS:
-${JSON.stringify(audits.slice(0, 3).map(a => ({ date: a.audit_date, finding_count: a.finding_count, score: a.overall_score })), null, 2)}
-
-TASK:
-Generate a professional compliance report with:
-1. Executive Summary
-2. Compliance Status Overview
-3. Key Findings & Concerns
-4. Breach Analysis & Root Causes
-5. Incident Patterns & Trends
-6. Risk Assessment
-7. ${include_recommendations ? 'Recommendations & Action Items' : ''}
-8. Compliance Score/Rating (0-100)
-
-Be specific, data-driven, and actionable. Highlight both strengths and areas for improvement.
-
-Output as JSON:
-{
-  "report_title": "string",
-  "executive_summary": "2-3 paragraph summary",
-  "compliance_score": 85,
-  "status_overview": {
-    "overall_status": "compliant|partially_compliant|non_compliant",
-    "category_summaries": {
-      "category_name": "status and notes"
-    }
-  },
-  "key_findings": [
-    {
-      "finding": "description",
-      "severity": "critical|high|medium|low",
-      "category": "string",
-      "impact": "business impact"
-    }
-  ],
-  "breach_analysis": {
-    "total_breaches": 5,
-    "by_category": {},
-    "root_causes": ["cause1", "cause2"],
-    "trends": "description of patterns"
-  },
-  "incident_analysis": {
-    "total_incidents": 10,
-    "severity_distribution": {},
-    "patterns": "description",
-    "preventable_rate": "estimated %"
-  },
-  "risk_assessment": {
-    "current_risk_level": "low|medium|high|critical",
-    "emerging_risks": ["risk1", "risk2"],
-    "mitigation_status": "description"
-  },
-  "recommendations": [
-    {
-      "recommendation": "specific action",
-      "priority": "critical|high|medium|low",
-      "target_category": "string",
-      "expected_impact": "description",
-      "implementation_timeline": "immediate|1 week|1 month|3 months"
-    }
-  ],
-  "action_items": [
-    {
-      "action": "specific task",
-      "responsible_party": "role",
-      "due_date": "timeline",
-      "status": "pending"
-    }
-  ],
-  "conclusion": "final summary and outlook"
-}`;
-
-    const aiResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: aiPrompt,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          report_title: { type: 'string' },
-          executive_summary: { type: 'string' },
-          compliance_score: { type: 'number' },
-          status_overview: {
-            type: 'object',
-            properties: {
-              overall_status: { type: 'string' },
-              category_summaries: { type: 'object' },
-            },
-          },
-          key_findings: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                finding: { type: 'string' },
-                severity: { type: 'string' },
-                category: { type: 'string' },
-                impact: { type: 'string' },
-              },
-            },
-          },
-          breach_analysis: { type: 'object' },
-          incident_analysis: { type: 'object' },
-          risk_assessment: { type: 'object' },
-          recommendations: { type: 'array', items: { type: 'object' } },
-          action_items: { type: 'array', items: { type: 'object' } },
-          conclusion: { type: 'string' },
-        },
-      },
-    });
-
-    // Save report to database
-    const savedReport = await base44.asServiceRole.entities.SavedReport.create({
-      report_name: aiResult.report_title,
-      report_type: report_type,
-      report_category: 'compliance',
-      period_start: start.toISOString().split('T')[0],
-      period_end: end.toISOString().split('T')[0],
-      report_data: JSON.stringify(aiResult),
-      generated_by: isScheduled ? 'Automated System' : user?.email,
-      generated_date: today.toISOString(),
-    });
-
-    return Response.json({
-      success: true,
-      report_id: savedReport.id,
-      report: aiResult,
-      metadata: {
-        period: { start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0] },
-        data_summary: {
-          breaches: periodBreaches.length,
-          incidents: periodIncidents.length,
-          alerts: periodAlerts.length,
-          compliance_items_reviewed: complianceItems.length,
-        },
-      },
-    });
-  } catch (error) {
-    console.error('Auto compliance report generation error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
-  }
 });

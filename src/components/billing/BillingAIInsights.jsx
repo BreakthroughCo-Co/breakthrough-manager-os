@@ -13,14 +13,31 @@ import {
     Copy,
     BarChart3,
     AlertCircle,
-    RefreshCw
+    RefreshCw,
+    Check,
+    X
 } from 'lucide-react';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export default function BillingAIInsights() {
     const [analysis, setAnalysis] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const queryClient = useQueryClient();
+
+    const applyFixMutation = useMutation({
+        mutationFn: ({ recordId, updates }) => base44.entities.BillingRecord.update(recordId, updates),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['billing'] });
+            toast.success('Record updated successfully');
+            runAnalysis(); // Refresh analysis
+        },
+        onError: (err) => {
+            toast.error('Failed to update record: ' + err.message);
+        }
+    });
 
     const runAnalysis = async () => {
         setLoading(true);
@@ -192,7 +209,41 @@ export default function BillingAIInsights() {
                                     <p className="text-sm mb-2">{error.description}</p>
                                     <div className="bg-white/50 rounded p-2 mt-2">
                                         <p className="text-xs font-medium mb-1">Suggested Fix:</p>
-                                        <p className="text-sm">{error.suggested_fix}</p>
+                                        <p className="text-sm mb-2">{error.suggested_fix}</p>
+                                        {error.record_id && (
+                                            <div className="flex gap-2 mt-3">
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        const updates = {};
+                                                        if (error.error_type === 'Line Item Mismatch' && error.suggested_fix.includes('line item')) {
+                                                            const lineItemMatch = error.suggested_fix.match(/\d{2}_\d{3}_\d{4}_\d_\d/);
+                                                            if (lineItemMatch) updates.ndis_line_item = lineItemMatch[0];
+                                                        }
+                                                        if (Object.keys(updates).length > 0) {
+                                                            applyFixMutation.mutate({ recordId: error.record_id, updates });
+                                                        }
+                                                    }}
+                                                    disabled={applyFixMutation.isPending}
+                                                    className="bg-green-600 hover:bg-green-700 text-xs"
+                                                >
+                                                    <Check className="w-3 h-3 mr-1" />
+                                                    Apply Fix
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        toast.info('Error dismissed');
+                                                        runAnalysis();
+                                                    }}
+                                                    className="text-xs"
+                                                >
+                                                    <X className="w-3 h-3 mr-1" />
+                                                    Dismiss
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
