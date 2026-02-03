@@ -85,6 +85,7 @@ import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import ComplianceReadiness from './pages/ComplianceReadiness';
 import HybridIntelligence from './pages/HybridIntelligence';
 import RiskMonitoring from './pages/RiskMonitoring';
+import TaskQueue from './pages/TaskQueue';
 import __Layout from './Layout.jsx';
 
 
@@ -127,6 +128,7 @@ export const PAGES = {
     "ComplianceReadiness": ComplianceReadiness,
     "HybridIntelligence": HybridIntelligence,
     "RiskMonitoring": RiskMonitoring,
+    "TaskQueue": TaskQueue,
 }
 
 export const pagesConfig = {
