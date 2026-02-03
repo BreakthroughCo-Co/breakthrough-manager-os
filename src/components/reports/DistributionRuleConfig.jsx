@@ -85,7 +85,8 @@ export default function DistributionRuleConfig() {
             </Button>
           </div>
         ) : (
-        <Card className="border-blue-200 bg-blue-50">
+          <>
+          <Card className="border-blue-200 bg-blue-50">
           <CardHeader>
             <CardTitle className="text-base">Create Distribution Rule</CardTitle>
           </CardHeader>
@@ -171,10 +172,9 @@ export default function DistributionRuleConfig() {
               </Button>
             </div>
           </CardContent>
-        </Card>
-      )}
+          </Card>
 
-      {rules && rules.length > 0 && (
+          {rules && rules.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Active Rules</CardTitle>
@@ -211,9 +211,11 @@ export default function DistributionRuleConfig() {
               ))}
             </div>
           </CardContent>
-        </Card>
-      )}
-      </TabsContent>
+          </Card>
+          )}
+          </>
+          )}
+          </TabsContent>
 
       <TabsContent value="advanced" className="mt-4">
       <AdvancedDistributionConfig />
