@@ -81,6 +81,7 @@ import StaffInduction from './pages/StaffInduction';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
+import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -119,6 +120,7 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
+    "ObservabilityDashboard": ObservabilityDashboard,
 }
 
 export const pagesConfig = {
