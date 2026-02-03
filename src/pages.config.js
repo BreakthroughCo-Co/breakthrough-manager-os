@@ -80,6 +80,7 @@ import Integrations from './pages/Integrations';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
 import NDISPlans from './pages/NDISPlans';
+import NDISPricing from './pages/NDISPricing';
 import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerAnalytics from './pages/PractitionerAnalytics';
@@ -103,7 +104,8 @@ import Tasks from './pages/Tasks';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import NDISPricing from './pages/NDISPricing';
+import AIAdminHub from './pages/AIAdminHub';
+import WorkloadManagement from './pages/WorkloadManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -141,6 +143,7 @@ export const PAGES = {
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
     "NDISPlans": NDISPlans,
+    "NDISPricing": NDISPricing,
     "ObservabilityDashboard": ObservabilityDashboard,
     "PlanUtilisation": PlanUtilisation,
     "PractitionerAnalytics": PractitionerAnalytics,
@@ -164,7 +167,8 @@ export const PAGES = {
     "TeamTrainingManagement": TeamTrainingManagement,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "NDISPricing": NDISPricing,
+    "AIAdminHub": AIAdminHub,
+    "WorkloadManagement": WorkloadManagement,
 }
 
 export const pagesConfig = {
