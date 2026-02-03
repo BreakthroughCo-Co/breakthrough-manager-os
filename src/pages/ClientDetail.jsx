@@ -304,6 +304,7 @@ export default function ClientDetail() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="support-plan">AI Support Plan</TabsTrigger>
           <TabsTrigger value="history">Comprehensive History</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>

@@ -54,11 +54,13 @@ import BIPQualityAudit from './pages/BIPQualityAudit';
 import BSPCreator from './pages/BSPCreator';
 import Billing from './pages/Billing';
 import CapabilityAssessment from './pages/CapabilityAssessment';
+import CaseManagement from './pages/CaseManagement';
 import CaseNotes from './pages/CaseNotes';
 import ClientCommunications from './pages/ClientCommunications';
 import ClientDetail from './pages/ClientDetail';
 import ClientFeedback from './pages/ClientFeedback';
 import ClientIntake from './pages/ClientIntake';
+import ClientOutreach from './pages/ClientOutreach';
 import ClientPortal from './pages/ClientPortal';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
@@ -67,6 +69,7 @@ import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import ComplianceReadiness from './pages/ComplianceReadiness';
+import ComprehensiveReports from './pages/ComprehensiveReports';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
 import FBAAssessment from './pages/FBAAssessment';
@@ -97,9 +100,6 @@ import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import ComprehensiveReports from './pages/ComprehensiveReports';
-import CaseManagement from './pages/CaseManagement';
-import ClientOutreach from './pages/ClientOutreach';
 import __Layout from './Layout.jsx';
 
 
@@ -111,11 +111,13 @@ export const PAGES = {
     "BSPCreator": BSPCreator,
     "Billing": Billing,
     "CapabilityAssessment": CapabilityAssessment,
+    "CaseManagement": CaseManagement,
     "CaseNotes": CaseNotes,
     "ClientCommunications": ClientCommunications,
     "ClientDetail": ClientDetail,
     "ClientFeedback": ClientFeedback,
     "ClientIntake": ClientIntake,
+    "ClientOutreach": ClientOutreach,
     "ClientPortal": ClientPortal,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
@@ -124,6 +126,7 @@ export const PAGES = {
     "ComplianceAuditCenter": ComplianceAuditCenter,
     "ComplianceBreachManagement": ComplianceBreachManagement,
     "ComplianceReadiness": ComplianceReadiness,
+    "ComprehensiveReports": ComprehensiveReports,
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
     "FBAAssessment": FBAAssessment,
@@ -154,9 +157,6 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "ComprehensiveReports": ComprehensiveReports,
-    "CaseManagement": CaseManagement,
-    "ClientOutreach": ClientOutreach,
 }
 
 export const pagesConfig = {

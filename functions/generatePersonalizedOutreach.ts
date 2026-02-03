@@ -12,12 +12,13 @@ Deno.serve(async (req) => {
     const { client_id, message_type = 'general_checkin' } = await req.json();
 
     // Fetch client and related data
-    const [client, bsps, caseNotes, communications, incidents] = await Promise.all([
+    const [client, bsps, caseNotes, communications, incidents, riskAlerts] = await Promise.all([
       base44.entities.Client.filter({ id: client_id }).then(c => c[0]),
       base44.entities.BehaviourSupportPlan.filter({ client_id, status: 'active' }),
       base44.entities.CaseNote.filter({ client_id }),
       base44.entities.ClientCommunication.filter({ client_id }),
       base44.entities.Incident.filter({ client_id }),
+      base44.entities.RiskAlert.filter({ client_id, status: 'active' }),
     ]);
 
     if (!client) {
@@ -66,7 +67,13 @@ COMMUNICATION HISTORY:
 - Last Contact: ${recentComms.length > 0 ? new Date(recentComms[0].sent_date).toLocaleDateString() : 'No recent contact'}
 - Recent Topics: ${recentComms.slice(0, 3).map(c => c.subject).join(', ')}
 
-Message Type: ${message_type}`;
+RISK FACTORS:
+- Active Alerts: ${riskAlerts.length}
+- Risk Level: ${client.risk_level || 'Not assessed'}
+
+Message Type: ${message_type}
+
+IMPORTANT: Tailor the message based on the client's current risk level, recent progress, and any active concerns. Be empathetic, specific, and action-oriented.`;
 
     const messageTypePrompts = {
       general_checkin: "Draft a warm, personalized check-in message asking about progress and wellbeing.",
