@@ -76,7 +76,10 @@ const serviceTypes = [
   'Report Writing',
   'Travel',
   'Supervision',
-  'Group Session'
+  'Group Session',
+  'Capacity Building - Finding and Keeping a Job',
+  'Core - Social, Economic and Community Participation',
+  'Core - Assistance with Daily Life'
 ];
 
 export default function Billing() {
