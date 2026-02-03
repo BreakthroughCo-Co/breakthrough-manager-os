@@ -189,13 +189,17 @@ export default function Sidebar({ currentPage }) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-800/50 z-50 transition-all duration-300 flex flex-col",
+        "fixed left-0 top-0 h-screen border-r z-50 transition-all duration-300 flex flex-col",
+        isDark
+          ? "bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-slate-800/50"
+          : "bg-gradient-to-b from-white to-slate-50 border-slate-200",
         collapsed ? "w-20" : "w-64"
       )}
     >
       {/* Logo */}
       <div className={cn(
-        "h-16 flex items-center border-b border-slate-800/50 px-4",
+        "h-16 flex items-center px-4 transition-colors duration-300",
+        isDark ? "border-b border-slate-800/50" : "border-b border-slate-200",
         collapsed ? "justify-center" : "gap-3"
       )}>
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
@@ -203,18 +207,30 @@ export default function Sidebar({ currentPage }) {
         </div>
         {!collapsed && (
           <div className="flex flex-col">
-            <span className="text-white font-semibold text-sm leading-tight">Breakthrough</span>
-            <span className="text-slate-400 text-xs">Manager OS</span>
+            <span className={cn(
+              "font-semibold text-sm leading-tight transition-colors duration-300",
+              isDark ? "text-white" : "text-slate-900"
+            )}>Breakthrough</span>
+            <span className={cn(
+              "text-xs transition-colors duration-300",
+              isDark ? "text-slate-400" : "text-slate-500"
+            )}>Manager OS</span>
           </div>
         )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <nav className={cn(
+        "flex-1 py-4 px-3 space-y-1 overflow-y-auto transition-colors duration-300",
+        isDark ? "bg-transparent" : "bg-transparent"
+      )}>
         {/* Main Navigation */}
         {mainNavItems.map((item) => renderNavItem(item, currentPage === item.page))}
         
-        <div className="my-3 border-t border-slate-800/50" />
+        <div className={cn(
+          "my-3 border-t transition-colors duration-300",
+          isDark ? "border-slate-800/50" : "border-slate-300/50"
+        )} />
         
         {/* Clinical Suite */}
         {renderCollapsibleSection('Clinical', clinicalItems, clinicalOpen, setClinicalOpen, Brain)}
@@ -225,18 +241,27 @@ export default function Sidebar({ currentPage }) {
         {/* Admin Suite */}
         {renderCollapsibleSection('Admin', adminItems, adminOpen, setAdminOpen, Briefcase)}
         
-        <div className="my-3 border-t border-slate-800/50" />
+        <div className={cn(
+          "my-3 border-t transition-colors duration-300",
+          isDark ? "border-slate-800/50" : "border-slate-300/50"
+        )} />
         
         {/* Tools */}
         {toolItems.map((item) => renderNavItem(item, currentPage === item.page))}
       </nav>
 
       {/* Settings */}
-      <div className="p-3 border-t border-slate-800/50">
+      <div className={cn(
+        "p-3 border-t transition-colors duration-300",
+        isDark ? "border-slate-800/50" : "border-slate-200"
+      )}>
         <Link
           to={createPageUrl('Settings')}
           className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all text-sm",
+            "flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-sm",
+            isDark
+              ? "text-slate-400 hover:text-slate-200 hover:bg-slate-700/50"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50",
             collapsed && "justify-center px-2"
           )}
         >
@@ -250,7 +275,12 @@ export default function Sidebar({ currentPage }) {
         variant="ghost"
         size="icon"
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700"
+        className={cn(
+          "absolute -right-3 top-20 w-6 h-6 rounded-full border transition-all",
+          isDark
+            ? "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700"
+            : "bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900 hover:bg-slate-300"
+        )}
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </Button>
