@@ -102,6 +102,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
+import AutomatedReports from './pages/AutomatedReports';
 import __Layout from './Layout.jsx';
 
 
@@ -161,6 +162,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "TeamTrainingManagement": TeamTrainingManagement,
     "AISchedulingOptimizer": AISchedulingOptimizer,
+    "AutomatedReports": AutomatedReports,
 }
 
 export const pagesConfig = {
