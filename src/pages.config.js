@@ -114,6 +114,7 @@ import ClientProgressReports from './pages/ClientProgressReports';
 import FinancialOperations from './pages/FinancialOperations';
 import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
 import PractitionerDevelopment from './pages/PractitionerDevelopment';
+import NDISPlanManagement from './pages/NDISPlanManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -185,6 +186,7 @@ export const PAGES = {
     "FinancialOperations": FinancialOperations,
     "ClientOutcomePrediction": ClientOutcomePrediction,
     "PractitionerDevelopment": PractitionerDevelopment,
+    "NDISPlanManagement": NDISPlanManagement,
 }
 
 export const pagesConfig = {
