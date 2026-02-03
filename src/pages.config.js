@@ -129,6 +129,7 @@ import ClientGoalReview from './pages/ClientGoalReview';
 import ClientTransitions from './pages/ClientTransitions';
 import ReportDistribution from './pages/ReportDistribution';
 import TeamDevelopment from './pages/TeamDevelopment';
+import PractitionerSkillManagement from './pages/PractitionerSkillManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -215,6 +216,7 @@ export const PAGES = {
     "ClientTransitions": ClientTransitions,
     "ReportDistribution": ReportDistribution,
     "TeamDevelopment": TeamDevelopment,
+    "PractitionerSkillManagement": PractitionerSkillManagement,
 }
 
 export const pagesConfig = {
