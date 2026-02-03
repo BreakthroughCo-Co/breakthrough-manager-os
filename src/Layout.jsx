@@ -3,10 +3,10 @@ import Sidebar from '@/components/layout/Sidebar';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import AppErrorBoundary from '@/components/errors/AppErrorBoundary';
-import { useTheme } from '@/components/theme/ThemeContext';
+import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const { isDark, toggleTheme } = useTheme();
 
