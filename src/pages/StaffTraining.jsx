@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { GraduationCap, Users, Calendar, TrendingUp, AlertCircle, CheckCircle, Clock, Plus, Zap } from 'lucide-react';
+import { GraduationCap, Users, Calendar, TrendingUp, AlertCircle, CheckCircle, Clock, Plus, Zap, Brain, UserPlus } from 'lucide-react';
 
 export default function StaffTraining() {
   const [selectedPractitioner, setSelectedPractitioner] = useState('all');
@@ -28,6 +28,15 @@ export default function StaffTraining() {
     roles: '' 
   });
   const [isAssigning, setIsAssigning] = useState(false);
+  const [skillGapResults, setSkillGapResults] = useState(null);
+  const [isAnalyzingSkills, setIsAnalyzingSkills] = useState(false);
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+  const [requestForm, setRequestForm] = useState({
+    requested_module_name: '',
+    training_category: 'NDIS Compliance',
+    justification: '',
+    priority: 'medium',
+  });
 
   const queryClient = useQueryClient();
 
@@ -113,6 +122,48 @@ export default function StaffTraining() {
     }
   };
 
+  const handleAnalyzeSkillGaps = async (practitionerId) => {
+    setIsAnalyzingSkills(true);
+    try {
+      const result = await base44.functions.invoke('analyzeSkillGaps', {
+        practitioner_id: practitionerId,
+      });
+      setSkillGapResults(result.data);
+      setSelectedPractitioner(practitionerId);
+    } catch (error) {
+      alert('Failed to analyze skill gaps: ' + error.message);
+    } finally {
+      setIsAnalyzingSkills(false);
+    }
+  };
+
+  const handleSubmitRequest = async () => {
+    try {
+      const user = await base44.auth.me();
+      const practitioner = practitioners.find(p => p.email === user.email);
+      
+      await base44.entities.TrainingRequest.create({
+        ...requestForm,
+        practitioner_id: practitioner.id,
+        practitioner_name: practitioner.full_name,
+        practitioner_email: practitioner.email,
+        requested_date: new Date().toISOString().split('T')[0],
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['trainingRequests'] });
+      setIsRequestDialogOpen(false);
+      setRequestForm({
+        requested_module_name: '',
+        training_category: 'NDIS Compliance',
+        justification: '',
+        priority: 'medium',
+      });
+      alert('Training request submitted successfully');
+    } catch (error) {
+      alert('Failed to submit request: ' + error.message);
+    }
+  };
+
   const filteredAssignments = selectedPractitioner === 'all'
     ? assignments
     : assignments.filter(a => a.practitioner_id === selectedPractitioner);
@@ -153,6 +204,81 @@ export default function StaffTraining() {
           <p className="text-muted-foreground">Manage training modules and track staff progress</p>
         </div>
         <div className="flex gap-2">
+          <Dialog open={isRequestDialogOpen} onOpenChange={setIsRequestDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Request Training
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Request Training</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label>Training Module Name</Label>
+                  <Input
+                    value={requestForm.requested_module_name}
+                    onChange={(e) => setRequestForm({...requestForm, requested_module_name: e.target.value})}
+                    placeholder="e.g., Advanced Behaviour Intervention"
+                  />
+                </div>
+                <div>
+                  <Label>Category</Label>
+                  <Select
+                    value={requestForm.training_category}
+                    onValueChange={(v) => setRequestForm({...requestForm, training_category: v})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NDIS Compliance">NDIS Compliance</SelectItem>
+                      <SelectItem value="Behaviour Support">Behaviour Support</SelectItem>
+                      <SelectItem value="Clinical Skills">Clinical Skills</SelectItem>
+                      <SelectItem value="Policy & Procedure">Policy & Procedure</SelectItem>
+                      <SelectItem value="Safety & Risk">Safety & Risk</SelectItem>
+                      <SelectItem value="Professional Development">Professional Development</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Priority</Label>
+                  <Select
+                    value={requestForm.priority}
+                    onValueChange={(v) => setRequestForm({...requestForm, priority: v})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Justification</Label>
+                  <Textarea
+                    value={requestForm.justification}
+                    onChange={(e) => setRequestForm({...requestForm, justification: e.target.value})}
+                    placeholder="Explain why you need this training..."
+                    rows={3}
+                  />
+                </div>
+                <Button
+                  onClick={handleSubmitRequest}
+                  disabled={!requestForm.requested_module_name || !requestForm.justification}
+                  className="w-full"
+                >
+                  Submit Request
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           <Dialog open={isPolicyDialogOpen} onOpenChange={setIsPolicyDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">

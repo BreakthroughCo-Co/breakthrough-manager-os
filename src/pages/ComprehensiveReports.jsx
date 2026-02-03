@@ -24,6 +24,9 @@ export default function ComprehensiveReports() {
     schedule_frequency: 'weekly',
     recipients: '',
     export_format: 'pdf',
+    data_points: [],
+    visualization_type: 'bar_chart',
+    filters: {},
   });
 
   const queryClient = useQueryClient();
@@ -81,9 +84,9 @@ export default function ComprehensiveReports() {
     await createTemplateMutation.mutateAsync({
       ...templateForm,
       recipients: JSON.stringify(recipients),
-      data_points: JSON.stringify([]),
-      visualization_config: JSON.stringify({}),
-      filters: JSON.stringify({}),
+      data_points: JSON.stringify(templateForm.data_points),
+      visualization_config: JSON.stringify({ type: templateForm.visualization_type }),
+      filters: JSON.stringify(templateForm.filters),
       created_by: user.email,
     });
   };
@@ -186,6 +189,42 @@ export default function ComprehensiveReports() {
                     <SelectItem value="pdf">PDF</SelectItem>
                     <SelectItem value="csv">CSV</SelectItem>
                     <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Data Points to Include</Label>
+                <div className="space-y-2 mt-2">
+                  {['demographics', 'incidents', 'compliance', 'utilization', 'progress'].map(dp => (
+                    <div key={dp} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={templateForm.data_points.includes(dp)}
+                        onCheckedChange={(checked) => {
+                          const newPoints = checked 
+                            ? [...templateForm.data_points, dp]
+                            : templateForm.data_points.filter(p => p !== dp);
+                          setTemplateForm({...templateForm, data_points: newPoints});
+                        }}
+                      />
+                      <Label className="capitalize">{dp}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label>Visualization Type</Label>
+                <Select
+                  value={templateForm.visualization_type}
+                  onValueChange={(v) => setTemplateForm({...templateForm, visualization_type: v})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bar_chart">Bar Chart</SelectItem>
+                    <SelectItem value="line_chart">Line Chart</SelectItem>
+                    <SelectItem value="pie_chart">Pie Chart</SelectItem>
+                    <SelectItem value="table">Data Table</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -327,7 +366,16 @@ export default function ComprehensiveReports() {
                       {template.schedule_frequency}
                     </Badge>
                   )}
-                  <Button size="sm" variant="outline">Run</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedCategory(template.report_category);
+                      handleGenerateReport('json');
+                    }}
+                  >
+                    Run
+                  </Button>
                 </div>
               </div>
             ))}

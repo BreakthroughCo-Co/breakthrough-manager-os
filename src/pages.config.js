@@ -99,6 +99,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import ComprehensiveReports from './pages/ComprehensiveReports';
 import CaseManagement from './pages/CaseManagement';
+import ClientOutreach from './pages/ClientOutreach';
 import __Layout from './Layout.jsx';
 
 
@@ -155,6 +156,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "ComprehensiveReports": ComprehensiveReports,
     "CaseManagement": CaseManagement,
+    "ClientOutreach": ClientOutreach,
 }
 
 export const pagesConfig = {
