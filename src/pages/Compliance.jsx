@@ -13,7 +13,9 @@ import {
   Edit,
   Trash2,
   ExternalLink,
-  Calendar
+  Calendar,
+  Brain,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -81,6 +83,8 @@ export default function Compliance() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState(emptyItem);
+  const [gapAnalysis, setGapAnalysis] = useState(null);
+  const [isAnalyzingGaps, setIsAnalyzingGaps] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -137,6 +141,20 @@ export default function Compliance() {
     }
   };
 
+  const handleDetectGaps = async () => {
+    setIsAnalyzingGaps(true);
+    try {
+      const result = await base44.functions.invoke('detectComplianceGaps', {
+        scope: 'all'
+      });
+      setGapAnalysis(result.data);
+    } catch (error) {
+      alert('Failed to detect compliance gaps: ' + error.message);
+    } finally {
+      setIsAnalyzingGaps(false);
+    }
+  };
+
   const filteredItems = items.filter(item => {
     const matchesSearch = item.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
@@ -168,11 +186,78 @@ export default function Compliance() {
           <h2 className="text-2xl font-bold text-slate-900">Compliance Register</h2>
           <p className="text-slate-500 mt-1">Track NDIS and regulatory compliance requirements</p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="bg-teal-600 hover:bg-teal-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Compliance Item
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleDetectGaps}
+            disabled={isAnalyzingGaps}
+            variant="outline"
+            className="border-purple-200"
+          >
+            {isAnalyzingGaps ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Brain className="w-4 h-4 mr-2" />
+            )}
+            AI Gap Detection
+          </Button>
+          <Button onClick={() => handleOpenDialog()} className="bg-teal-600 hover:bg-teal-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Compliance Item
+          </Button>
+        </div>
       </div>
+
+      {/* AI Gap Analysis */}
+      {gapAnalysis && (
+        <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              AI Compliance Gap Analysis
+            </h3>
+            <Badge className="bg-purple-100 text-purple-800">
+              Score: {gapAnalysis.gap_analysis.overall_compliance_score}/100
+            </Badge>
+          </div>
+
+          {gapAnalysis.gap_analysis.critical_gaps?.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h4 className="font-semibold text-red-900 mb-3">Critical Gaps ({gapAnalysis.gap_analysis.critical_gaps.length})</h4>
+              <div className="space-y-3">
+                {gapAnalysis.gap_analysis.critical_gaps.slice(0, 3).map((gap, idx) => (
+                  <div key={idx} className="border-l-4 border-l-red-500 pl-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="destructive">{gap.risk_level}</Badge>
+                      <span className="text-xs text-red-700">{gap.entity_type}</span>
+                    </div>
+                    <p className="font-medium text-sm text-red-900">{gap.description}</p>
+                    <p className="text-xs text-red-800 mt-1">
+                      <strong>Standard:</strong> {gap.compliance_standard}
+                    </p>
+                    <p className="text-xs text-red-700 mt-1">
+                      <strong>Action:</strong> {gap.required_action}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {gapAnalysis.gap_analysis.priority_actions?.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-purple-900 mb-2">Priority Actions</h4>
+              <ul className="space-y-2">
+                {gapAnalysis.gap_analysis.priority_actions.map((action, idx) => (
+                  <li key={idx} className="text-sm text-purple-800 flex items-start gap-2">
+                    <span className="font-bold text-purple-600">{idx + 1}.</span>
+                    {action}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

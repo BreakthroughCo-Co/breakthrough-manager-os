@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Award, AlertTriangle, CheckCircle, Users, GraduationCap, Activity, Sparkles, FileText, Loader2 } from 'lucide-react';
+import { TrendingUp, Award, AlertTriangle, CheckCircle, Users, GraduationCap, Activity, Sparkles, FileText, Loader2, Brain, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,6 +29,9 @@ export default function StaffPerformance() {
   const [showAIReportDialog, setShowAIReportDialog] = useState(false);
   const [aiReportResult, setAiReportResult] = useState(null);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [performanceAnalysis, setPerformanceAnalysis] = useState(null);
+  const [isAnalyzingPerformance, setIsAnalyzingPerformance] = useState(false);
+  const [selectedForAnalysis, setSelectedForAnalysis] = useState('');
 
   const { data: practitioners = [] } = useQuery({
     queryKey: ['practitioners'],
@@ -293,6 +296,21 @@ ${aiReportResult.ai_analysis.recommendations.map((r, i) => `${i+1}. ${r}`).join(
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
+  const handleAnalyzePerformance = async (practitionerId) => {
+    setIsAnalyzingPerformance(true);
+    try {
+      const result = await base44.functions.invoke('analyzeStaffPerformance', {
+        practitioner_id: practitionerId
+      });
+      setPerformanceAnalysis(result.data);
+      setSelectedForAnalysis(practitionerId);
+    } catch (error) {
+      alert('Failed to analyze performance: ' + error.message);
+    } finally {
+      setIsAnalyzingPerformance(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -474,6 +492,7 @@ ${aiReportResult.ai_analysis.recommendations.map((r, i) => `${i+1}. ${r}`).join(
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="training">Training Analysis</TabsTrigger>
           <TabsTrigger value="details">Individual Details</TabsTrigger>
+          <TabsTrigger value="ai-coaching">AI Development Plans</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -601,10 +620,199 @@ ${aiReportResult.ai_analysis.recommendations.map((r, i) => `${i+1}. ${r}`).join(
                       </ul>
                     </div>
                   )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3 w-full"
+                    onClick={() => handleAnalyzePerformance(p.id)}
+                    disabled={isAnalyzingPerformance}
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    AI Development Plan
+                  </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="ai-coaching" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI-Powered Development Plans</CardTitle>
+              <CardDescription>
+                Comprehensive analysis of training, performance metrics, and client feedback
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Select value={selectedForAnalysis} onValueChange={handleAnalyzePerformance}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a practitioner to analyze..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {practitioners.map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.full_name} - {p.role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {isAnalyzingPerformance && (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+                </div>
+              )}
+
+              {performanceAnalysis && !isAnalyzingPerformance && (
+                <div className="space-y-4">
+                  <Card className="border-indigo-200 bg-indigo-50">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">{performanceAnalysis.generated_for}</CardTitle>
+                        <Badge className={
+                          performanceAnalysis.analysis.overall_assessment.performance_rating === 'exceptional' ? 'bg-green-100 text-green-800' :
+                          performanceAnalysis.analysis.overall_assessment.performance_rating === 'strong' ? 'bg-blue-100 text-blue-800' :
+                          performanceAnalysis.analysis.overall_assessment.performance_rating === 'satisfactory' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-orange-100 text-orange-800'
+                        }>
+                          {performanceAnalysis.analysis.overall_assessment.performance_rating}
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-indigo-900">
+                        {performanceAnalysis.analysis.overall_assessment.summary}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <h4 className="font-semibold text-green-900 mb-2">Key Strengths</h4>
+                          <ul className="space-y-1">
+                            {performanceAnalysis.analysis.overall_assessment.key_strengths?.map((s, i) => (
+                              <li key={i} className="text-green-800 flex gap-2">
+                                <CheckCircle className="w-4 h-4 mt-0.5" />
+                                {s}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-blue-900 mb-2">Standout Achievements</h4>
+                          <ul className="space-y-1">
+                            {performanceAnalysis.analysis.overall_assessment.standout_achievements?.map((a, i) => (
+                              <li key={i} className="text-blue-800 flex gap-2">
+                                <Award className="w-4 h-4 mt-0.5" />
+                                {a}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {performanceAnalysis.analysis.development_areas?.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Target className="w-5 h-5 text-amber-600" />
+                          Development Areas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {performanceAnalysis.analysis.development_areas.map((area, idx) => (
+                          <div key={idx} className="border-l-4 border-l-amber-400 pl-4 py-2 bg-amber-50 rounded-r">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant={
+                                area.priority === 'urgent' ? 'destructive' :
+                                area.priority === 'high' ? 'default' : 'secondary'
+                              }>
+                                {area.priority}
+                              </Badge>
+                              <Badge variant="outline">{area.impact} impact</Badge>
+                            </div>
+                            <h4 className="font-semibold text-sm text-amber-900">{area.area}</h4>
+                            <p className="text-xs text-amber-800 mt-1">{area.current_status}</p>
+                            <div className="mt-2">
+                              <p className="text-xs font-medium text-amber-900">Actions:</p>
+                              <ul className="list-disc list-inside text-xs text-amber-800 ml-2">
+                                {area.development_actions?.map((action, i) => (
+                                  <li key={i}>{action}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {performanceAnalysis.analysis.personalized_development_plan && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Development Roadmap</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <h4 className="font-semibold text-sm text-red-900 mb-2">Immediate Actions</h4>
+                          <ul className="space-y-1">
+                            {performanceAnalysis.analysis.personalized_development_plan.immediate_actions?.map((a, i) => (
+                              <li key={i} className="text-sm text-slate-700">• {a}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <h4 className="font-semibold text-sm text-blue-900 mb-2">3-Month Goals</h4>
+                            <ul className="space-y-1">
+                              {performanceAnalysis.analysis.personalized_development_plan.three_month_goals?.map((g, i) => (
+                                <li key={i} className="text-xs text-slate-600">• {g}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-sm text-indigo-900 mb-2">6-Month Goals</h4>
+                            <ul className="space-y-1">
+                              {performanceAnalysis.analysis.personalized_development_plan.six_month_goals?.map((g, i) => (
+                                <li key={i} className="text-xs text-slate-600">• {g}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {performanceAnalysis.analysis.coaching_opportunities?.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Coaching Opportunities</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {performanceAnalysis.analysis.coaching_opportunities.map((opp, idx) => (
+                          <div key={idx} className="border border-green-200 bg-green-50 rounded-lg p-3">
+                            <h4 className="font-semibold text-sm text-green-900 mb-1">{opp.opportunity}</h4>
+                            <div className="space-y-1 text-xs text-green-800">
+                              <p><strong>Approach:</strong> {opp.approach}</p>
+                              <p><strong>Expected Outcome:</strong> {opp.expected_outcome}</p>
+                              <p><strong>Timeline:</strong> {opp.timeline}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {!performanceAnalysis && !isAnalyzingPerformance && (
+                <div className="text-center py-12 text-slate-600">
+                  <Brain className="w-12 h-12 mx-auto text-indigo-400 mb-4" />
+                  <p>Select a practitioner to generate comprehensive AI analysis</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

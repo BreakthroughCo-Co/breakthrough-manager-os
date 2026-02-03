@@ -49,7 +49,9 @@
  */
 import ABCAnalyser from './pages/ABCAnalyser';
 import AIAssistant from './pages/AIAssistant';
+import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
 import AgentManagement from './pages/AgentManagement';
+import AutomatedReports from './pages/AutomatedReports';
 import BIPQualityAudit from './pages/BIPQualityAudit';
 import BSPCreator from './pages/BSPCreator';
 import Billing from './pages/Billing';
@@ -98,18 +100,18 @@ import StaffPerformance from './pages/StaffPerformance';
 import StaffTraining from './pages/StaffTraining';
 import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
+import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import TeamTrainingManagement from './pages/TeamTrainingManagement';
-import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
-import AutomatedReports from './pages/AutomatedReports';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ABCAnalyser": ABCAnalyser,
     "AIAssistant": AIAssistant,
+    "AISchedulingOptimizer": AISchedulingOptimizer,
     "AgentManagement": AgentManagement,
+    "AutomatedReports": AutomatedReports,
     "BIPQualityAudit": BIPQualityAudit,
     "BSPCreator": BSPCreator,
     "Billing": Billing,
@@ -158,11 +160,9 @@ export const PAGES = {
     "StaffTraining": StaffTraining,
     "TaskQueue": TaskQueue,
     "Tasks": Tasks,
+    "TeamTrainingManagement": TeamTrainingManagement,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "TeamTrainingManagement": TeamTrainingManagement,
-    "AISchedulingOptimizer": AISchedulingOptimizer,
-    "AutomatedReports": AutomatedReports,
 }
 
 export const pagesConfig = {
