@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import IncidentReportDialog from '@/components/incidents/IncidentReportDialog';
-import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search } from 'lucide-react';
+import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function ClientDetail() {
   const [searchParams] = useSearchParams();
@@ -43,6 +44,12 @@ export default function ClientDetail() {
       const clients = await base44.entities.Client.filter({ id: clientId });
       return clients[0];
     },
+    enabled: !!clientId,
+  });
+
+  const { data: alerts = [] } = useQuery({
+    queryKey: ['riskAlerts', clientId],
+    queryFn: () => base44.entities.RiskAlert.filter({ client_id: clientId, status: 'active' }),
     enabled: !!clientId,
   });
 
@@ -193,6 +200,29 @@ export default function ClientDetail() {
 
   return (
     <div className="space-y-6">
+      {alerts.length > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <div className="flex-1">
+            <AlertDescription>
+              <strong>{alerts.length} Active Risk Alert{alerts.length > 1 ? 's' : ''}</strong>
+              {alerts.slice(0, 2).map(alert => (
+                <div key={alert.id} className="mt-2 text-sm">
+                  • {alert.alert_type.replace(/_/g, ' ')} - Risk Score: {alert.risk_score}/100
+                </div>
+              ))}
+            </AlertDescription>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleAcknowledgeAlert(alerts[0].id)}
+          >
+            Acknowledge
+          </Button>
+        </Alert>
+      )}
+      
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold">{client.full_name}</h1>
