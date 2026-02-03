@@ -25,11 +25,20 @@ export default function AutomatedReports() {
   const handleGenerateReport = async () => {
     setIsGenerating(true);
     try {
-      await base44.functions.invoke('autoGenerateComplianceReport', {
-        report_type: 'monthly_compliance_summary',
-        include_recommendations: true,
-      });
-      alert('Compliance report generated successfully!');
+      const response = await base44.functions.invoke('autoGenerateComplianceReport', {});
+      
+      // Download the PDF
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Compliance_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      
+      alert('Compliance report generated and downloaded successfully!');
     } catch (error) {
       alert('Failed to generate report: ' + error.message);
     } finally {
