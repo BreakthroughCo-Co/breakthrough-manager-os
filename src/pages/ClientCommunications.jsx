@@ -487,7 +487,7 @@ Tone: Supportive, understanding, professional.`;
             </Card>
           </div>
         </div>
-      ) : (
+      ) : activeView === 'history' ? (
         <Card>
           <CardHeader>
             <CardTitle>Communication History</CardTitle>
