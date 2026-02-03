@@ -56,25 +56,24 @@ const ChartStyle = ({
     return null
   }
 
-  return (
-    (<style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-.map(([key, itemConfig]) => {
-const color =
-  itemConfig.theme?.[theme] ||
-  itemConfig.color
-return color ? `  --color-${key}: ${color};` : null
-})
-.join("\n")}
-}
-`)
-          .join("\n"),
-      }} />)
-  );
+  // Build CSS custom properties safely without dangerouslySetInnerHTML
+  const cssText = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const selector = prefix ? `${prefix} [data-chart="${id}"]` : `[data-chart="${id}"]`;
+      const properties = colorConfig
+        .map(([key, itemConfig]) => {
+          const color = itemConfig.theme?.[theme] || itemConfig.color;
+          return color ? `--color-${key}: ${color};` : null;
+        })
+        .filter(Boolean)
+        .join('\n  ');
+      
+      return properties ? `${selector} {\n  ${properties}\n}` : '';
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  return <style>{cssText}</style>;
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip
