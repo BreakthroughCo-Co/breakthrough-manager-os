@@ -19,6 +19,7 @@ import QuickActions from '@/components/dashboard/QuickActions';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import FundingOverview from '@/components/dashboard/FundingOverview';
 import PractitionerMetrics from '@/components/dashboard/PractitionerMetrics';
+import AIClientOverview from '@/components/dashboard/AIClientOverview';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -186,6 +187,9 @@ export default function Dashboard() {
           variant={riskAlerts.some(a => a.severity === 'critical') ? 'warning' : 'default'}
         />
       </div>
+
+      {/* AI Intelligence Overview */}
+      <AIClientOverview clients={clients} />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -103,6 +103,7 @@ import Tasks from './pages/Tasks';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
+import NDISPricing from './pages/NDISPricing';
 import __Layout from './Layout.jsx';
 
 
@@ -163,6 +164,7 @@ export const PAGES = {
     "TeamTrainingManagement": TeamTrainingManagement,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
+    "NDISPricing": NDISPricing,
 }
 
 export const pagesConfig = {

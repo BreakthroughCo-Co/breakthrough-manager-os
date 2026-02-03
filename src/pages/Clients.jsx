@@ -228,6 +228,7 @@ export default function Clients() {
             <TableRow className="bg-slate-50">
               <TableHead>Client</TableHead>
               <TableHead>NDIS Number</TableHead>
+              <TableHead>Risk Score</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Practitioner</TableHead>
               <TableHead>Funding</TableHead>
@@ -256,6 +257,22 @@ export default function Clients() {
                     </div>
                   </TableCell>
                   <TableCell className="font-mono text-sm">{client.ndis_number}</TableCell>
+                  <TableCell>
+                    {client.ai_risk_score !== undefined ? (
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "px-2 py-1 rounded-md text-xs font-semibold",
+                          client.ai_risk_score >= 70 ? "bg-red-100 text-red-700" :
+                          client.ai_risk_score >= 40 ? "bg-amber-100 text-amber-700" :
+                          "bg-green-100 text-green-700"
+                        )}>
+                          {client.ai_risk_score}/100
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Not assessed</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Badge className={statusColors[client.status]}>
                       {client.status?.replace(/_/g, ' ')}
