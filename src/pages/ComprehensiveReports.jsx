@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, FileText, Download, Calendar, Sparkles, BarChart3, Users, AlertTriangle, Shield } from 'lucide-react';
+import ReportBuilder from '@/components/reports/ReportBuilder';
 
 export default function ComprehensiveReports() {
   const [selectedCategory, setSelectedCategory] = useState('client_demographics');
@@ -105,6 +106,16 @@ export default function ComprehensiveReports() {
           <h1 className="text-3xl font-bold">Comprehensive Reports</h1>
           <p className="text-muted-foreground">AI-powered insights and analytics</p>
         </div>
+      </div>
+
+      <Tabs defaultValue="generate" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="generate">Generate Reports</TabsTrigger>
+          <TabsTrigger value="builder">Custom Report Builder</TabsTrigger>
+          <TabsTrigger value="templates">Saved Templates</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="generate" className="space-y-6">
         <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -347,6 +358,15 @@ export default function ComprehensiveReports() {
         )}
       </Card>
 
+        </TabsContent>
+
+        <TabsContent value="builder">
+          <ReportBuilder onSave={() => {
+            queryClient.invalidateQueries({ queryKey: ['reportTemplates'] });
+          }} />
+        </TabsContent>
+
+        <TabsContent value="templates">
       <Card>
         <CardHeader>
           <CardTitle>Saved Templates</CardTitle>
@@ -385,6 +405,8 @@ export default function ComprehensiveReports() {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
