@@ -211,6 +211,24 @@ export default function ComplianceBreachManagement() {
                       View Notice
                     </Button>
                   )}
+                  {!breach.training_triggered && (
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const result = await base44.functions.invoke('processComplianceBreachWorkflows', {
+                            breach_id: breach.id,
+                          });
+                          queryClient.invalidateQueries({ queryKey: ['complianceBreaches'] });
+                          alert(`Workflows executed: ${result.data.workflows_executed.training_assignments} training assignments, ${result.data.workflows_executed.incidents_created} incidents created, ${result.data.workflows_executed.clients_flagged} clients flagged`);
+                        } catch (error) {
+                          alert('Failed to execute workflows: ' + error.message);
+                        }
+                      }}
+                    >
+                      Execute Workflows
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>

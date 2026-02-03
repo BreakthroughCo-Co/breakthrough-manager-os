@@ -18,6 +18,9 @@ export default function ClientCommunications() {
   const [communicationType, setCommunicationType] = useState('portal_message');
   const [isDrafting, setIsDrafting] = useState(false);
   const [activeView, setActiveView] = useState('draft');
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
+  const [isQuerying, setIsQuerying] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -107,6 +110,73 @@ Do NOT use placeholder text. Be specific based on the data provided.`;
       alert('Failed to draft message: ' + error.message);
     } finally {
       setIsDrafting(false);
+    }
+  };
+
+  const handleDraftFollowUp = async () => {
+    if (!selectedClient) {
+      alert('Please select a client first');
+      return;
+    }
+
+    setIsDrafting(true);
+    try {
+      const client = clients.find(c => c.id === selectedClient);
+      const clientComms = communications.filter(c => c.client_id === selectedClient);
+      const recentComms = clientComms.slice(0, 3);
+      const unanswered = recentComms.filter(c => !c.recipient_response);
+
+      const prompt = `Draft a follow-up message for a client/family based on recent communication history.
+
+Client: ${client?.full_name}
+
+Recent Communications:
+${recentComms.map(c => `
+- ${new Date(c.sent_date).toLocaleDateString()}: ${c.subject}
+- Message: ${c.message_body.substring(0, 150)}...
+- Response received: ${c.recipient_response ? 'Yes' : 'No'}
+`).join('\n')}
+
+${unanswered.length > 0 ? `There are ${unanswered.length} unanswered message(s).` : ''}
+
+Draft a brief, friendly follow-up message (100-150 words) that:
+1. References the previous communication(s)
+2. Gently checks in without being pushy
+3. Offers assistance or clarification
+4. Provides an easy way to respond
+
+Tone: Supportive, understanding, professional.`;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+      });
+
+      setSubject(`Following up - ${client?.full_name}`);
+      setMessageBody(result);
+    } catch (error) {
+      alert('Failed to draft follow-up: ' + error.message);
+    } finally {
+      setIsDrafting(false);
+    }
+  };
+
+  const handleQueryClient = async () => {
+    if (!selectedClient || !aiQuery) {
+      alert('Please select a client and enter a query');
+      return;
+    }
+
+    setIsQuerying(true);
+    try {
+      const result = await base44.functions.invoke('queryClientData', {
+        client_id: selectedClient,
+        query: aiQuery,
+      });
+      setAiResponse(result.data.response);
+    } catch (error) {
+      alert('Failed to query client data: ' + error.message);
+    } finally {
+      setIsQuerying(false);
     }
   };
 
@@ -244,24 +314,39 @@ Do NOT use placeholder text. Be specific based on the data provided.`;
                 />
               </div>
 
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleDraftWithAI}
-                  disabled={!selectedClient || isDrafting}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  {isDrafting ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
-                  )}
-                  Draft with AI
-                </Button>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleDraftWithAI}
+                    disabled={!selectedClient || isDrafting}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {isDrafting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    Draft Progress Update
+                  </Button>
+                  <Button
+                    onClick={handleDraftFollowUp}
+                    disabled={!selectedClient || isDrafting}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {isDrafting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-2" />
+                    )}
+                    Draft Follow-up
+                  </Button>
+                </div>
                 <Button
                   onClick={handleSend}
                   disabled={!selectedClient || !subject || !messageBody || createCommunicationMutation.isPending}
-                  className="flex-1"
+                  className="w-full"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Send Message
@@ -281,40 +366,85 @@ Do NOT use placeholder text. Be specific based on the data provided.`;
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Context & Preview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {selectedClient ? (
-                <>
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Recent Case Notes ({caseNotes.length})</h4>
-                    {caseNotes.slice(0, 3).map(note => (
-                      <div key={note.id} className="text-sm border-l-2 border-teal-200 pl-3 mb-2">
-                        <p className="font-medium">{note.session_date}</p>
-                        <p className="text-muted-foreground text-xs">{note.summary?.substring(0, 100)}...</p>
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>AI Client Query Assistant</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {selectedClient ? (
+                  <>
+                    <div>
+                      <Label>Ask about this client</Label>
+                      <Input
+                        value={aiQuery}
+                        onChange={(e) => setAiQuery(e.target.value)}
+                        placeholder="e.g., What are the active BSP goals? Summarize progress last month"
+                        onKeyPress={(e) => e.key === 'Enter' && handleQueryClient()}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleQueryClient}
+                      disabled={!aiQuery || isQuerying}
+                      variant="outline"
+                      className="w-full"
+                      size="sm"
+                    >
+                      {isQuerying ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-4 h-4 mr-2" />
+                      )}
+                      Query Client Data
+                    </Button>
+                    {aiResponse && (
+                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
+                        <p className="font-medium text-blue-900 mb-1">AI Response:</p>
+                        <p className="text-blue-800 whitespace-pre-wrap">{aiResponse}</p>
                       </div>
-                    ))}
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Active BSP</h4>
-                    {bsps.find(b => b.status === 'active') ? (
-                      <div className="text-sm border-l-2 border-blue-200 pl-3">
-                        <p className="font-medium">BSP Version {bsps.find(b => b.status === 'active')?.plan_version}</p>
-                        <p className="text-muted-foreground text-xs">{bsps.find(b => b.status === 'active')?.behaviour_summary?.substring(0, 100)}...</p>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No active BSP</p>
                     )}
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-8">Select a client to view context</p>
-              )}
-            </CardContent>
-          </Card>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">Select a client to use AI assistant</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Context & Preview</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {selectedClient ? (
+                  <>
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Recent Case Notes ({caseNotes.length})</h4>
+                      {caseNotes.slice(0, 3).map(note => (
+                        <div key={note.id} className="text-sm border-l-2 border-teal-200 pl-3 mb-2">
+                          <p className="font-medium">{note.session_date}</p>
+                          <p className="text-muted-foreground text-xs">{note.summary?.substring(0, 100)}...</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium text-sm mb-2">Active BSP</h4>
+                      {bsps.find(b => b.status === 'active') ? (
+                        <div className="text-sm border-l-2 border-blue-200 pl-3">
+                          <p className="font-medium">BSP Version {bsps.find(b => b.status === 'active')?.plan_version}</p>
+                          <p className="text-muted-foreground text-xs">{bsps.find(b => b.status === 'active')?.behaviour_summary?.substring(0, 100)}...</p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No active BSP</p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">Select a client to view context</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       ) : (
         <Card>

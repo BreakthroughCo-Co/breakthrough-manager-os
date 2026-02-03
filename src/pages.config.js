@@ -96,6 +96,7 @@ import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
+import StaffPerformance from './pages/StaffPerformance';
 import __Layout from './Layout.jsx';
 
 
@@ -149,6 +150,7 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "ComplianceBreachManagement": ComplianceBreachManagement,
+    "StaffPerformance": StaffPerformance,
 }
 
 export const pagesConfig = {
