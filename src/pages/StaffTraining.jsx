@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { GraduationCap, Users, Calendar, TrendingUp, AlertCircle, CheckCircle, Clock, Plus, Zap, Brain, UserPlus } from 'lucide-react';
+import { GraduationCap, Users, Calendar, TrendingUp, AlertCircle, CheckCircle, Clock, Plus, Zap, Brain, UserPlus, Loader2 } from 'lucide-react';
+import TrainingModuleRatingDialog from '../components/training/TrainingModuleRatingDialog';
 
 export default function StaffTraining() {
   const [selectedPractitioner, setSelectedPractitioner] = useState('all');
@@ -37,6 +38,8 @@ export default function StaffTraining() {
     justification: '',
     priority: 'medium',
   });
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [assignmentToRate, setAssignmentToRate] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -608,6 +611,18 @@ export default function StaffTraining() {
                               Mark Complete
                             </Button>
                           )}
+                          {assignment.completion_status === 'completed' && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setAssignmentToRate(assignment);
+                                setShowRatingDialog(true);
+                              }}
+                            >
+                              Rate
+                            </Button>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -780,6 +795,13 @@ export default function StaffTraining() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Rating Dialog */}
+      <TrainingModuleRatingDialog
+        assignment={assignmentToRate}
+        open={showRatingDialog}
+        onOpenChange={setShowRatingDialog}
+      />
     </div>
   );
 }
