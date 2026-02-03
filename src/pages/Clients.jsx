@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { format, differenceInDays } from 'date-fns';
 import {
   UserPlus,
@@ -16,7 +18,8 @@ import {
   User,
   FileText,
   Mail,
-  Eye
+  Eye,
+  ExternalLink
 } from 'lucide-react';
 import ClientCommunicationTemplates from '@/components/communication/ClientCommunicationTemplates';
 import { Button } from '@/components/ui/button';
@@ -188,10 +191,18 @@ export default function Clients() {
           <h2 className="text-2xl font-bold text-slate-900">Clients</h2>
           <p className="text-slate-500 mt-1">Manage NDIS participants and their plans</p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="bg-teal-600 hover:bg-teal-700">
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Client
-        </Button>
+        <div className="flex gap-2">
+          <Link to={createPageUrl('ClientForm')}>
+            <Button className="bg-teal-600 hover:bg-teal-700">
+              <UserPlus className="w-4 h-4 mr-2" />
+              New Client
+            </Button>
+          </Link>
+          <Button onClick={() => handleOpenDialog()} variant="outline">
+            <UserPlus className="w-4 h-4 mr-2" />
+            Quick Add
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -309,30 +320,37 @@ export default function Clients() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="w-4 h-4" />
+                    <div className="flex items-center gap-2">
+                      <Link to={`${createPageUrl('ClientDetail')}?clientId=${client.id}`}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="View full profile">
+                          <ExternalLink className="w-4 h-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleOpenDialog(client)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setCommunicationClient(client)}>
-                          <Mail className="w-4 h-4 mr-2" />
-                          Send Communication
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => deleteMutation.mutate(client.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </Link>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleOpenDialog(client)}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Quick Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setCommunicationClient(client)}>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Send Communication
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => deleteMutation.mutate(client.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
