@@ -9,97 +9,115 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { client_id, section } = await req.json();
+    const { client_id, include_sections } = await req.json();
 
-    // Fetch relevant data based on section
-    let data = {};
-    if (section === 'case_notes') {
-      const notes = await base44.entities.CaseNote.filter({ client_id });
-      data.notes = notes.slice(0, 10);
-    } else if (section === 'incidents') {
-      const incidents = await base44.entities.Incident.filter({ client_id });
-      data.incidents = incidents.slice(0, 10);
-    } else if (section === 'compliance') {
-      const reports = await base44.asServiceRole.entities.ComplianceAuditReport.list('-audit_date', 20);
-      const findings = reports.flatMap(r => {
-        try {
-          return JSON.parse(r.findings || '[]').filter(f => f.client_id === client_id);
-        } catch {
-          return [];
+    // Fetch comprehensive client data
+    const [client, bsps, fbas, caseNotes, incidents, intakeRequests, communications] = await Promise.all([
+      base44.entities.Client.filter({ id: client_id }).then(c => c[0]),
+      base44.entities.BehaviourSupportPlan.filter({ client_id }),
+      base44.entities.FunctionalBehaviourAssessment.filter({ client_id }),
+      base44.entities.CaseNote.filter({ client_id }),
+      base44.entities.Incident.filter({ client_id }),
+      base44.entities.ClientIntakeRequest.filter({ client_id }),
+      base44.entities.ClientCommunication.filter({ client_id }),
+    ]);
+
+    if (!client) {
+      return Response.json({ error: 'Client not found' }, { status: 404 });
+    }
+
+    const sections = include_sections || ['overview', 'bsp', 'intake', 'progress', 'risks'];
+
+    let contextData = `CLIENT: ${client.full_name}\nNDIS Number: ${client.ndis_number}\nService Type: ${client.service_type}\nRisk Level: ${client.risk_level}\n\n`;
+
+    // Build context based on requested sections
+    if (sections.includes('bsp') && bsps.length > 0) {
+      contextData += `BEHAVIOUR SUPPORT PLANS (${bsps.length}):\n`;
+      bsps.slice(0, 3).forEach(bsp => {
+        contextData += `- Version ${bsp.plan_version} (${bsp.status})\n`;
+        contextData += `  Start: ${bsp.start_date}, Review: ${bsp.review_date}\n`;
+        contextData += `  Behaviour: ${bsp.behaviour_summary?.substring(0, 200)}\n`;
+        contextData += `  Strategies: ${bsp.skill_building_strategies?.substring(0, 200)}\n\n`;
+      });
+    }
+
+    if (sections.includes('intake') && intakeRequests.length > 0) {
+      contextData += `INTAKE ASSESSMENT:\n`;
+      const intake = intakeRequests[0];
+      contextData += `- Support Needs: ${intake.support_needs}\n`;
+      contextData += `- Service Interest: ${intake.service_interest}\n`;
+      contextData += `- Urgency: ${intake.urgency}\n`;
+      if (intake.ai_analysis) {
+        const analysis = JSON.parse(intake.ai_analysis);
+        contextData += `- Initial Assessment: ${JSON.stringify(analysis).substring(0, 200)}\n\n`;
+      }
+    }
+
+    if (sections.includes('progress') && caseNotes.length > 0) {
+      contextData += `RECENT PROGRESS NOTES (Last 10):\n`;
+      caseNotes.slice(0, 10).forEach(note => {
+        contextData += `- ${note.session_date}: ${note.summary?.substring(0, 150) || note.progress_summary?.substring(0, 150)}\n`;
+        if (note.ai_summary) {
+          contextData += `  AI Summary: ${note.ai_summary.substring(0, 200)}\n`;
         }
       });
-      data.findings = findings;
-    } else if (section === 'overall') {
-      const [notes, incidents, client] = await Promise.all([
-        base44.entities.CaseNote.filter({ client_id }),
-        base44.entities.Incident.filter({ client_id }),
-        base44.entities.Client.filter({ id: client_id }).then(c => c[0]),
-      ]);
-      data = { notes: notes.slice(0, 10), incidents: incidents.slice(0, 10), client };
+      contextData += '\n';
     }
 
-    // Build context-specific prompt
-    let prompt = '';
-    if (section === 'case_notes') {
-      prompt = `Analyze the following case notes and provide a concise summary (150-200 words) highlighting:
-1. Overall progress and trends
-2. Key interventions and their effectiveness
-3. Areas of concern or regression
-4. Recommendations for next steps
-
-Case Notes:
-${data.notes.map(n => `Date: ${n.session_date}\nSummary: ${n.summary || n.progress_summary || 'N/A'}\n`).join('\n')}
-
-Provide a professional, clinical summary in paragraph form.`;
-    } else if (section === 'incidents') {
-      prompt = `Analyze the following incident reports and provide a risk assessment summary (150-200 words) covering:
-1. Incident frequency and severity trends
-2. Common triggers or patterns
-3. Effectiveness of current risk management strategies
-4. Recommended preventive measures
-
-Incidents:
-${data.incidents.map(i => `Date: ${new Date(i.incident_date).toLocaleDateString()}\nCategory: ${i.category}\nSeverity: ${i.severity}\nDescription: ${i.description.substring(0, 200)}\n`).join('\n')}
-
-Provide a risk-focused clinical assessment.`;
-    } else if (section === 'compliance') {
-      prompt = `Review the following compliance audit findings and provide a summary (150-200 words) addressing:
-1. Key compliance gaps identified
-2. Risk level and urgency
-3. Impact on service quality
-4. Priority remediation steps
-
-Findings:
-${data.findings.map(f => `Standard: ${f.standard}\nIssue: ${f.issue}\nSeverity: ${f.severity}\nRemediation: ${f.remediation || 'N/A'}\n`).join('\n')}
-
-Provide a compliance-focused summary with actionable insights.`;
-    } else if (section === 'overall') {
-      prompt = `Provide a comprehensive client progress and risk summary (250-300 words) based on:
-
-Client: ${data.client?.full_name}
-Service Type: ${data.client?.service_type}
-Risk Level: ${data.client?.risk_level}
-
-Recent Case Notes (${data.notes.length}):
-${data.notes.slice(0, 5).map(n => `- ${n.session_date}: ${n.progress_summary || 'Session completed'}`).join('\n')}
-
-Incidents (${data.incidents.length} total, ${data.incidents.filter(i => i.severity === 'high' || i.severity === 'critical').length} high/critical):
-${data.incidents.slice(0, 3).map(i => `- ${new Date(i.incident_date).toLocaleDateString()}: ${i.category} (${i.severity})`).join('\n')}
-
-Provide a holistic summary covering:
-1. Overall client progress and trajectory
-2. Key risk factors and trends
-3. Service effectiveness
-4. Strategic recommendations for ongoing support`;
+    if (sections.includes('risks')) {
+      contextData += `INCIDENT HISTORY (${incidents.length} total):\n`;
+      const highSeverity = incidents.filter(i => i.severity === 'high' || i.severity === 'critical');
+      contextData += `- High/Critical Incidents: ${highSeverity.length}\n`;
+      contextData += `- Recent Incidents (Last 5):\n`;
+      incidents.slice(0, 5).forEach(inc => {
+        contextData += `  ${new Date(inc.incident_date).toLocaleDateString()}: ${inc.category} (${inc.severity})\n`;
+      });
+      contextData += '\n';
     }
 
-    const summary = await base44.integrations.Core.InvokeLLM({
-      prompt: prompt,
+    // Generate AI summary
+    const prompt = `You are an NDIS practice clinical analyst. Generate a comprehensive client history summary based on the following data.
+
+${contextData}
+
+Generate a professional summary with the following sections:
+
+**CLIENT OVERVIEW**
+- Brief profile and current service engagement
+- Service history timeline
+
+${sections.includes('bsp') ? '**BEHAVIOUR SUPPORT PROGRESS**\n- Evolution of BSP across versions\n- Key strategies and their effectiveness\n- Current intervention focus\n' : ''}
+
+${sections.includes('intake') ? '**INITIAL ASSESSMENT & BASELINE**\n- Presenting concerns at intake\n- Initial goals and expectations\n- Service suitability assessment\n' : ''}
+
+${sections.includes('progress') ? '**LONG-TERM PROGRESS TRENDS**\n- Key achievements and milestones\n- Patterns in progress notes\n- Skill development trajectory\n' : ''}
+
+${sections.includes('risks') ? '**RISK FACTORS & SAFEGUARDS**\n- Identified risk patterns\n- Incident trends and triggers\n- Current risk mitigation strategies\n' : ''}
+
+**CLINICAL RECOMMENDATIONS**
+- Areas requiring attention
+- Suggested next steps
+- Long-term service planning considerations
+
+Keep it clinical, evidence-based, and action-oriented. Highlight both successes and challenges.`;
+
+    const aiSummary = await base44.integrations.Core.InvokeLLM({ prompt });
+
+    return Response.json({
+      client_id,
+      client_name: client.full_name,
+      sections_included: sections,
+      data_summary: {
+        bsp_count: bsps.length,
+        case_notes_count: caseNotes.length,
+        incidents_count: incidents.length,
+        communications_count: communications.length,
+      },
+      comprehensive_summary: aiSummary,
+      generated_date: new Date().toISOString(),
     });
-
-    return Response.json({ summary, section });
   } catch (error) {
-    console.error('Summary generation error:', error);
+    console.error('Client history summary error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

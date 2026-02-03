@@ -12,6 +12,8 @@ import { TrendingUp, Award, AlertTriangle, CheckCircle, Users, GraduationCap, Ac
 export default function StaffPerformance() {
   const [selectedPractitioner, setSelectedPractitioner] = useState('all');
   const [timeframe, setTimeframe] = useState('30');
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportType, setReportType] = useState('General Performance Review');
 
   const { data: practitioners = [] } = useQuery({
     queryKey: ['practitioners'],
@@ -94,6 +96,43 @@ export default function StaffPerformance() {
     return Math.max(0, Math.round(score));
   }
 
+  const handleGenerateReport = async (format) => {
+    setIsGeneratingReport(true);
+    try {
+      const result = await base44.functions.invoke('generatePerformanceReport', {
+        report_type: reportType,
+        timeframe_days: parseInt(timeframe),
+        practitioner_id: selectedPractitioner !== 'all' ? selectedPractitioner : null,
+        format,
+      });
+
+      if (format === 'csv') {
+        // Create blob and download
+        const blob = new Blob([result.data], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `performance_report_${Date.now()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      } else {
+        // Display report in dialog or new window
+        const reportWindow = window.open('', '_blank');
+        if (result.data.format === 'markdown') {
+          reportWindow.document.write(`<pre style="font-family: system-ui; padding: 20px;">${result.data.content}</pre>`);
+        } else {
+          reportWindow.document.write(`<pre>${JSON.stringify(result.data, null, 2)}</pre>`);
+        }
+      }
+    } catch (error) {
+      alert('Failed to generate report: ' + error.message);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   const filteredMetrics = selectedPractitioner === 'all' 
     ? practitionerMetrics 
     : practitionerMetrics.filter(p => p.id === selectedPractitioner);
@@ -153,6 +192,19 @@ export default function StaffPerformance() {
               ))}
             </SelectContent>
           </Select>
+          <Button
+            onClick={() => handleGenerateReport('csv')}
+            disabled={isGeneratingReport}
+            variant="outline"
+          >
+            Export CSV
+          </Button>
+          <Button
+            onClick={() => handleGenerateReport('json')}
+            disabled={isGeneratingReport}
+          >
+            Generate Report
+          </Button>
         </div>
       </div>
 
