@@ -59,6 +59,7 @@ import ClientFeedback from './pages/ClientFeedback';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
 import Compliance from './pages/Compliance';
+import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
 import FBAAssessment from './pages/FBAAssessment';
 import Integrations from './pages/Integrations';
@@ -96,6 +97,7 @@ export const PAGES = {
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
     "Compliance": Compliance,
+    "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
     "FBAAssessment": FBAAssessment,
     "Integrations": Integrations,
