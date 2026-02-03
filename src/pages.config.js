@@ -108,6 +108,9 @@ import AIAdminHub from './pages/AIAdminHub';
 import WorkloadManagement from './pages/WorkloadManagement';
 import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
 import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
+import NDISComplianceDashboard from './pages/NDISComplianceDashboard';
+import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
+import ClientProgressReports from './pages/ClientProgressReports';
 import __Layout from './Layout.jsx';
 
 
@@ -173,6 +176,9 @@ export const PAGES = {
     "WorkloadManagement": WorkloadManagement,
     "ComplianceTrainingManagement": ComplianceTrainingManagement,
     "LEGOTransformativePlay": LEGOTransformativePlay,
+    "NDISComplianceDashboard": NDISComplianceDashboard,
+    "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
+    "ClientProgressReports": ClientProgressReports,
 }
 
 export const pagesConfig = {
