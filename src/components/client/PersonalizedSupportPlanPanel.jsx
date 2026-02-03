@@ -37,21 +37,50 @@ export default function PersonalizedSupportPlanPanel({ supportPlan, isGenerating
     );
   }
 
-  const plan = supportPlan.support_plan || {};
+  const plan = supportPlan.recommendations || supportPlan.support_plan || {};
 
   return (
     <div className="space-y-4">
-      {/* Overview */}
-      {plan.overview && (
-        <Card>
+      {/* Executive Summary */}
+      {plan.executive_summary && (
+        <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="w-5 h-5 text-indigo-600" />
-              Plan Overview
+              Executive Summary
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-700">{plan.overview}</p>
+            <p className="text-slate-700 leading-relaxed">{plan.executive_summary}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Evidence Summary */}
+      {plan.evidence_summary && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Evidence-Based Analysis</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {plan.evidence_summary.progress_patterns && (
+              <div>
+                <p className="text-xs font-semibold text-slate-700">Progress Patterns:</p>
+                <p className="text-sm text-slate-600">{plan.evidence_summary.progress_patterns}</p>
+              </div>
+            )}
+            {plan.evidence_summary.incident_trends && (
+              <div>
+                <p className="text-xs font-semibold text-slate-700">Incident Trends:</p>
+                <p className="text-sm text-slate-600">{plan.evidence_summary.incident_trends}</p>
+              </div>
+            )}
+            {plan.evidence_summary.abc_insights && (
+              <div>
+                <p className="text-xs font-semibold text-slate-700">ABC Insights:</p>
+                <p className="text-sm text-slate-600">{plan.evidence_summary.abc_insights}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -72,11 +101,22 @@ export default function PersonalizedSupportPlanPanel({ supportPlan, isGenerating
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4 className="font-semibold text-slate-900 mb-1">{strategy.strategy}</h4>
-                    <p className="text-sm text-slate-600 mb-2">{strategy.description}</p>
-                    {strategy.implementation_steps && (
-                      <div className="text-xs text-slate-500">
-                        <span className="font-medium">Implementation:</span> {strategy.implementation_steps}
-                      </div>
+                    {strategy.description && <p className="text-sm text-slate-600 mb-2">{strategy.description}</p>}
+                    {strategy.evidence_base && (
+                     <div className="text-xs bg-purple-50 rounded px-2 py-1 mb-2">
+                       <span className="font-medium text-purple-900">Evidence Base:</span>
+                       <span className="text-purple-700"> {strategy.evidence_base}</span>
+                     </div>
+                    )}
+                    {strategy.implementation && (
+                     <div className="text-xs text-slate-500">
+                       <span className="font-medium">Implementation:</span> {strategy.implementation}
+                     </div>
+                    )}
+                    {strategy.expected_outcomes && (
+                     <div className="text-xs text-slate-500 mt-1">
+                       <span className="font-medium">Expected Outcomes:</span> {strategy.expected_outcomes}
+                     </div>
                     )}
                   </div>
                   <Button
@@ -225,14 +265,82 @@ export default function PersonalizedSupportPlanPanel({ supportPlan, isGenerating
         </Card>
       )}
 
+      {/* Progress Monitoring */}
+      {plan.progress_monitoring && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Progress Monitoring Framework</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {plan.progress_monitoring.key_metrics && (
+              <div>
+                <p className="text-xs font-semibold">Key Metrics:</p>
+                <ul className="list-disc list-inside text-sm text-slate-600">
+                  {plan.progress_monitoring.key_metrics.map((metric, idx) => (
+                    <li key={idx}>{metric}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {plan.progress_monitoring.review_frequency && (
+              <p className="text-sm text-slate-600">
+                <span className="font-semibold">Review Frequency:</span> {plan.progress_monitoring.review_frequency}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Crisis Response */}
+      {plan.crisis_response_plan && (
+        <Card className="border-2 border-red-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-900">
+              <Shield className="w-5 h-5" />
+              Crisis Response Plan
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {plan.crisis_response_plan.warning_signs && (
+              <div>
+                <p className="text-sm font-semibold text-red-900">Warning Signs:</p>
+                <ul className="list-disc list-inside text-sm text-red-800">
+                  {plan.crisis_response_plan.warning_signs.map((sign, idx) => (
+                    <li key={idx}>{sign}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {plan.crisis_response_plan.de_escalation_steps && (
+              <div>
+                <p className="text-sm font-semibold text-red-900">De-escalation Steps:</p>
+                <ol className="list-decimal list-inside text-sm text-red-800">
+                  {plan.crisis_response_plan.de_escalation_steps.map((step, idx) => (
+                    <li key={idx}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* NDIS Alignment */}
-      {plan.ndis_alignment && (
+      {plan.ndis_alignment && Array.isArray(plan.ndis_alignment) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">NDIS Plan Alignment</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-slate-700">{plan.ndis_alignment}</p>
+          <CardContent className="space-y-2">
+            {plan.ndis_alignment.map((item, idx) => (
+              <div key={idx} className="border-l-2 border-teal-300 pl-3">
+                <p className="text-sm font-semibold text-slate-900">{item.ndis_goal}</p>
+                <p className="text-sm text-slate-600">{item.how_plan_supports}</p>
+                {item.funding_category && (
+                  <Badge variant="outline" className="mt-1 text-xs">{item.funding_category}</Badge>
+                )}
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
