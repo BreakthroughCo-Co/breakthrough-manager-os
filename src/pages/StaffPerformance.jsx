@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Award, AlertTriangle, CheckCircle, Users, GraduationCap, Activity } from 'lucide-react';
+import { TrendingUp, Award, AlertTriangle, CheckCircle, Users, GraduationCap, Activity, Sparkles, FileText, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,9 @@ export default function StaffPerformance() {
     frequency: 'weekly',
     recipients: '',
   });
+  const [showAIReportDialog, setShowAIReportDialog] = useState(false);
+  const [aiReportResult, setAiReportResult] = useState(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   const { data: practitioners = [] } = useQuery({
     queryKey: ['practitioners'],
@@ -177,6 +181,88 @@ export default function StaffPerformance() {
     }
   };
 
+  const handleGenerateAIReport = async () => {
+    setIsGeneratingAI(true);
+    try {
+      const startDate = useCustomRange && customDateRange.from 
+        ? customDateRange.from 
+        : new Date(Date.now() - parseInt(timeframe)*24*60*60*1000).toISOString().split('T')[0];
+      const endDate = useCustomRange && customDateRange.to 
+        ? customDateRange.to 
+        : new Date().toISOString().split('T')[0];
+
+      const result = await base44.functions.invoke('generateAIPerformanceReport', {
+        practitioner_id: selectedPractitioner !== 'all' ? selectedPractitioner : null,
+        start_date: startDate,
+        end_date: endDate,
+        include_kpis: true,
+        include_trends: true,
+        include_interventions: true,
+      });
+      setAiReportResult(result.data);
+      setShowAIReportDialog(true);
+    } catch (error) {
+      alert('Failed to generate AI report: ' + error.message);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const exportAIReport = (format) => {
+    if (!aiReportResult) return;
+
+    if (format === 'csv') {
+      const csvData = aiReportResult.practitioner_data.map(p => ({
+        Name: p.name,
+        Role: p.role,
+        'Training Completion': p.kpis.training_completion_rate + '%',
+        'Overdue Training': p.kpis.overdue_training,
+        'Incidents': p.kpis.incidents_reported,
+        'Breaches': p.kpis.compliance_breaches,
+        'Performance Score': p.kpis.performance_score,
+      }));
+
+      const headers = Object.keys(csvData[0]).join(',');
+      const rows = csvData.map(row => Object.values(row).join(','));
+      const csv = [headers, ...rows].join('\n');
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai-performance-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    } else if (format === 'txt') {
+      const textReport = `
+STAFF PERFORMANCE AI ANALYSIS
+Period: ${aiReportResult.report_period.start_date} to ${aiReportResult.report_period.end_date}
+Generated: ${new Date().toLocaleDateString()}
+
+EXECUTIVE SUMMARY
+${aiReportResult.ai_analysis.executive_summary}
+
+KEY TRENDS
+${aiReportResult.ai_analysis.key_trends.map((t, i) => `${i+1}. ${t}`).join('\n')}
+
+SKILL GAPS
+${aiReportResult.ai_analysis.skill_gaps.map((g, i) => `${i+1}. ${g}`).join('\n')}
+
+INTERVENTION PRIORITIES
+${aiReportResult.ai_analysis.intervention_priorities.map((p, i) => `${i+1}. ${p}`).join('\n')}
+
+RECOMMENDATIONS
+${aiReportResult.ai_analysis.recommendations.map((r, i) => `${i+1}. ${r}`).join('\n')}
+      `;
+      
+      const blob = new Blob([textReport], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai-performance-${new Date().toISOString().split('T')[0]}.txt`;
+      a.click();
+    }
+  };
+
   const filteredMetrics = selectedPractitioner === 'all' 
     ? practitionerMetrics 
     : practitionerMetrics.filter(p => p.id === selectedPractitioner);
@@ -272,6 +358,18 @@ export default function StaffPerformance() {
             disabled={isGeneratingReport}
           >
             Generate Report
+          </Button>
+          <Button
+            onClick={handleGenerateAIReport}
+            disabled={isGeneratingAI}
+            variant="default"
+          >
+            {isGeneratingAI ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            AI Analysis
           </Button>
           <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
             <DialogTrigger asChild>
@@ -509,6 +607,151 @@ export default function StaffPerformance() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={showAIReportDialog} onOpenChange={setShowAIReportDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>AI Performance Analysis</DialogTitle>
+          </DialogHeader>
+          {aiReportResult && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-muted-foreground">
+                  Period: {new Date(aiReportResult.report_period.start_date).toLocaleDateString()} - {new Date(aiReportResult.report_period.end_date).toLocaleDateString()}
+                </p>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => exportAIReport('csv')}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => exportAIReport('txt')}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Export Report
+                  </Button>
+                </div>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Executive Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-700">{aiReportResult.ai_analysis.executive_summary}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Key Trends</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {aiReportResult.ai_analysis.key_trends.map((trend, idx) => (
+                      <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
+                        <TrendingUp className="w-4 h-4 mt-0.5 text-blue-600" />
+                        {trend}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Skill Gaps</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {aiReportResult.ai_analysis.skill_gaps.map((gap, idx) => (
+                        <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 mt-0.5 text-orange-600" />
+                          {gap}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Intervention Priorities</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {aiReportResult.ai_analysis.intervention_priorities.map((priority, idx) => (
+                        <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
+                          <Award className="w-4 h-4 mt-0.5 text-red-600" />
+                          {priority}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recommendations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {aiReportResult.ai_analysis.recommendations.map((rec, idx) => (
+                      <li key={idx} className="text-sm text-slate-700 flex items-start gap-2">
+                        <span className="font-semibold text-teal-600">{idx + 1}.</span>
+                        {rec}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {aiReportResult.practitioner_data && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Individual Performance Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {aiReportResult.practitioner_data.slice(0, 5).map(prac => (
+                        <div key={prac.id} className="border-b pb-3 last:border-0">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <p className="font-medium">{prac.name}</p>
+                              <p className="text-xs text-muted-foreground">{prac.role}</p>
+                            </div>
+                            <Badge variant={prac.kpis.performance_score >= 80 ? 'default' : 'secondary'}>
+                              Score: {prac.kpis.performance_score}/100
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-4 gap-2 text-xs">
+                            <div>
+                              <p className="text-muted-foreground">Training</p>
+                              <p className="font-medium">{prac.kpis.training_completion_rate}%</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">Overdue</p>
+                              <p className="font-medium">{prac.kpis.overdue_training}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">Breaches</p>
+                              <p className="font-medium">{prac.kpis.compliance_breaches}</p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">Notes</p>
+                              <p className="font-medium">{prac.kpis.case_notes_completed}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
