@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Loader2, CheckCircle2, AlertCircle, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import EnhancedClientTransitionPanel from './EnhancedClientTransitionPanel';
 
 export default function ClientTransitionManager() {
   const [selectedTransition, setSelectedTransition] = useState(null);

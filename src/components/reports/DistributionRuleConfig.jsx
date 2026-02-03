@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
+import AdvancedDistributionConfig from './AdvancedDistributionConfig';
 
 export default function DistributionRuleConfig() {
   const [isCreating, setIsCreating] = useState(false);
@@ -211,6 +213,11 @@ export default function DistributionRuleConfig() {
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-}
+      </TabsContent>
+
+      <TabsContent value="advanced" className="mt-4">
+      <AdvancedDistributionConfig />
+      </TabsContent>
+      </Tabs>
+      );
+      }
