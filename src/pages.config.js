@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ABCAnalyser from './pages/ABCAnalyser';
+import AIAdminHub from './pages/AIAdminHub';
 import AIAssistant from './pages/AIAssistant';
 import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
 import AgentManagement from './pages/AgentManagement';
@@ -60,10 +61,13 @@ import CaseManagement from './pages/CaseManagement';
 import CaseNotes from './pages/CaseNotes';
 import ClientCommunications from './pages/ClientCommunications';
 import ClientDetail from './pages/ClientDetail';
+import ClientDisengagementRiskDashboard from './pages/ClientDisengagementRiskDashboard';
 import ClientFeedback from './pages/ClientFeedback';
 import ClientIntake from './pages/ClientIntake';
+import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
 import ClientOutreach from './pages/ClientOutreach';
 import ClientPortal from './pages/ClientPortal';
+import ClientProgressReports from './pages/ClientProgressReports';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
 import CommunicationHub from './pages/CommunicationHub';
@@ -71,24 +75,31 @@ import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import ComplianceReadiness from './pages/ComplianceReadiness';
+import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
 import ComprehensiveReports from './pages/ComprehensiveReports';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
 import FBAAssessment from './pages/FBAAssessment';
+import FinancialOperations from './pages/FinancialOperations';
 import HybridIntelligence from './pages/HybridIntelligence';
 import Integrations from './pages/Integrations';
+import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
+import NDISComplianceDashboard from './pages/NDISComplianceDashboard';
+import NDISPlanManagement from './pages/NDISPlanManagement';
 import NDISPlans from './pages/NDISPlans';
 import NDISPricing from './pages/NDISPricing';
 import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerAnalytics from './pages/PractitionerAnalytics';
 import PractitionerDetail from './pages/PractitionerDetail';
+import PractitionerDevelopment from './pages/PractitionerDevelopment';
 import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import Practitioners from './pages/Practitioners';
 import Programs from './pages/Programs';
 import Reports from './pages/Reports';
+import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
 import RestrictivePractices from './pages/RestrictivePractices';
 import RiskAssessmentTool from './pages/RiskAssessmentTool';
 import RiskMonitoring from './pages/RiskMonitoring';
@@ -104,23 +115,15 @@ import Tasks from './pages/Tasks';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
-import AIAdminHub from './pages/AIAdminHub';
 import WorkloadManagement from './pages/WorkloadManagement';
-import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
-import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
-import NDISComplianceDashboard from './pages/NDISComplianceDashboard';
-import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
-import ClientProgressReports from './pages/ClientProgressReports';
-import FinancialOperations from './pages/FinancialOperations';
-import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
-import PractitionerDevelopment from './pages/PractitionerDevelopment';
-import NDISPlanManagement from './pages/NDISPlanManagement';
-import ClientDisengagementRiskDashboard from './pages/ClientDisengagementRiskDashboard';
+import ComplianceCenter from './pages/ComplianceCenter';
+import DocumentProcessing from './pages/DocumentProcessing';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ABCAnalyser": ABCAnalyser,
+    "AIAdminHub": AIAdminHub,
     "AIAssistant": AIAssistant,
     "AISchedulingOptimizer": AISchedulingOptimizer,
     "AgentManagement": AgentManagement,
@@ -133,10 +136,13 @@ export const PAGES = {
     "CaseNotes": CaseNotes,
     "ClientCommunications": ClientCommunications,
     "ClientDetail": ClientDetail,
+    "ClientDisengagementRiskDashboard": ClientDisengagementRiskDashboard,
     "ClientFeedback": ClientFeedback,
     "ClientIntake": ClientIntake,
+    "ClientOutcomePrediction": ClientOutcomePrediction,
     "ClientOutreach": ClientOutreach,
     "ClientPortal": ClientPortal,
+    "ClientProgressReports": ClientProgressReports,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
     "CommunicationHub": CommunicationHub,
@@ -144,24 +150,31 @@ export const PAGES = {
     "ComplianceAuditCenter": ComplianceAuditCenter,
     "ComplianceBreachManagement": ComplianceBreachManagement,
     "ComplianceReadiness": ComplianceReadiness,
+    "ComplianceTrainingManagement": ComplianceTrainingManagement,
     "ComprehensiveReports": ComprehensiveReports,
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
     "FBAAssessment": FBAAssessment,
+    "FinancialOperations": FinancialOperations,
     "HybridIntelligence": HybridIntelligence,
     "Integrations": Integrations,
+    "LEGOTransformativePlay": LEGOTransformativePlay,
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
+    "NDISComplianceDashboard": NDISComplianceDashboard,
+    "NDISPlanManagement": NDISPlanManagement,
     "NDISPlans": NDISPlans,
     "NDISPricing": NDISPricing,
     "ObservabilityDashboard": ObservabilityDashboard,
     "PlanUtilisation": PlanUtilisation,
     "PractitionerAnalytics": PractitionerAnalytics,
     "PractitionerDetail": PractitionerDetail,
+    "PractitionerDevelopment": PractitionerDevelopment,
     "PractitionerOnboarding": PractitionerOnboarding,
     "Practitioners": Practitioners,
     "Programs": Programs,
     "Reports": Reports,
+    "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
     "RestrictivePractices": RestrictivePractices,
     "RiskAssessmentTool": RiskAssessmentTool,
     "RiskMonitoring": RiskMonitoring,
@@ -177,18 +190,9 @@ export const PAGES = {
     "TeamTrainingManagement": TeamTrainingManagement,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
-    "AIAdminHub": AIAdminHub,
     "WorkloadManagement": WorkloadManagement,
-    "ComplianceTrainingManagement": ComplianceTrainingManagement,
-    "LEGOTransformativePlay": LEGOTransformativePlay,
-    "NDISComplianceDashboard": NDISComplianceDashboard,
-    "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
-    "ClientProgressReports": ClientProgressReports,
-    "FinancialOperations": FinancialOperations,
-    "ClientOutcomePrediction": ClientOutcomePrediction,
-    "PractitionerDevelopment": PractitionerDevelopment,
-    "NDISPlanManagement": NDISPlanManagement,
-    "ClientDisengagementRiskDashboard": ClientDisengagementRiskDashboard,
+    "ComplianceCenter": ComplianceCenter,
+    "DocumentProcessing": DocumentProcessing,
 }
 
 export const pagesConfig = {
