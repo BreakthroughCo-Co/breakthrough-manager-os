@@ -118,6 +118,8 @@ import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import ComplianceCenter from './pages/ComplianceCenter';
 import DocumentProcessing from './pages/DocumentProcessing';
+import PractitionerMatching from './pages/PractitionerMatching';
+import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -193,6 +195,8 @@ export const PAGES = {
     "WorkloadManagement": WorkloadManagement,
     "ComplianceCenter": ComplianceCenter,
     "DocumentProcessing": DocumentProcessing,
+    "PractitionerMatching": PractitionerMatching,
+    "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
 }
 
 export const pagesConfig = {
