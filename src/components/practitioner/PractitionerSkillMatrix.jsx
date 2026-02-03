@@ -10,6 +10,8 @@ import { Loader2, TrendingUp, Users, AlertCircle } from 'lucide-react';
 
 export default function PractitionerSkillMatrix() {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedPractitioner, setSelectedPractitioner] = useState(null);
+  const [showTrainingPlan, setShowTrainingPlan] = useState(false);
 
   const { data: matrix, refetch, isLoading } = useQuery({
     queryKey: ['skillMatrix'],
@@ -22,6 +24,21 @@ export default function PractitionerSkillMatrix() {
       } finally {
         setIsGenerating(false);
       }
+    }
+  });
+
+  const { data: trainingRecs = [] } = useQuery({
+    queryKey: ['trainingRecommendations'],
+    queryFn: () => base44.entities.TrainingRecommendation.list()
+  });
+
+  const generatePlanMutation = useMutation({
+    mutationFn: async (practitionerId) => {
+      return base44.functions.invoke('generatePersonalizedTrainingPlan', { practitioner_id: practitionerId });
+    },
+    onSuccess: () => {
+      setShowTrainingPlan(false);
+      setSelectedPractitioner(null);
     }
   });
 
@@ -130,7 +147,9 @@ export default function PractitionerSkillMatrix() {
 
         {/* Individual Profiles */}
         <TabsContent value="details" className="space-y-4 mt-4">
-          {skillMatrix.practitioners?.map(practitioner => (
+          {skillMatrix.practitioners?.map(practitioner => {
+            const practitionerTraining = trainingRecs.filter(t => t.practitioner_id === rawMetrics?.find(m => m.practitioner_name === practitioner.practitioner_name)?.practitioner_id);
+            return (
             <Card key={practitioner.practitioner_id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -138,7 +157,20 @@ export default function PractitionerSkillMatrix() {
                     <CardTitle className="text-base">{practitioner.practitioner_name}</CardTitle>
                     <CardDescription>{practitioner.role}</CardDescription>
                   </div>
-                  <Badge className="bg-slate-600">{practitioner.current_proficiency}</Badge>
+                  <div className="flex gap-2 items-center">
+                    <Badge className="bg-slate-600">{practitioner.current_proficiency}</Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedPractitioner(practitioner.practitioner_id);
+                        setShowTrainingPlan(true);
+                      }}
+                      className="text-xs"
+                    >
+                      Training Plan
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -206,9 +238,30 @@ export default function PractitionerSkillMatrix() {
                     </AlertDescription>
                   </Alert>
                 )}
+
+                {/* Training Status */}
+                {practitionerTraining.length > 0 && (
+                  <div className="border-t pt-3">
+                    <p className="text-xs font-semibold text-slate-900 mb-2">Assigned Training</p>
+                    <div className="space-y-1">
+                      {practitionerTraining.slice(0, 3).map(t => (
+                        <div key={t.id} className="text-xs flex items-center gap-2 p-1 bg-slate-50 rounded">
+                          <span className={t.status === 'completed' ? 'text-green-600' : 'text-blue-600'}>
+                            {t.status === 'completed' ? '✓' : '→'}
+                          </span>
+                          <span className="flex-1">{t.training_module_name}</span>
+                          <Badge className="text-xs" variant={t.priority === 'critical' ? 'destructive' : 'outline'}>
+                            {t.priority}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </TabsContent>
 
         {/* Peer Mentoring */}
@@ -272,6 +325,42 @@ export default function PractitionerSkillMatrix() {
       <Button onClick={() => refetch()} variant="outline" className="w-full">
         Regenerate Matrix
       </Button>
+
+      {/* Training Plan Modal */}
+      {showTrainingPlan && selectedPractitioner && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-base">Generate Training Plan</CardTitle>
+              <CardDescription>Create personalized training recommendations</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-slate-600">
+                This will analyze development areas and create a prioritized training plan with module assignments.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => generatePlanMutation.mutate(selectedPractitioner)}
+                  disabled={generatePlanMutation.isPending}
+                  className="flex-1"
+                >
+                  {generatePlanMutation.isPending ? 'Generating...' : 'Generate Plan'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowTrainingPlan(false);
+                    setSelectedPractitioner(null);
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
