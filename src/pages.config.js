@@ -100,6 +100,8 @@ import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
+import TeamTrainingManagement from './pages/TeamTrainingManagement';
+import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
 import __Layout from './Layout.jsx';
 
 
@@ -157,6 +159,8 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
+    "TeamTrainingManagement": TeamTrainingManagement,
+    "AISchedulingOptimizer": AISchedulingOptimizer,
 }
 
 export const pagesConfig = {

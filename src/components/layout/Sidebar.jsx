@@ -22,6 +22,7 @@ import {
   Zap,
   FileText,
   Brain,
+  Calendar,
   ClipboardCheck,
   Briefcase,
   Activity,
