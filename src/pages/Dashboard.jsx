@@ -46,6 +46,21 @@ export default function Dashboard() {
     queryFn: () => base44.entities.Task.list(),
   });
 
+  const { data: riskAlerts = [] } = useQuery({
+    queryKey: ['riskAlerts'],
+    queryFn: () => base44.entities.RiskAlert.filter({ status: 'active' }),
+  });
+
+  const { data: scheduledReviews = [] } = useQuery({
+    queryKey: ['scheduledReviews'],
+    queryFn: () => base44.entities.ScheduledReview.filter({ status: 'pending' }),
+  });
+
+  const { data: pipelines = [] } = useQuery({
+    queryKey: ['pipelines'],
+    queryFn: () => base44.entities.CompliancePipeline.list('-created_date', 10),
+  });
+
   // Calculate metrics
   const activeClients = clients.filter(c => c.status === 'active').length;
   const activePractitioners = practitioners.filter(p => p.status === 'active').length;
@@ -77,8 +92,22 @@ export default function Dashboard() {
       return daysUntilEnd <= 30 && daysUntilEnd > 0;
     });
 
-  // Combine alerts
+  // Combine alerts with risk monitoring and scheduled reviews
   const alerts = [
+    ...riskAlerts.map(alert => ({
+      type: 'risk',
+      title: alert.entity_name,
+      description: `Risk Level: ${alert.risk_level} - ${alert.alert_category?.replace(/_/g, ' ')}`,
+      priority: alert.severity === 'critical' ? 'critical' : alert.severity === 'urgent' ? 'high' : 'medium',
+      dueDate: null
+    })),
+    ...scheduledReviews.filter(r => r.priority === 'overdue' || r.priority === 'urgent').map(review => ({
+      type: 'review',
+      title: review.entity_name,
+      description: `${review.review_type?.replace(/_/g, ' ')} - Due: ${review.due_date}`,
+      priority: review.priority === 'overdue' ? 'critical' : 'high',
+      dueDate: review.due_date
+    })),
     ...complianceAlerts.map(item => ({
       type: 'compliance',
       title: item.title,
@@ -150,11 +179,11 @@ export default function Dashboard() {
           variant="purple"
         />
         <StatsCard
-          title="Pending Tasks"
-          value={pendingTasks}
-          subtitle="Requiring attention"
-          icon={Clock}
-          variant={pendingTasks > 10 ? 'warning' : 'default'}
+          title="Critical Alerts"
+          value={riskAlerts.filter(a => a.severity === 'critical').length}
+          subtitle={`${scheduledReviews.filter(r => r.priority === 'overdue').length} overdue reviews`}
+          icon={AlertTriangle}
+          variant={riskAlerts.some(a => a.severity === 'critical') ? 'warning' : 'default'}
         />
       </div>
 
