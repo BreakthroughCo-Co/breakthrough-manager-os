@@ -20,6 +20,8 @@ import RecentActivity from '@/components/dashboard/RecentActivity';
 import FundingOverview from '@/components/dashboard/FundingOverview';
 import PractitionerMetrics from '@/components/dashboard/PractitionerMetrics';
 import AIClientOverview from '@/components/dashboard/AIClientOverview';
+import OperationalAlertsWidget from '@/components/dashboard/OperationalAlertsWidget';
+import OperationalMetricsWidget from '@/components/dashboard/OperationalMetricsWidget';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -190,6 +192,12 @@ export default function Dashboard() {
 
       {/* AI Intelligence Overview */}
       <AIClientOverview clients={clients} />
+
+      {/* Operational Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <OperationalAlertsWidget />
+        <OperationalMetricsWidget />
+      </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
