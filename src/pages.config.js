@@ -115,6 +115,7 @@ import FinancialOperations from './pages/FinancialOperations';
 import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
 import PractitionerDevelopment from './pages/PractitionerDevelopment';
 import NDISPlanManagement from './pages/NDISPlanManagement';
+import ClientDisengagementRiskDashboard from './pages/ClientDisengagementRiskDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -187,6 +188,7 @@ export const PAGES = {
     "ClientOutcomePrediction": ClientOutcomePrediction,
     "PractitionerDevelopment": PractitionerDevelopment,
     "NDISPlanManagement": NDISPlanManagement,
+    "ClientDisengagementRiskDashboard": ClientDisengagementRiskDashboard,
 }
 
 export const pagesConfig = {
