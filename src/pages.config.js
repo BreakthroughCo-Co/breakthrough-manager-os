@@ -123,6 +123,9 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import ClientRiskManagement from './pages/ClientRiskManagement';
+import PractitionerPerformance from './pages/PractitionerPerformance';
+import IncidentDetection from './pages/IncidentDetection';
+import ClientGoalReview from './pages/ClientGoalReview';
 import __Layout from './Layout.jsx';
 
 
@@ -203,6 +206,9 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "ClientRiskManagement": ClientRiskManagement,
+    "PractitionerPerformance": PractitionerPerformance,
+    "IncidentDetection": IncidentDetection,
+    "ClientGoalReview": ClientGoalReview,
 }
 
 export const pagesConfig = {
