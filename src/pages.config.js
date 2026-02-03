@@ -63,11 +63,14 @@ import ClientCommunications from './pages/ClientCommunications';
 import ClientDetail from './pages/ClientDetail';
 import ClientDisengagementRiskDashboard from './pages/ClientDisengagementRiskDashboard';
 import ClientFeedback from './pages/ClientFeedback';
+import ClientGoalReview from './pages/ClientGoalReview';
 import ClientIntake from './pages/ClientIntake';
 import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
 import ClientOutreach from './pages/ClientOutreach';
 import ClientPortal from './pages/ClientPortal';
 import ClientProgressReports from './pages/ClientProgressReports';
+import ClientRiskManagement from './pages/ClientRiskManagement';
+import ClientTransitions from './pages/ClientTransitions';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
 import CommunicationHub from './pages/CommunicationHub';
@@ -84,6 +87,7 @@ import DocumentProcessing from './pages/DocumentProcessing';
 import FBAAssessment from './pages/FBAAssessment';
 import FinancialOperations from './pages/FinancialOperations';
 import HybridIntelligence from './pages/HybridIntelligence';
+import IncidentDetection from './pages/IncidentDetection';
 import Integrations from './pages/Integrations';
 import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
 import Messages from './pages/Messages';
@@ -100,8 +104,11 @@ import PractitionerDevelopment from './pages/PractitionerDevelopment';
 import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
 import PractitionerMatching from './pages/PractitionerMatching';
 import PractitionerOnboarding from './pages/PractitionerOnboarding';
+import PractitionerPerformance from './pages/PractitionerPerformance';
+import PractitionerSkillManagement from './pages/PractitionerSkillManagement';
 import Practitioners from './pages/Practitioners';
 import Programs from './pages/Programs';
+import ReportDistribution from './pages/ReportDistribution';
 import Reports from './pages/Reports';
 import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
 import RestrictivePractices from './pages/RestrictivePractices';
@@ -118,18 +125,11 @@ import StaffPerformance from './pages/StaffPerformance';
 import StaffTraining from './pages/StaffTraining';
 import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
+import TeamDevelopment from './pages/TeamDevelopment';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import ClientRiskManagement from './pages/ClientRiskManagement';
-import PractitionerPerformance from './pages/PractitionerPerformance';
-import IncidentDetection from './pages/IncidentDetection';
-import ClientGoalReview from './pages/ClientGoalReview';
-import ClientTransitions from './pages/ClientTransitions';
-import ReportDistribution from './pages/ReportDistribution';
-import TeamDevelopment from './pages/TeamDevelopment';
-import PractitionerSkillManagement from './pages/PractitionerSkillManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -150,11 +150,14 @@ export const PAGES = {
     "ClientDetail": ClientDetail,
     "ClientDisengagementRiskDashboard": ClientDisengagementRiskDashboard,
     "ClientFeedback": ClientFeedback,
+    "ClientGoalReview": ClientGoalReview,
     "ClientIntake": ClientIntake,
     "ClientOutcomePrediction": ClientOutcomePrediction,
     "ClientOutreach": ClientOutreach,
     "ClientPortal": ClientPortal,
     "ClientProgressReports": ClientProgressReports,
+    "ClientRiskManagement": ClientRiskManagement,
+    "ClientTransitions": ClientTransitions,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
     "CommunicationHub": CommunicationHub,
@@ -171,6 +174,7 @@ export const PAGES = {
     "FBAAssessment": FBAAssessment,
     "FinancialOperations": FinancialOperations,
     "HybridIntelligence": HybridIntelligence,
+    "IncidentDetection": IncidentDetection,
     "Integrations": Integrations,
     "LEGOTransformativePlay": LEGOTransformativePlay,
     "Messages": Messages,
@@ -187,8 +191,11 @@ export const PAGES = {
     "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
     "PractitionerMatching": PractitionerMatching,
     "PractitionerOnboarding": PractitionerOnboarding,
+    "PractitionerPerformance": PractitionerPerformance,
+    "PractitionerSkillManagement": PractitionerSkillManagement,
     "Practitioners": Practitioners,
     "Programs": Programs,
+    "ReportDistribution": ReportDistribution,
     "Reports": Reports,
     "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
     "RestrictivePractices": RestrictivePractices,
@@ -205,18 +212,11 @@ export const PAGES = {
     "StaffTraining": StaffTraining,
     "TaskQueue": TaskQueue,
     "Tasks": Tasks,
+    "TeamDevelopment": TeamDevelopment,
     "TeamTrainingManagement": TeamTrainingManagement,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "ClientRiskManagement": ClientRiskManagement,
-    "PractitionerPerformance": PractitionerPerformance,
-    "IncidentDetection": IncidentDetection,
-    "ClientGoalReview": ClientGoalReview,
-    "ClientTransitions": ClientTransitions,
-    "ReportDistribution": ReportDistribution,
-    "TeamDevelopment": TeamDevelopment,
-    "PractitionerSkillManagement": PractitionerSkillManagement,
 }
 
 export const pagesConfig = {

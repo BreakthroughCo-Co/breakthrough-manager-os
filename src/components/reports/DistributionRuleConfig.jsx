@@ -68,21 +68,21 @@ export default function DistributionRuleConfig() {
   };
 
   return (
-    <div className="space-y-4">
-      {!isCreating ? (
-        <div className="flex gap-2 mb-4">
-          <Button onClick={() => setIsCreating(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Distribution Rule
-          </Button>
-          <Button variant="outline" size="sm" className="text-xs">
-            Load Template: Compliance
-          </Button>
-          <Button variant="outline" size="sm" className="text-xs">
-            Load Template: Clinical
-          </Button>
-        </div>
-      ) : (
+    <Tabs defaultValue="basic" className="w-full">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="basic">Basic Rules</TabsTrigger>
+        <TabsTrigger value="advanced">Advanced Config</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="basic" className="space-y-4 mt-4">
+        {!isCreating ? (
+          <div className="flex gap-2 mb-4">
+            <Button onClick={() => setIsCreating(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Distribution Rule
+            </Button>
+          </div>
+        ) : (
         <Card className="border-blue-200 bg-blue-50">
           <CardHeader>
             <CardTitle className="text-base">Create Distribution Rule</CardTitle>
