@@ -106,6 +106,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import AIAdminHub from './pages/AIAdminHub';
 import WorkloadManagement from './pages/WorkloadManagement';
+import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -169,6 +170,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "AIAdminHub": AIAdminHub,
     "WorkloadManagement": WorkloadManagement,
+    "ComplianceTrainingManagement": ComplianceTrainingManagement,
 }
 
 export const pagesConfig = {

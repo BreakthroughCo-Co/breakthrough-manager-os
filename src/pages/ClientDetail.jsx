@@ -15,6 +15,7 @@ import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, User
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import DocumentManager from '@/components/client/DocumentManager';
 import PersonalizedSupportPlanPanel from '@/components/client/PersonalizedSupportPlanPanel';
+import ClientInterventionInsights from '@/components/clinical/ClientInterventionInsights';
 
 export default function ClientDetail() {
   const [searchParams] = useSearchParams();
@@ -322,6 +323,7 @@ export default function ClientDetail() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="support-plan">AI Support Plan</TabsTrigger>
+          <TabsTrigger value="interventions">Interventions</TabsTrigger>
           <TabsTrigger value="history">Comprehensive History</TabsTrigger>
           <TabsTrigger value="contacts">Contacts</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -337,6 +339,10 @@ export default function ClientDetail() {
             isGenerating={isGeneratingPlan}
             onGenerate={handleGenerateSupportPlan}
           />
+        </TabsContent>
+
+        <TabsContent value="interventions" className="space-y-4">
+          <ClientInterventionInsights clientId={clientId} clientName={client.full_name} />
         </TabsContent>
 
         <TabsContent value="overview" className="space-y-4">
