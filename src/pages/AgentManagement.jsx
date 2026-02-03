@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Brain, FileEdit, Workflow, BarChart3, Lock, PlayCircle, StopCircle } from 'lucide-react';
+import { Shield, Brain, FileEdit, Workflow, BarChart3, Lock, PlayCircle, StopCircle, MessageSquare } from 'lucide-react';
 
 export default function AgentManagement() {
   const agents = [
@@ -66,6 +66,36 @@ export default function AgentManagement() {
       authority: 'Monitor & Validate All Agents',
       deny: ['Execute agent tasks', 'Modify configurations', 'Suppress violations'],
       capabilities: ['Validate outputs', 'Enforce policies', 'Maintain audit logs'],
+    },
+    {
+      name: 'Compliance Auditor',
+      id: 'compliance_auditor',
+      icon: Shield,
+      color: 'bg-indigo-100 text-indigo-800',
+      status: 'active',
+      authority: 'Proactive Compliance Scanning',
+      deny: ['Modify records', 'Access clinical details', 'Approve documents'],
+      capabilities: ['Scan for gaps', 'Simulate audits', 'Generate compliance reports'],
+    },
+    {
+      name: 'Client Outreach',
+      id: 'client_outreach',
+      icon: MessageSquare,
+      color: 'bg-teal-100 text-teal-800',
+      status: 'active',
+      authority: 'Automated Communication',
+      deny: ['Share clinical details', 'Make service decisions', 'Contact opt-out clients'],
+      capabilities: ['Send scheduled messages', 'Trigger reminders', 'Log all communications'],
+    },
+    {
+      name: 'Clinical Decision Support',
+      id: 'clinical_decision_support',
+      icon: Brain,
+      color: 'bg-pink-100 text-pink-800',
+      status: 'active',
+      authority: 'Evidence-Based Suggestions Only',
+      deny: ['Make final decisions', 'Modify plans', 'Override practitioners'],
+      capabilities: ['Analyze patterns', 'Suggest interventions', 'Cite research'],
     },
   ];
 
