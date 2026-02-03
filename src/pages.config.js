@@ -107,6 +107,7 @@ import WorkflowTriggers from './pages/WorkflowTriggers';
 import AIAdminHub from './pages/AIAdminHub';
 import WorkloadManagement from './pages/WorkloadManagement';
 import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
+import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
 import __Layout from './Layout.jsx';
 
 
@@ -171,6 +172,7 @@ export const PAGES = {
     "AIAdminHub": AIAdminHub,
     "WorkloadManagement": WorkloadManagement,
     "ComplianceTrainingManagement": ComplianceTrainingManagement,
+    "LEGOTransformativePlay": LEGOTransformativePlay,
 }
 
 export const pagesConfig = {
