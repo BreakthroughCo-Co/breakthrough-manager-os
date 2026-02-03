@@ -74,11 +74,13 @@ import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
+import ComplianceCenter from './pages/ComplianceCenter';
 import ComplianceReadiness from './pages/ComplianceReadiness';
 import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
 import ComprehensiveReports from './pages/ComprehensiveReports';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
+import DocumentProcessing from './pages/DocumentProcessing';
 import FBAAssessment from './pages/FBAAssessment';
 import FinancialOperations from './pages/FinancialOperations';
 import HybridIntelligence from './pages/HybridIntelligence';
@@ -95,6 +97,8 @@ import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerAnalytics from './pages/PractitionerAnalytics';
 import PractitionerDetail from './pages/PractitionerDetail';
 import PractitionerDevelopment from './pages/PractitionerDevelopment';
+import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
+import PractitionerMatching from './pages/PractitionerMatching';
 import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import Practitioners from './pages/Practitioners';
 import Programs from './pages/Programs';
@@ -105,6 +109,8 @@ import RiskAssessmentTool from './pages/RiskAssessmentTool';
 import RiskMonitoring from './pages/RiskMonitoring';
 import RootCauseAnalysis from './pages/RootCauseAnalysis';
 import ServiceAgreements from './pages/ServiceAgreements';
+import SessionLogs from './pages/SessionLogs';
+import SessionSupport from './pages/SessionSupport';
 import Settings from './pages/Settings';
 import SocialStories from './pages/SocialStories';
 import StaffInduction from './pages/StaffInduction';
@@ -116,12 +122,7 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import ComplianceCenter from './pages/ComplianceCenter';
-import DocumentProcessing from './pages/DocumentProcessing';
-import PractitionerMatching from './pages/PractitionerMatching';
-import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
-import SessionSupport from './pages/SessionSupport';
-import SessionLogs from './pages/SessionLogs';
+import ClientRiskManagement from './pages/ClientRiskManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -153,11 +154,13 @@ export const PAGES = {
     "Compliance": Compliance,
     "ComplianceAuditCenter": ComplianceAuditCenter,
     "ComplianceBreachManagement": ComplianceBreachManagement,
+    "ComplianceCenter": ComplianceCenter,
     "ComplianceReadiness": ComplianceReadiness,
     "ComplianceTrainingManagement": ComplianceTrainingManagement,
     "ComprehensiveReports": ComprehensiveReports,
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
+    "DocumentProcessing": DocumentProcessing,
     "FBAAssessment": FBAAssessment,
     "FinancialOperations": FinancialOperations,
     "HybridIntelligence": HybridIntelligence,
@@ -174,6 +177,8 @@ export const PAGES = {
     "PractitionerAnalytics": PractitionerAnalytics,
     "PractitionerDetail": PractitionerDetail,
     "PractitionerDevelopment": PractitionerDevelopment,
+    "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
+    "PractitionerMatching": PractitionerMatching,
     "PractitionerOnboarding": PractitionerOnboarding,
     "Practitioners": Practitioners,
     "Programs": Programs,
@@ -184,6 +189,8 @@ export const PAGES = {
     "RiskMonitoring": RiskMonitoring,
     "RootCauseAnalysis": RootCauseAnalysis,
     "ServiceAgreements": ServiceAgreements,
+    "SessionLogs": SessionLogs,
+    "SessionSupport": SessionSupport,
     "Settings": Settings,
     "SocialStories": SocialStories,
     "StaffInduction": StaffInduction,
@@ -195,12 +202,7 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "ComplianceCenter": ComplianceCenter,
-    "DocumentProcessing": DocumentProcessing,
-    "PractitionerMatching": PractitionerMatching,
-    "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
-    "SessionSupport": SessionSupport,
-    "SessionLogs": SessionLogs,
+    "ClientRiskManagement": ClientRiskManagement,
 }
 
 export const pagesConfig = {
