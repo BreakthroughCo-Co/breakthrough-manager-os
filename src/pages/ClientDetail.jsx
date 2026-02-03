@@ -14,6 +14,7 @@ import IncidentReportDialog from '@/components/incidents/IncidentReportDialog';
 import { User, Phone, Mail, FileText, MessageSquare, AlertTriangle, Shield, Users, Plus, Calendar, Activity, Sparkles, Loader2, Search, AlertCircle, Upload } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import DocumentManager from '@/components/client/DocumentManager';
+import PersonalizedSupportPlanPanel from '@/components/client/PersonalizedSupportPlanPanel';
 
 export default function ClientDetail() {
   const [searchParams] = useSearchParams();
@@ -329,6 +330,14 @@ export default function ClientDetail() {
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
           <TabsTrigger value="compliance">Compliance</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="support-plan" className="space-y-4">
+          <PersonalizedSupportPlanPanel
+            supportPlan={supportPlan}
+            isGenerating={isGeneratingPlan}
+            onGenerate={handleGenerateSupportPlan}
+          />
+        </TabsContent>
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
