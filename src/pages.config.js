@@ -97,6 +97,8 @@ import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
+import ComprehensiveReports from './pages/ComprehensiveReports';
+import CaseManagement from './pages/CaseManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -151,6 +153,8 @@ export const PAGES = {
     "Tasks": Tasks,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
+    "ComprehensiveReports": ComprehensiveReports,
+    "CaseManagement": CaseManagement,
 }
 
 export const pagesConfig = {
