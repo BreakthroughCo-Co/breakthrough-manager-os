@@ -47,6 +47,15 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 
+// Safe hook wrapper with fallback
+function useSafeTheme() {
+  try {
+    return useTheme();
+  } catch {
+    return { isDark: false };
+  }
+}
+
 const mainNavItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Practitioners', icon: UserCheck, page: 'Practitioners' },
