@@ -189,9 +189,8 @@ export default function ClinicalHub() {
               </Card>
             </Link>
           ))}
-        </div>
-        </div>
-      )}
+      </div>
+    )}
     </div>
   );
 }
