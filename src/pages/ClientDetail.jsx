@@ -36,6 +36,8 @@ export default function ClientDetail() {
   const [comprehensiveSummary, setComprehensiveSummary] = useState(null);
   const [isLoadingComprehensive, setIsLoadingComprehensive] = useState(false);
   const [activeAlerts, setActiveAlerts] = useState([]);
+  const [supportPlan, setSupportPlan] = useState(null);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -188,6 +190,20 @@ export default function ClientDetail() {
       alert('Failed to generate summary: ' + error.message);
     } finally {
       setIsLoadingComprehensive(false);
+    }
+  };
+
+  const handleGenerateSupportPlan = async () => {
+    setIsGeneratingPlan(true);
+    try {
+      const result = await base44.functions.invoke('generatePersonalizedSupportPlan', {
+        client_id: clientId,
+      });
+      setSupportPlan(result.data);
+    } catch (error) {
+      alert('Failed to generate support plan: ' + error.message);
+    } finally {
+      setIsGeneratingPlan(false);
     }
   };
 
