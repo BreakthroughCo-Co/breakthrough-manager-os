@@ -228,6 +228,9 @@ export default function ClientDetailPage() {
               <ClientOutcomePrediction clientId={clientId} />
             </div>
 
+            <GoalSuccessAnalysis clientId={clientId} clientName={client?.full_name} />
+            <PredictiveRiskMonitor clientId={clientId} clientName={client?.full_name} />
+
             {/* Plan Details */}
             <Card>
               <CardHeader>
