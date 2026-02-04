@@ -26,6 +26,7 @@ import OperationalAlertsWidget from '@/components/dashboard/OperationalAlertsWid
 import OperationalMetricsWidget from '@/components/dashboard/OperationalMetricsWidget';
 import PlanExpiryAlertsWidget from '@/components/dashboard/PlanExpiryAlertsWidget';
 import ClientRiskAlertsWidget from '@/components/dashboard/ClientRiskAlertsWidget';
+import ComplianceRiskMonitor from '@/components/compliance/ComplianceRiskMonitor';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -206,9 +207,10 @@ export default function Dashboard() {
       <AIClientOverview clients={clients} />
 
       {/* Critical Alerts - Plan Expiry & Client Risk */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <PlanExpiryAlertsWidget />
         <ClientRiskAlertsWidget />
+        <ComplianceRiskMonitor />
       </div>
 
       {/* Operational Status */}

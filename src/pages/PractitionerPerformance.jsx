@@ -4,8 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PractitionerSessionFeedback from '@/components/practitioner/PractitionerSessionFeedback';
-import { AlertCircle } from 'lucide-react';
+import PerformanceDashboard from '@/components/practitioner/PerformanceDashboard';
+import { AlertCircle, TrendingUp } from 'lucide-react';
 
 export default function PractitionerPerformance() {
   const [selectedPractitionerId, setSelectedPractitionerId] = useState(null);
@@ -58,9 +60,22 @@ export default function PractitionerPerformance() {
         </CardContent>
       </Card>
 
-      {/* Feedback Display */}
+      {/* Performance Analysis */}
       {selectedPractitionerId && (
-        <PractitionerSessionFeedback practitionerId={selectedPractitionerId} />
+        <Tabs defaultValue="dashboard">
+          <TabsList>
+            <TabsTrigger value="dashboard">Performance Dashboard</TabsTrigger>
+            <TabsTrigger value="feedback">Session Feedback</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="dashboard">
+            <PerformanceDashboard practitionerId={selectedPractitionerId} />
+          </TabsContent>
+          
+          <TabsContent value="feedback">
+            <PractitionerSessionFeedback practitionerId={selectedPractitionerId} />
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );
