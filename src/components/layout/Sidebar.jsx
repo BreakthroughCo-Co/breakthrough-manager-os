@@ -116,6 +116,7 @@ const toolItems = [
   { name: 'Calculator', icon: Calculator, page: 'NDISCalculator' },
   { name: 'AI Assistant', icon: Sparkles, page: 'AIAssistant' },
   { name: 'Intelligence Hub', icon: Brain, page: 'IntelligenceHub' },
+  { name: 'Proactive Alerts', icon: Bell, page: 'ProactiveAlerts', managerOnly: true },
   { name: 'Client Portal', icon: Users, page: 'ClientPortal' },
   { name: 'Communication Hub', icon: MessageSquare, page: 'CommunicationHub' },
   { name: 'Integrations', icon: Link2, page: 'Integrations' },

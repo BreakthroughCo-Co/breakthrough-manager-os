@@ -139,6 +139,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import IntelligenceHub from './pages/IntelligenceHub';
+import ProactiveAlerts from './pages/ProactiveAlerts';
 import __Layout from './Layout.jsx';
 
 
@@ -235,6 +236,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "IntelligenceHub": IntelligenceHub,
+    "ProactiveAlerts": ProactiveAlerts,
 }
 
 export const pagesConfig = {
