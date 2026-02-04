@@ -15,6 +15,7 @@ import ClientGoalsSection from '@/components/client/ClientGoalsSection';
 import ClientAppointmentsSection from '@/components/client/ClientAppointmentsSection';
 import ClientQuickActions from '@/components/client/ClientQuickActions';
 import ClientOutcomePrediction from '@/components/client/ClientOutcomePrediction';
+import ClientFeedbackDisplay from '@/components/feedback/ClientFeedbackDisplay';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
@@ -259,6 +260,7 @@ export default function ClientDetailPage() {
           <TabsContent value="contacts" className="space-y-4">
             <ClientPractitionerLink clientId={clientId} currentPractitionerId={client.assigned_practitioner_id} />
             <ClientContactNetwork clientId={clientId} />
+            <ClientFeedbackDisplay clientId={clientId} />
           </TabsContent>
         </Tabs>
       )}

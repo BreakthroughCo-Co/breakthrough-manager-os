@@ -6,6 +6,7 @@ import CustomReportBuilder from '@/components/reports/CustomReportBuilder';
 import ComplianceRiskMonitor from '@/components/compliance/ComplianceRiskMonitor';
 import PlanExpiryAlertsWidget from '@/components/dashboard/PlanExpiryAlertsWidget';
 import ClientRiskAlertsWidget from '@/components/dashboard/ClientRiskAlertsWidget';
+import ScheduledReportManager from '@/components/reports/ScheduledReportManager';
 
 export default function AdvancedReporting() {
   return (
@@ -28,6 +29,8 @@ export default function AdvancedReporting() {
         </TabsList>
 
         <TabsContent value="builder" className="space-y-6">
+          <ScheduledReportManager />
+          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <CustomReportBuilder />
