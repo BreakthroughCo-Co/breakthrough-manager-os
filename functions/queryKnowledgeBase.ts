@@ -11,30 +11,65 @@ Deno.serve(async (req) => {
 
     const { query, context_type, entity_id } = await req.json();
 
-    // Gather relevant context based on query type
+    // Gather relevant context based on query type - EXPANDED CONTEXT
     let contextData = {};
 
     if (context_type === 'client' && entity_id) {
-      const client = await base44.entities.Client.get(entity_id);
-      const goals = await base44.entities.ClientGoal.filter({ client_id: entity_id });
-      const caseNotes = await base44.entities.CaseNote.filter({ client_id: entity_id });
-      const risks = await base44.entities.ClientRiskProfile.filter({ client_id: entity_id });
+      const [client, goals, caseNotes, risks, ndisPlans, billingRecords, serviceAgreements, incidents] = await Promise.all([
+        base44.entities.Client.get(entity_id),
+        base44.entities.ClientGoal.filter({ client_id: entity_id }),
+        base44.entities.CaseNote.filter({ client_id: entity_id }),
+        base44.entities.ClientRiskProfile.filter({ client_id: entity_id }),
+        base44.entities.NDISPlan.filter({ client_id: entity_id }),
+        base44.entities.BillingRecord.filter({ client_id: entity_id }),
+        base44.entities.ServiceAgreement.filter({ client_id: entity_id }),
+        base44.entities.Incident.filter({ client_id: entity_id })
+      ]);
       
-      contextData = { client, goals, recent_notes: caseNotes.slice(0, 10), risk_profile: risks[0] };
+      contextData = { 
+        client, 
+        goals, 
+        recent_notes: caseNotes.slice(0, 10), 
+        risk_profile: risks[0],
+        active_ndis_plan: ndisPlans.find(p => p.status === 'active'),
+        recent_billing: billingRecords.slice(0, 10),
+        active_service_agreement: serviceAgreements.find(sa => sa.status === 'active'),
+        recent_incidents: incidents.slice(0, 5)
+      };
     } else if (context_type === 'practitioner' && entity_id) {
-      const practitioner = await base44.entities.Practitioner.get(entity_id);
-      const performance = await base44.entities.MonthlyPerformanceReport.filter({ 
-        practitioner_id: entity_id 
-      });
-      const skills = await base44.entities.PractitionerSkill.filter({ practitioner_id: entity_id });
+      const [practitioner, performance, skills, clients, trainingProgress, feedback] = await Promise.all([
+        base44.entities.Practitioner.get(entity_id),
+        base44.entities.MonthlyPerformanceReport.filter({ practitioner_id: entity_id }),
+        base44.entities.PractitionerSkill.filter({ practitioner_id: entity_id }),
+        base44.entities.Client.filter({ assigned_practitioner_id: entity_id }),
+        base44.entities.TrainingProgress.filter({ practitioner_id: entity_id }),
+        base44.entities.ClientFeedback.filter({ practitioner_id: entity_id })
+      ]);
       
-      contextData = { practitioner, performance: performance[0], skills };
+      contextData = { 
+        practitioner, 
+        performance: performance[0], 
+        skills,
+        active_clients: clients.filter(c => c.status === 'active'),
+        training_status: trainingProgress,
+        recent_feedback: feedback.slice(0, 10)
+      };
     } else if (context_type === 'compliance') {
-      const complianceItems = await base44.entities.ComplianceItem.filter({ status: 'attention_needed' });
-      const audits = await base44.entities.ComplianceAudit.list('-created_date', 5);
-      const breaches = await base44.entities.ComplianceBreach.filter({ status: 'open' });
+      const [complianceItems, audits, breaches, restrictivePractices, complianceAuditReports] = await Promise.all([
+        base44.entities.ComplianceItem.filter({ status: 'attention_needed' }),
+        base44.entities.ComplianceAudit.list('-created_date', 5),
+        base44.entities.ComplianceBreach.filter({ status: 'open' }),
+        base44.entities.RestrictivePractice.filter({ authorisation_status: 'pending_authorisation' }),
+        base44.entities.ComplianceAuditReport.list('-created_date', 3)
+      ]);
       
-      contextData = { compliance_items: complianceItems.slice(0, 20), recent_audits: audits, active_breaches: breaches };
+      contextData = { 
+        compliance_items: complianceItems.slice(0, 20), 
+        recent_audits: audits, 
+        active_breaches: breaches,
+        pending_restrictive_practices: restrictivePractices,
+        recent_audit_reports: complianceAuditReports
+      };
     }
 
     // Search knowledge base
