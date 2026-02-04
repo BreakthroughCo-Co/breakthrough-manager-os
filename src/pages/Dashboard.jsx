@@ -31,6 +31,10 @@ import ResourceOptimizationWidget from '@/components/dashboard/ResourceOptimizat
 import EngagementMonitorWidget from '@/components/dashboard/EngagementMonitorWidget';
 import SystemicTrendsWidget from '@/components/dashboard/SystemicTrendsWidget';
 import FundingAnalyticsWidget from '@/components/dashboard/FundingAnalyticsWidget';
+import DynamicDashboardBuilder from '@/components/dashboard/DynamicDashboardBuilder';
+import TeamAnalyticsDashboard from '@/components/practitioner/TeamAnalyticsDashboard';
+import ResourceAllocationRecommendations from '@/components/practitioner/ResourceAllocationRecommendations';
+import ProactiveComplianceMonitor from '@/components/compliance/ProactiveComplianceMonitor';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
