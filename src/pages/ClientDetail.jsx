@@ -16,6 +16,7 @@ import ClientAppointmentsSection from '@/components/client/ClientAppointmentsSec
 import ClientQuickActions from '@/components/client/ClientQuickActions';
 import ClientOutcomePrediction from '@/components/client/ClientOutcomePrediction';
 import ClientFeedbackDisplay from '@/components/feedback/ClientFeedbackDisplay';
+import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
@@ -143,11 +144,12 @@ export default function ClientDetailPage() {
       {/* Main Content Tabs */}
       {!isEditingProfile && (
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="support_plan">AI Support Plan</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="contacts">Contacts & Services</TabsTrigger>
+            <TabsTrigger value="contacts">Contacts</TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
@@ -244,6 +246,11 @@ export default function ClientDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* AI SUPPORT PLAN TAB */}
+          <TabsContent value="support_plan">
+            <AISupportPlanGenerator clientId={clientId} />
           </TabsContent>
 
           {/* APPOINTMENTS TAB */}

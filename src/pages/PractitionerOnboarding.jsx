@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GraduationCap } from 'lucide-react';
 import PractitionerOnboardingWorkflow from '@/components/onboarding/PractitionerOnboardingWorkflow';
+import PersonalizedLearningPathViewer from '@/components/training/PersonalizedLearningPathViewer';
 
 export default function PractitionerOnboarding() {
   const [selectedPractitionerId, setSelectedPractitionerId] = useState(null);
@@ -80,7 +81,10 @@ export default function PractitionerOnboarding() {
 
       {/* Onboarding Workflow */}
       {selectedPractitionerId && (
-        <PractitionerOnboardingWorkflow practitionerId={selectedPractitionerId} />
+        <div className="space-y-6">
+          <PersonalizedLearningPathViewer practitionerId={selectedPractitionerId} />
+          <PractitionerOnboardingWorkflow practitionerId={selectedPractitionerId} />
+        </div>
       )}
     </div>
   );
