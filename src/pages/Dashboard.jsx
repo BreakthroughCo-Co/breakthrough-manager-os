@@ -27,6 +27,9 @@ import OperationalMetricsWidget from '@/components/dashboard/OperationalMetricsW
 import PlanExpiryAlertsWidget from '@/components/dashboard/PlanExpiryAlertsWidget';
 import ClientRiskAlertsWidget from '@/components/dashboard/ClientRiskAlertsWidget';
 import ComplianceRiskMonitor from '@/components/compliance/ComplianceRiskMonitor';
+import ResourceOptimizationWidget from '@/components/dashboard/ResourceOptimizationWidget';
+import EngagementMonitorWidget from '@/components/dashboard/EngagementMonitorWidget';
+import SystemicTrendsWidget from '@/components/dashboard/SystemicTrendsWidget';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -230,6 +233,9 @@ export default function Dashboard() {
         {/* Right Column */}
         <div className="space-y-6">
           <QuickActions />
+          <ResourceOptimizationWidget />
+          <EngagementMonitorWidget />
+          <SystemicTrendsWidget />
           <AlertsPanel alerts={alerts} />
           <RecentActivity activities={recentActivities} />
         </div>
