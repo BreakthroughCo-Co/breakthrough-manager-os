@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import AppErrorBoundary from '@/components/errors/AppErrorBoundary';
 import { ThemeProvider, useTheme } from '@/components/theme/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -51,6 +52,7 @@ function LayoutContent({ children, currentPageName }) {
               </h1>
             </div>
             <div className="flex items-center gap-6">
+              <NotificationBell />
               <button
                 onClick={toggleTheme}
                 className={cn(
