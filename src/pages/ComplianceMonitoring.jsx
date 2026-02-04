@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle, FileCheck, Download, RefreshCw } from 'lucide-react';
 import ComplianceRiskMonitor from '@/components/compliance/ComplianceRiskMonitor';
+import ComplianceAuditReportViewer from '@/components/compliance/ComplianceAuditReportViewer';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 

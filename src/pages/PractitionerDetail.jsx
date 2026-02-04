@@ -31,6 +31,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { cn } from '@/lib/utils';
 import MessageComposer from '@/components/communication/MessageComposer';
+import PerformanceInsightsPanel from '@/components/practitioner/PerformanceInsightsPanel';
 
 const statusColors = {
   active: 'bg-emerald-100 text-emerald-700',
@@ -216,6 +217,9 @@ export default function PractitionerDetail() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Performance Insights */}
+      <PerformanceInsightsPanel practitionerId={practitionerId} />
 
       {/* Caseload Table */}
       <Card>
