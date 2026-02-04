@@ -90,6 +90,9 @@ const complianceItems = [
 
 const adminItems = [
   { name: 'Command Center', icon: BarChart3, page: 'CommandCenter' },
+  { name: 'Resource Management', icon: Gauge, page: 'ResourceManagement', managerOnly: true },
+  { name: 'Journey Analytics', icon: TrendingUp, page: 'ClientJourneyAnalytics', managerOnly: true },
+  { name: 'Training Automation', icon: Brain, page: 'TrainingAutomation', managerOnly: true },
   { name: 'NDIS Plans', icon: FileText, page: 'NDISPlans' },
   { name: 'Plan Utilisation', icon: Gauge, page: 'PlanUtilisation' },
   { name: 'Service Agreements', icon: ScrollText, page: 'ServiceAgreements' },
