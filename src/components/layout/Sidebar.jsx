@@ -80,6 +80,7 @@ const clinicalItems = [
 
 const complianceItems = [
   { name: 'Compliance Hub', icon: Shield, page: 'Compliance' },
+  { name: 'Compliance Automation', icon: Zap, page: 'ComplianceAutomation', managerOnly: true },
   { name: 'Risk Assessment', icon: AlertTriangle, page: 'RiskAssessmentTool' },
   { name: 'BIP Quality Audit', icon: ClipboardCheck, page: 'BIPQualityAudit' },
   { name: 'Case Notes', icon: FileText, page: 'CaseNotes' },

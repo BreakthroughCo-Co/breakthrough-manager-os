@@ -94,6 +94,7 @@ import HybridIntelligence from './pages/HybridIntelligence';
 import IncidentAnalysis from './pages/IncidentAnalysis';
 import IncidentDetection from './pages/IncidentDetection';
 import Integrations from './pages/Integrations';
+import IntelligenceHub from './pages/IntelligenceHub';
 import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
 import MentorshipProgram from './pages/MentorshipProgram';
 import Messages from './pages/Messages';
@@ -113,6 +114,7 @@ import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import PractitionerPerformance from './pages/PractitionerPerformance';
 import PractitionerSkillManagement from './pages/PractitionerSkillManagement';
 import Practitioners from './pages/Practitioners';
+import ProactiveAlerts from './pages/ProactiveAlerts';
 import Programs from './pages/Programs';
 import ReportDistribution from './pages/ReportDistribution';
 import Reports from './pages/Reports';
@@ -138,8 +140,7 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import IntelligenceHub from './pages/IntelligenceHub';
-import ProactiveAlerts from './pages/ProactiveAlerts';
+import ComplianceAutomation from './pages/ComplianceAutomation';
 import __Layout from './Layout.jsx';
 
 
@@ -191,6 +192,7 @@ export const PAGES = {
     "IncidentAnalysis": IncidentAnalysis,
     "IncidentDetection": IncidentDetection,
     "Integrations": Integrations,
+    "IntelligenceHub": IntelligenceHub,
     "LEGOTransformativePlay": LEGOTransformativePlay,
     "MentorshipProgram": MentorshipProgram,
     "Messages": Messages,
@@ -210,6 +212,7 @@ export const PAGES = {
     "PractitionerPerformance": PractitionerPerformance,
     "PractitionerSkillManagement": PractitionerSkillManagement,
     "Practitioners": Practitioners,
+    "ProactiveAlerts": ProactiveAlerts,
     "Programs": Programs,
     "ReportDistribution": ReportDistribution,
     "Reports": Reports,
@@ -235,8 +238,7 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "IntelligenceHub": IntelligenceHub,
-    "ProactiveAlerts": ProactiveAlerts,
+    "ComplianceAutomation": ComplianceAutomation,
 }
 
 export const pagesConfig = {
