@@ -10,13 +10,15 @@ Deno.serve(async (req) => {
     }
 
     // Gather comprehensive compliance data
-    const [clients, practitioners, bsps, serviceAgreements, incidents, caseNotes] = await Promise.all([
+    const [clients, practitioners, bsps, serviceAgreements, incidents, caseNotes, goals, appointments] = await Promise.all([
       base44.asServiceRole.entities.Client.list(),
       base44.asServiceRole.entities.Practitioner.list(),
       base44.asServiceRole.entities.BehaviourSupportPlan.list(),
       base44.asServiceRole.entities.ServiceAgreement.list().catch(() => []),
       base44.asServiceRole.entities.Incident.list('-incident_date', 100),
-      base44.asServiceRole.entities.CaseNote.list('-created_date', 500)
+      base44.asServiceRole.entities.CaseNote.list('-created_date', 500),
+      base44.asServiceRole.entities.ClientGoal.list(),
+      base44.asServiceRole.entities.Appointment.list('-appointment_date', 200).catch(() => [])
     ]);
 
     const complianceIssues = [];
@@ -166,7 +168,86 @@ Deno.serve(async (req) => {
       }
     });
 
-    // 5. Practitioner Qualifications & Compliance
+    // 5. NDIS Practice Standards - Core Module Compliance
+    // Standard 1.1: Rights and Dignity
+    clients.forEach(client => {
+      const clientGoals = goals.filter(g => g.client_id === client.id);
+      const clientNotes = caseNotes.filter(n => n.client_id === client.id);
+      
+      // Check for person-centered planning evidence
+      if (clientGoals.length === 0 && client.status === 'active') {
+        complianceIssues.push({
+          severity: 'high',
+          category: 'practice_standards_1_1',
+          entity_type: 'Client',
+          entity_id: client.id,
+          entity_name: client.full_name,
+          issue: 'No documented goals - person-centered planning required',
+          required_action: 'Develop and document client goals in collaboration with participant',
+          compliance_standard: 'NDIS Practice Standards 1.1 - Person-Centered Approach'
+        });
+      }
+
+      // Check for regular progress reviews
+      if (clientGoals.length > 0) {
+        const goalsWithNoProgress = clientGoals.filter(g => 
+          g.current_progress === 0 && g.status === 'in_progress'
+        );
+        if (goalsWithNoProgress.length === clientGoals.length) {
+          documentationGaps.push({
+            severity: 'medium',
+            category: 'practice_standards_monitoring',
+            entity_type: 'Client',
+            entity_id: client.id,
+            entity_name: client.full_name,
+            issue: 'Goals have no recorded progress',
+            required_action: 'Regularly monitor and document progress towards goals',
+            compliance_standard: 'NDIS Practice Standards 1.2 - Ongoing Assessment'
+          });
+        }
+      }
+    });
+
+    // Standard 1.3: Independence and Informed Choice
+    serviceAgreements.forEach(agreement => {
+      if (agreement.status === 'active' && !agreement.signed_date) {
+        complianceIssues.push({
+          severity: 'critical',
+          category: 'practice_standards_1_3',
+          entity_type: 'ServiceAgreement',
+          entity_id: agreement.id,
+          entity_name: agreement.client_name || 'Unknown',
+          issue: 'Service agreement not formally signed',
+          required_action: 'Obtain participant signature on service agreement',
+          compliance_standard: 'NDIS Practice Standards 1.3 - Informed Consent'
+        });
+      }
+    });
+
+    // Standard 2.1: Responsive Provision of Supports
+    const last30Days = new Date();
+    last30Days.setDate(last30Days.getDate() - 30);
+    
+    clients.filter(c => c.status === 'active').forEach(client => {
+      const recentAppointments = appointments.filter(a => 
+        a.client_id === client.id && new Date(a.appointment_date) >= last30Days
+      );
+      
+      if (recentAppointments.length === 0) {
+        riskFlags.push({
+          severity: 'medium',
+          category: 'practice_standards_2_1',
+          entity_type: 'Client',
+          entity_id: client.id,
+          entity_name: client.full_name,
+          issue: 'No service delivery recorded in last 30 days',
+          required_action: 'Verify service delivery or update client status',
+          compliance_standard: 'NDIS Practice Standards 2.1 - Responsive Service Provision'
+        });
+      }
+    });
+
+    // 6. Practitioner Qualifications & Compliance
     practitioners.forEach(prac => {
       if (prac.status === 'active') {
         // Worker screening check (assuming field exists)
