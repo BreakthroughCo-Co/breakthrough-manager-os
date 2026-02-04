@@ -144,6 +144,7 @@ import TrainingAutomation from './pages/TrainingAutomation';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
+import PractitionerWellbeing from './pages/PractitionerWellbeing';
 import __Layout from './Layout.jsx';
 
 
@@ -245,6 +246,7 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
+    "PractitionerWellbeing": PractitionerWellbeing,
 }
 
 export const pagesConfig = {
