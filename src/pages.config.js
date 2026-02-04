@@ -119,9 +119,11 @@ import Reports from './pages/Reports';
 import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
 import RestrictivePractices from './pages/RestrictivePractices';
 import RiskAssessmentTool from './pages/RiskAssessmentTool';
+import RiskManagement from './pages/RiskManagement';
 import RiskMonitoring from './pages/RiskMonitoring';
 import RootCauseAnalysis from './pages/RootCauseAnalysis';
 import ServiceAgreements from './pages/ServiceAgreements';
+import ServiceReports from './pages/ServiceReports';
 import SessionLogs from './pages/SessionLogs';
 import SessionSupport from './pages/SessionSupport';
 import Settings from './pages/Settings';
@@ -136,8 +138,6 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import RiskManagement from './pages/RiskManagement';
-import ServiceReports from './pages/ServiceReports';
 import __Layout from './Layout.jsx';
 
 
@@ -214,9 +214,11 @@ export const PAGES = {
     "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
     "RestrictivePractices": RestrictivePractices,
     "RiskAssessmentTool": RiskAssessmentTool,
+    "RiskManagement": RiskManagement,
     "RiskMonitoring": RiskMonitoring,
     "RootCauseAnalysis": RootCauseAnalysis,
     "ServiceAgreements": ServiceAgreements,
+    "ServiceReports": ServiceReports,
     "SessionLogs": SessionLogs,
     "SessionSupport": SessionSupport,
     "Settings": Settings,
@@ -231,8 +233,6 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "RiskManagement": RiskManagement,
-    "ServiceReports": ServiceReports,
 }
 
 export const pagesConfig = {

@@ -16,6 +16,7 @@ import ClientAppointmentsSection from '@/components/client/ClientAppointmentsSec
 import ClientQuickActions from '@/components/client/ClientQuickActions';
 import ClientOutcomePrediction from '@/components/client/ClientOutcomePrediction';
 import ClientFeedbackDisplay from '@/components/feedback/ClientFeedbackDisplay';
+import ClientCommunicationDrafter from '@/components/communication/ClientCommunicationDrafter';
 import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
 import SupportPlanUpdateSuggestions from '@/components/clinical/SupportPlanUpdateSuggestions';
 
@@ -272,6 +273,11 @@ export default function ClientDetailPage() {
             <ClientPractitionerLink clientId={clientId} currentPractitionerId={client.assigned_practitioner_id} />
             <ClientContactNetwork clientId={clientId} />
             <ClientFeedbackDisplay clientId={clientId} />
+            <ClientCommunicationDrafter 
+              clientId={clientId} 
+              clientName={client?.full_name}
+              onSend={(data) => console.log('Send communication:', data)}
+            />
           </TabsContent>
         </Tabs>
       )}

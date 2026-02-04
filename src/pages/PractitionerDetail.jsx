@@ -32,6 +32,8 @@ import { createPageUrl } from '@/utils';
 import { cn } from '@/lib/utils';
 import MessageComposer from '@/components/communication/MessageComposer';
 import PerformanceInsightsPanel from '@/components/practitioner/PerformanceInsightsPanel';
+import WorkloadForecastPanel from '@/components/practitioner/WorkloadForecastPanel';
+import DevelopmentPathwayPanel from '@/components/practitioner/DevelopmentPathwayPanel';
 
 const statusColors = {
   active: 'bg-emerald-100 text-emerald-700',
@@ -220,6 +222,8 @@ export default function PractitionerDetail() {
 
       {/* Performance Insights */}
       <PerformanceInsightsPanel practitionerId={practitionerId} />
+      <WorkloadForecastPanel practitionerId={practitionerId} practitionerName={practitioner?.full_name} />
+      <DevelopmentPathwayPanel practitionerId={practitionerId} practitionerName={practitioner?.full_name} />
 
       {/* Caseload Table */}
       <Card>
