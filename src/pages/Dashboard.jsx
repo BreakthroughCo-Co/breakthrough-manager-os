@@ -209,6 +209,7 @@ export default function Dashboard() {
 
       {/* AI Intelligence Overview */}
       <AIClientOverview clients={clients} />
+      <DynamicDashboardBuilder />
 
       {/* Critical Alerts - Plan Expiry & Client Risk */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -228,6 +229,7 @@ export default function Dashboard() {
         {/* Left Column - 2 cols wide */}
         <div className="lg:col-span-2 space-y-6">
           <PractitionerMetrics practitioners={practitioners} />
+          <TeamAnalyticsDashboard />
           <FundingOverview clients={clients} />
         </div>
 
