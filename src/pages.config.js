@@ -79,6 +79,7 @@ import CommandCenter from './pages/CommandCenter';
 import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
+import ComplianceAutomation from './pages/ComplianceAutomation';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import ComplianceCenter from './pages/ComplianceCenter';
 import ComplianceMonitoring from './pages/ComplianceMonitoring';
@@ -140,7 +141,9 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import ComplianceAutomation from './pages/ComplianceAutomation';
+import ResourceManagement from './pages/ResourceManagement';
+import ClientJourneyAnalytics from './pages/ClientJourneyAnalytics';
+import TrainingAutomation from './pages/TrainingAutomation';
 import __Layout from './Layout.jsx';
 
 
@@ -177,6 +180,7 @@ export const PAGES = {
     "CommunicationHub": CommunicationHub,
     "Compliance": Compliance,
     "ComplianceAuditCenter": ComplianceAuditCenter,
+    "ComplianceAutomation": ComplianceAutomation,
     "ComplianceBreachManagement": ComplianceBreachManagement,
     "ComplianceCenter": ComplianceCenter,
     "ComplianceMonitoring": ComplianceMonitoring,
@@ -238,7 +242,9 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "ComplianceAutomation": ComplianceAutomation,
+    "ResourceManagement": ResourceManagement,
+    "ClientJourneyAnalytics": ClientJourneyAnalytics,
+    "TrainingAutomation": TrainingAutomation,
 }
 
 export const pagesConfig = {
