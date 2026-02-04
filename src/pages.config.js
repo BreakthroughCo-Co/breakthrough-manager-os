@@ -63,6 +63,7 @@ import ClientCommunications from './pages/ClientCommunications';
 import ClientDetail from './pages/ClientDetail';
 import ClientDisengagementRiskDashboard from './pages/ClientDisengagementRiskDashboard';
 import ClientFeedback from './pages/ClientFeedback';
+import ClientForm from './pages/ClientForm';
 import ClientGoalReview from './pages/ClientGoalReview';
 import ClientIntake from './pages/ClientIntake';
 import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
@@ -73,6 +74,7 @@ import ClientRiskManagement from './pages/ClientRiskManagement';
 import ClientTransitions from './pages/ClientTransitions';
 import Clients from './pages/Clients';
 import ClinicalHub from './pages/ClinicalHub';
+import CommandCenter from './pages/CommandCenter';
 import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
@@ -87,9 +89,11 @@ import DocumentProcessing from './pages/DocumentProcessing';
 import FBAAssessment from './pages/FBAAssessment';
 import FinancialOperations from './pages/FinancialOperations';
 import HybridIntelligence from './pages/HybridIntelligence';
+import IncidentAnalysis from './pages/IncidentAnalysis';
 import IncidentDetection from './pages/IncidentDetection';
 import Integrations from './pages/Integrations';
 import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
+import MentorshipProgram from './pages/MentorshipProgram';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
 import NDISComplianceDashboard from './pages/NDISComplianceDashboard';
@@ -130,10 +134,6 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import MentorshipProgram from './pages/MentorshipProgram';
-import CommandCenter from './pages/CommandCenter';
-import IncidentAnalysis from './pages/IncidentAnalysis';
-import ClientForm from './pages/ClientForm';
 import __Layout from './Layout.jsx';
 
 
@@ -154,6 +154,7 @@ export const PAGES = {
     "ClientDetail": ClientDetail,
     "ClientDisengagementRiskDashboard": ClientDisengagementRiskDashboard,
     "ClientFeedback": ClientFeedback,
+    "ClientForm": ClientForm,
     "ClientGoalReview": ClientGoalReview,
     "ClientIntake": ClientIntake,
     "ClientOutcomePrediction": ClientOutcomePrediction,
@@ -164,6 +165,7 @@ export const PAGES = {
     "ClientTransitions": ClientTransitions,
     "Clients": Clients,
     "ClinicalHub": ClinicalHub,
+    "CommandCenter": CommandCenter,
     "CommunicationHub": CommunicationHub,
     "Compliance": Compliance,
     "ComplianceAuditCenter": ComplianceAuditCenter,
@@ -178,9 +180,11 @@ export const PAGES = {
     "FBAAssessment": FBAAssessment,
     "FinancialOperations": FinancialOperations,
     "HybridIntelligence": HybridIntelligence,
+    "IncidentAnalysis": IncidentAnalysis,
     "IncidentDetection": IncidentDetection,
     "Integrations": Integrations,
     "LEGOTransformativePlay": LEGOTransformativePlay,
+    "MentorshipProgram": MentorshipProgram,
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
     "NDISComplianceDashboard": NDISComplianceDashboard,
@@ -221,10 +225,6 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "MentorshipProgram": MentorshipProgram,
-    "CommandCenter": CommandCenter,
-    "IncidentAnalysis": IncidentAnalysis,
-    "ClientForm": ClientForm,
 }
 
 export const pagesConfig = {

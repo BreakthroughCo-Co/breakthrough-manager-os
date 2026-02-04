@@ -13,6 +13,7 @@ import ClientPractitionerLink from '@/components/client/ClientPractitionerLink';
 import ClientContactNetwork from '@/components/client/ClientContactNetwork';
 import ClientGoalsSection from '@/components/client/ClientGoalsSection';
 import ClientAppointmentsSection from '@/components/client/ClientAppointmentsSection';
+import ClientQuickActions from '@/components/client/ClientQuickActions';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
@@ -79,15 +80,20 @@ export default function ClientDetailPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Clients
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsEditingProfile(!isEditingProfile)}
-          className="gap-2"
-        >
-          <Edit2 className="h-4 w-4" />
-          {isEditingProfile ? 'View' : 'Edit'} Profile
-        </Button>
+        <div className="flex gap-2">
+          {!isEditingProfile && (
+            <ClientQuickActions clientId={clientId} clientName={client.full_name} />
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditingProfile(!isEditingProfile)}
+            className="gap-2"
+          >
+            <Edit2 className="h-4 w-4" />
+            {isEditingProfile ? 'View' : 'Edit'} Profile
+          </Button>
+        </div>
       </div>
 
       {/* Profile Summary Header */}
