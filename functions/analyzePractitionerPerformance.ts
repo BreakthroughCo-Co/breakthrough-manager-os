@@ -1,9 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-/**
- * AI-Driven Practitioner Performance Insights
- * Generates comprehensive performance summaries and development recommendations
- */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -15,152 +11,152 @@ Deno.serve(async (req) => {
 
     const { practitioner_id } = await req.json();
 
-    // Fetch comprehensive practitioner data
-    const [practitioner, caseNotes, billingRecords, incidents, trainings, skills, clients] = await Promise.all([
-      base44.entities.Practitioner.filter({ id: practitioner_id }).then(p => p[0]),
-      base44.entities.CaseNote.filter({ practitioner_id }, '-session_date', 30),
-      base44.entities.BillingRecord.filter({ practitioner_id }, '-service_date', 30),
-      base44.entities.Incident.filter({ client_id: '*' }).then(allIncidents => 
-        allIncidents.filter(i => i.reported_by === practitioner_id || i.description?.includes(practitioner_id))
-      ),
-      base44.entities.TrainingRequest.filter({ practitioner_id }),
-      base44.entities.PractitionerSkill.filter({ practitioner_id }),
-      base44.entities.Client.filter({ assigned_practitioner_id: practitioner_id })
+    // Gather comprehensive practitioner data
+    const [practitioner, caseNotes, feedback, trainingProgress, incidents, skillMatrix, appointments] = await Promise.all([
+      base44.asServiceRole.entities.Practitioner.get(practitioner_id),
+      base44.asServiceRole.entities.CaseNote.filter({ practitioner_id }, '-created_date', 100),
+      base44.asServiceRole.entities.ClientFeedback.filter({ practitioner_id }),
+      base44.asServiceRole.entities.TrainingProgress.filter({ practitioner_id }),
+      base44.asServiceRole.entities.Incident.filter({ practitioner_id }, '-incident_date', 20),
+      base44.asServiceRole.entities.PractitionerSkill.filter({ practitioner_id }),
+      base44.asServiceRole.entities.Appointment.filter({ practitioner_id }, '-appointment_date', 100)
     ]);
-
-    if (!practitioner) {
-      return Response.json({ error: 'Practitioner not found' }, { status: 404 });
-    }
 
     // Calculate performance metrics
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
 
-    const recentBilling = billingRecords.filter(b => new Date(b.service_date) > last30Days);
-    const billableHours = recentBilling.reduce((sum, b) => sum + (b.duration_hours || 0), 0);
-    const billableTarget = practitioner.billable_hours_target || 120;
-    const billableRatio = ((billableHours / billableTarget) * 100).toFixed(1);
+    const recentNotes = caseNotes.filter(n => new Date(n.created_date) >= last30Days);
+    const recentFeedback = feedback.filter(f => new Date(f.feedback_date) >= last30Days);
+    const avgFeedback = feedback.length > 0
+      ? feedback.reduce((sum, f) => sum + (f.overall_satisfaction || 0), 0) / feedback.length
+      : null;
 
-    const progressRatings = caseNotes.map(cn => {
-      const map = { regression: 1, no_change: 2, emerging: 3, progressing: 4, achieved: 5 };
-      return map[cn.progress_rating] || 0;
-    });
-    const avgClientProgress = progressRatings.length > 0
-      ? (progressRatings.reduce((a, b) => a + b) / progressRatings.length).toFixed(2)
-      : 'N/A';
+    const completedTraining = trainingProgress.filter(t => t.status === 'completed');
+    const pendingTraining = trainingProgress.filter(t => t.status === 'in_progress' || t.status === 'not_started');
 
-    const completedCaseNotes = caseNotes.filter(cn => cn.status === 'completed').length;
-    const draftCaseNotes = caseNotes.filter(cn => cn.status === 'draft').length;
+    const recentIncidents = incidents.filter(i => new Date(i.incident_date) >= last30Days);
+    const criticalIncidents = incidents.filter(i => i.severity === 'critical');
 
-    const recentHighSeverityIncidents = incidents.filter(i => 
-      (i.severity === 'high' || i.severity === 'critical') && 
-      new Date(i.incident_date) > last30Days
-    ).length;
+    const completedAppointments = appointments.filter(a => a.status === 'completed');
+    const cancelledAppointments = appointments.filter(a => a.status === 'cancelled');
 
-    // Compile performance context
-    const performanceContext = `
-PRACTITIONER: ${practitioner.full_name}
-Role: ${practitioner.role}
-Status: ${practitioner.status}
-Tenure: Started ${practitioner.start_date}
+    const prompt = `
+You are a performance analytics specialist conducting a comprehensive review of an NDIS practitioner.
 
-CURRENT METRICS (Last 30 Days):
-- Billable Hours: ${billableHours}/${billableTarget} (${billableRatio}%)
-- Cases Managed: ${clients.length} active clients
-- Caseload Capacity: ${practitioner.current_caseload}/${practitioner.caseload_capacity}
-- Case Notes: ${completedCaseNotes} completed, ${draftCaseNotes} draft
-- Avg Client Progress Rating: ${avgClientProgress}/5.0
-- High-Severity Incidents: ${recentHighSeverityIncidents}
+PRACTITIONER PROFILE:
+- Name: ${practitioner.full_name}
+- Role: ${practitioner.role}
+- Experience: ${practitioner.years_of_experience || 'Unknown'} years
+- Employment Status: ${practitioner.status}
 
-CLINICAL QUALITY:
-- Sessions Documented: ${caseNotes.length}
-- Session Types: ${[...new Set(caseNotes.map(cn => cn.session_type))].join(', ')}
-- Regression Cases: ${caseNotes.filter(cn => cn.progress_rating === 'regression').length}
-- Achievement Cases: ${caseNotes.filter(cn => cn.progress_rating === 'achieved').length}
+DOCUMENTATION PERFORMANCE:
+- Total Case Notes: ${caseNotes.length}
+- Recent Notes (30 days): ${recentNotes.length}
+- Documentation Frequency: ${(recentNotes.length / 30).toFixed(1)} notes/day
 
-PROFESSIONAL DEVELOPMENT:
-- Training Requests: ${trainings.length}
-- Current Skills: ${skills.map(s => `${s.skill_name} (${s.proficiency_level})`).join(', ') || 'Not assessed'}
-- Critical Skills: ${skills.filter(s => s.is_critical).map(s => s.skill_name).join(', ') || 'None identified'}
+CLIENT FEEDBACK:
+- Total Reviews: ${feedback.length}
+- Average Satisfaction: ${avgFeedback ? avgFeedback.toFixed(1) : 'N/A'}/5
+- Recent Feedback (30 days): ${recentFeedback.length} reviews
+${feedback.length > 0 ? `- Common Improvement Areas: ${[...new Set(feedback.flatMap(f => f.improvement_areas || []))].slice(0, 5).join(', ')}` : ''}
 
-COMPLIANCE & SAFETY:
-- Total Incidents (recent): ${incidents.length}
-- High-Severity Incidents: ${recentHighSeverityIncidents}
-- Incident Categories: ${[...new Set(incidents.map(i => i.category))].join(', ')}`;
+TRAINING & DEVELOPMENT:
+- Completed Modules: ${completedTraining.length}
+- In Progress/Pending: ${pendingTraining.length}
+- Average Quiz Score: ${completedTraining.length > 0 ? (completedTraining.reduce((sum, t) => sum + (t.quiz_score || 0), 0) / completedTraining.length).toFixed(1) : 'N/A'}%
 
-    const performanceInsights = await base44.integrations.Core.InvokeLLM({
-      prompt: `${performanceContext}
+SKILL COMPETENCIES:
+${skillMatrix.slice(0, 10).map(s => `- ${s.skill_name}: ${s.proficiency_level}`).join('\n')}
 
-Analyze this practitioner's complete performance profile and provide:
+INCIDENT INVOLVEMENT:
+- Total Incidents: ${incidents.length}
+- Recent (30 days): ${recentIncidents.length}
+- Critical Incidents: ${criticalIncidents.length}
 
-1. **Performance Summary** - Overall performance rating (Exceeds/Meets/Developing/Concerns) with supporting evidence
-2. **Strengths** - 3-4 specific areas of strong performance with examples
-3. **Areas for Development** - 2-3 specific areas needing growth with context
-4. **Clinical Quality Assessment** - Quality of client documentation, progress tracking, and intervention effectiveness
-5. **Workload Management** - Is the practitioner appropriately loaded? Sustainable pace?
-6. **Recommended Development Path** - Specific, actionable recommendations for professional growth
-7. **Support/Coaching Suggestions** - What support would most benefit this practitioner
-8. **Overall Recommendation** - Action items for manager (recognition, coaching, training, performance improvement plan)
+SERVICE DELIVERY:
+- Total Appointments: ${appointments.length}
+- Completed: ${completedAppointments.length}
+- Cancellations: ${cancelledAppointments.length}
+- Attendance Rate: ${appointments.length > 0 ? ((completedAppointments.length / appointments.length) * 100).toFixed(1) : 0}%
 
-Be balanced, specific, and focus on actionable insights. Cite specific evidence from the metrics.`,
+Conduct comprehensive performance analysis and provide:
+1. OVERALL PERFORMANCE RATING (0-100)
+2. KEY STRENGTHS: Specific areas of excellence with evidence
+3. DEVELOPMENT AREAS: Concrete skill gaps or improvement opportunities
+4. PROFESSIONAL DEVELOPMENT RECOMMENDATIONS: Targeted training/coaching aligned with gaps
+5. RECOGNITION OPPORTUNITIES: Achievements worth acknowledging
+6. RISK FACTORS: Performance concerns requiring intervention
+7. CAREER PROGRESSION READINESS: Assessment for next role/responsibility level
+
+Use evidence-based performance assessment and NDIS workforce development frameworks.`;
+
+    const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt,
       response_json_schema: {
         type: "object",
         properties: {
-          performance_rating: {
-            type: "string",
-            enum: ["exceeds", "meets", "developing", "concerns"]
+          overall_rating: { type: "number" },
+          performance_summary: { type: "string" },
+          key_strengths: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                strength: { type: "string" },
+                evidence: { type: "string" },
+                impact: { type: "string" }
+              }
+            }
           },
-          summary: { type: "string" },
-          strengths: { type: "array", items: { type: "string" } },
           development_areas: {
             type: "array",
             items: {
               type: "object",
               properties: {
                 area: { type: "string" },
-                evidence: { type: "string" },
-                impact: { type: "string" }
+                current_gap: { type: "string" },
+                priority: { type: "string" },
+                recommended_action: { type: "string" }
               }
             }
           },
-          clinical_quality_assessment: {
-            type: "object",
-            properties: {
-              rating: { type: "string" },
-              documentation_quality: { type: "string" },
-              progress_tracking: { type: "string" },
-              intervention_effectiveness: { type: "string" }
-            }
-          },
-          workload_assessment: {
-            type: "object",
-            properties: {
-              current_load: { type: "string" },
-              sustainability: { type: "string" },
-              recommendations: { type: "string" }
-            }
-          },
-          development_path: {
+          professional_development: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                recommendation: { type: "string" },
-                timeframe: { type: "string" },
-                expected_outcome: { type: "string" }
+                resource_type: { type: "string" },
+                resource_name: { type: "string" },
+                rationale: { type: "string" },
+                urgency: { type: "string" }
               }
             }
           },
-          coaching_support: { type: "array", items: { type: "string" } },
-          manager_actions: {
+          recognition_opportunities: {
+            type: "array",
+            items: {
+              type: "string"
+            }
+          },
+          risk_factors: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                action: { type: "string" },
-                urgency: { type: "string", enum: ["immediate", "1-month", "3-month"] },
-                rationale: { type: "string" }
+                risk: { type: "string" },
+                severity: { type: "string" },
+                mitigation: { type: "string" }
               }
+            }
+          },
+          career_progression: {
+            type: "object",
+            properties: {
+              readiness_level: { type: "string" },
+              recommended_next_step: { type: "string" },
+              timeline: { type: "string" },
+              prerequisites: { type: "array", items: { type: "string" } }
             }
           }
         }
@@ -168,21 +164,24 @@ Be balanced, specific, and focus on actionable insights. Cite specific evidence 
     });
 
     return Response.json({
+      success: true,
       practitioner_id,
       practitioner_name: practitioner.full_name,
-      analysis_date: new Date().toISOString(),
-      performance_insights: performanceInsights,
+      performance_insights: aiResponse,
       metrics: {
-        billable_hours_ratio: billableRatio,
-        avg_client_progress: avgClientProgress,
-        case_notes_completed: completedCaseNotes,
-        high_severity_incidents_30d: recentHighSeverityIncidents,
-        active_clients: clients.length
-      }
+        documentation_count: caseNotes.length,
+        avg_client_satisfaction: avgFeedback,
+        completed_training: completedTraining.length,
+        incident_count: incidents.length,
+        appointment_attendance_rate: appointments.length > 0 ? (completedAppointments.length / appointments.length) * 100 : 0
+      },
+      analyzed_at: new Date().toISOString()
     });
 
   } catch (error) {
-    console.error('Performance analysis error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({
+      success: false,
+      error: error.message
+    }, { status: 500 });
   }
 });

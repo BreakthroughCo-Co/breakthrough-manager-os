@@ -17,6 +17,7 @@ import ClientQuickActions from '@/components/client/ClientQuickActions';
 import ClientOutcomePrediction from '@/components/client/ClientOutcomePrediction';
 import ClientFeedbackDisplay from '@/components/feedback/ClientFeedbackDisplay';
 import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
+import SupportPlanUpdateSuggestions from '@/components/clinical/SupportPlanUpdateSuggestions';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
@@ -250,7 +251,10 @@ export default function ClientDetailPage() {
 
           {/* AI SUPPORT PLAN TAB */}
           <TabsContent value="support_plan">
-            <AISupportPlanGenerator clientId={clientId} />
+            <div className="space-y-6">
+              <AISupportPlanGenerator clientId={clientId} />
+              <SupportPlanUpdateSuggestions clientId={clientId} />
+            </div>
           </TabsContent>
 
           {/* APPOINTMENTS TAB */}

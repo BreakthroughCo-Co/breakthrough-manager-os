@@ -51,6 +51,7 @@ import ABCAnalyser from './pages/ABCAnalyser';
 import AIAdminHub from './pages/AIAdminHub';
 import AIAssistant from './pages/AIAssistant';
 import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
+import AdvancedReporting from './pages/AdvancedReporting';
 import AgentManagement from './pages/AgentManagement';
 import AutomatedReports from './pages/AutomatedReports';
 import BIPQualityAudit from './pages/BIPQualityAudit';
@@ -80,6 +81,7 @@ import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import ComplianceCenter from './pages/ComplianceCenter';
+import ComplianceMonitoring from './pages/ComplianceMonitoring';
 import ComplianceReadiness from './pages/ComplianceReadiness';
 import ComplianceTrainingManagement from './pages/ComplianceTrainingManagement';
 import ComprehensiveReports from './pages/ComprehensiveReports';
@@ -134,8 +136,6 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import ComplianceMonitoring from './pages/ComplianceMonitoring';
-import AdvancedReporting from './pages/AdvancedReporting';
 import __Layout from './Layout.jsx';
 
 
@@ -144,6 +144,7 @@ export const PAGES = {
     "AIAdminHub": AIAdminHub,
     "AIAssistant": AIAssistant,
     "AISchedulingOptimizer": AISchedulingOptimizer,
+    "AdvancedReporting": AdvancedReporting,
     "AgentManagement": AgentManagement,
     "AutomatedReports": AutomatedReports,
     "BIPQualityAudit": BIPQualityAudit,
@@ -173,6 +174,7 @@ export const PAGES = {
     "ComplianceAuditCenter": ComplianceAuditCenter,
     "ComplianceBreachManagement": ComplianceBreachManagement,
     "ComplianceCenter": ComplianceCenter,
+    "ComplianceMonitoring": ComplianceMonitoring,
     "ComplianceReadiness": ComplianceReadiness,
     "ComplianceTrainingManagement": ComplianceTrainingManagement,
     "ComprehensiveReports": ComprehensiveReports,
@@ -227,8 +229,6 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "ComplianceMonitoring": ComplianceMonitoring,
-    "AdvancedReporting": AdvancedReporting,
 }
 
 export const pagesConfig = {
