@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
+import PractitionerCaseloadIndicator from '@/components/practitioner/PractitionerCaseloadIndicator';
 
 export default function ClientPractitionerLink({ clientId, currentPractitionerId = null, onPractitionerChange = null }) {
   const queryClient = useQueryClient();
@@ -74,11 +75,20 @@ export default function ClientPractitionerLink({ clientId, currentPractitionerId
               <SelectContent>
                 {practitioners?.map(p => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.full_name} {p.specialisation ? `(${p.specialisation})` : ''}
+                    <div className="flex items-center justify-between w-full pr-6">
+                      <span>{p.full_name} {p.specialisation ? `(${p.specialisation})` : ''}</span>
+                      <PractitionerCaseloadIndicator practitionerId={p.id} compact />
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            
+            {selectedPractitionerId && (
+              <div className="mt-3 p-3 bg-white rounded-lg border">
+                <PractitionerCaseloadIndicator practitionerId={selectedPractitionerId} />
+              </div>
+            )}
 
             <div className="flex gap-2 justify-end">
               <Button

@@ -24,6 +24,8 @@ import PractitionerMetrics from '@/components/dashboard/PractitionerMetrics';
 import AIClientOverview from '@/components/dashboard/AIClientOverview';
 import OperationalAlertsWidget from '@/components/dashboard/OperationalAlertsWidget';
 import OperationalMetricsWidget from '@/components/dashboard/OperationalMetricsWidget';
+import PlanExpiryAlertsWidget from '@/components/dashboard/PlanExpiryAlertsWidget';
+import ClientRiskAlertsWidget from '@/components/dashboard/ClientRiskAlertsWidget';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -202,6 +204,12 @@ export default function Dashboard() {
 
       {/* AI Intelligence Overview */}
       <AIClientOverview clients={clients} />
+
+      {/* Critical Alerts - Plan Expiry & Client Risk */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PlanExpiryAlertsWidget />
+        <ClientRiskAlertsWidget />
+      </div>
 
       {/* Operational Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
