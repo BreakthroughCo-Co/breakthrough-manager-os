@@ -14,6 +14,7 @@ import ClientContactNetwork from '@/components/client/ClientContactNetwork';
 import ClientGoalsSection from '@/components/client/ClientGoalsSection';
 import ClientAppointmentsSection from '@/components/client/ClientAppointmentsSection';
 import ClientQuickActions from '@/components/client/ClientQuickActions';
+import ClientOutcomePrediction from '@/components/client/ClientOutcomePrediction';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
@@ -150,7 +151,7 @@ export default function ClientDetailPage() {
 
           {/* OVERVIEW TAB */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               {/* Funding Status */}
               <Card>
                 <CardHeader>
@@ -215,6 +216,9 @@ export default function ClientDetailPage() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* AI Outcome Prediction */}
+              <ClientOutcomePrediction clientId={clientId} />
             </div>
 
             {/* Plan Details */}
