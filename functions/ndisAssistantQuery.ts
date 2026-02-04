@@ -11,6 +11,17 @@ Deno.serve(async (req) => {
 
     const { query, context } = await req.json();
 
+    // Search knowledge base for relevant articles
+    const knowledgeArticles = await base44.asServiceRole.entities.KnowledgeBaseArticle.filter(
+      { is_current: true }
+    ).catch(() => []);
+
+    const relevantArticles = knowledgeArticles.filter(article => 
+      article.title.toLowerCase().includes(query.toLowerCase()) ||
+      article.content.toLowerCase().includes(query.toLowerCase()) ||
+      article.tags?.some(tag => query.toLowerCase().includes(tag.toLowerCase()))
+    ).slice(0, 5);
+
     const systemPrompt = `
 You are an NDIS compliance and best practice advisor embedded in Breakthrough Manager OS.
 
@@ -39,7 +50,17 @@ USER QUERY: ${query}
 
 ${context ? `ADDITIONAL CONTEXT: ${context}` : ''}
 
-Provide clear, authoritative guidance optimized for managerial decision-making.`;
+${relevantArticles.length > 0 ? `
+KNOWLEDGE BASE ARTICLES (Internal Documentation):
+${relevantArticles.map(a => `
+Title: ${a.title}
+Category: ${a.category}
+Content: ${a.content.substring(0, 500)}...
+Source: ${a.source}
+`).join('\n')}
+` : ''}
+
+Provide clear, authoritative guidance optimized for managerial decision-making. If relevant knowledge base articles were found, reference them in your response.`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: systemPrompt,

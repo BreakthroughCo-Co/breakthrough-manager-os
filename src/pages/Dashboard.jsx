@@ -30,6 +30,7 @@ import ComplianceRiskMonitor from '@/components/compliance/ComplianceRiskMonitor
 import ResourceOptimizationWidget from '@/components/dashboard/ResourceOptimizationWidget';
 import EngagementMonitorWidget from '@/components/dashboard/EngagementMonitorWidget';
 import SystemicTrendsWidget from '@/components/dashboard/SystemicTrendsWidget';
+import FundingAnalyticsWidget from '@/components/dashboard/FundingAnalyticsWidget';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -233,6 +234,7 @@ export default function Dashboard() {
         {/* Right Column */}
         <div className="space-y-6">
           <QuickActions />
+          <FundingAnalyticsWidget />
           <ResourceOptimizationWidget />
           <EngagementMonitorWidget />
           <SystemicTrendsWidget />

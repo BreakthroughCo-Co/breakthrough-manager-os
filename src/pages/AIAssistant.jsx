@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bot } from 'lucide-react';
 import NDISAssistantChat from '@/components/ai/NDISAssistantChat';
+import KnowledgeBaseManager from '@/components/ai/KnowledgeBaseManager';
 
 export default function AIAssistant() {
   return (
@@ -15,8 +16,13 @@ export default function AIAssistant() {
         </p>
       </div>
 
-      <div className="max-w-4xl">
-        <NDISAssistantChat />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <NDISAssistantChat />
+        </div>
+        <div>
+          <KnowledgeBaseManager />
+        </div>
       </div>
     </div>
   );
