@@ -1,3 +1,4 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,14 +6,37 @@
 @layer base {
   html {
     @apply scroll-smooth;
+    overscroll-behavior-y: none;
   }
   
   body {
     @apply transition-colors duration-300;
+    overscroll-behavior-y: none;
   }
   
   html.dark {
     color-scheme: dark;
+  }
+  
+  /* Mobile touch optimizations */
+  button,
+  a,
+  [role="button"],
+  nav a {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Minimum touch targets for mobile */
+  @media (max-width: 768px) {
+    button,
+    a,
+    [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 }
 

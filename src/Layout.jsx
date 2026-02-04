@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
+import BottomTabs from '@/components/layout/BottomTabs';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import AppErrorBoundary from '@/components/errors/AppErrorBoundary';
@@ -25,24 +26,34 @@ function LayoutContent({ children, currentPageName }) {
 
   return (
     <AppErrorBoundary>
-      <div className={cn(
-        "min-h-screen transition-colors duration-300",
-        isDark ? "bg-slate-950 text-slate-50" : "bg-slate-50 text-slate-900"
-      )}>
+      <div 
+        className={cn(
+          "min-h-screen transition-colors duration-300",
+          isDark ? "bg-slate-950 text-slate-50" : "bg-slate-50 text-slate-900"
+        )}
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          overscrollBehaviorY: 'none'
+        }}
+      >
         <Sidebar currentPage={currentPageName} />
         
         {/* Main Content */}
         <main className={cn(
           "transition-all duration-300 min-h-screen",
-          "ml-64"
+          "ml-0 md:ml-64 pb-16 md:pb-0"
         )}>
           {/* Top Bar */}
           <header className={cn(
-            "h-16 flex items-center justify-between px-8 sticky top-0 z-40 transition-colors duration-300 border-b",
+            "h-16 flex items-center justify-between px-4 md:px-8 sticky top-0 z-40 transition-colors duration-300 border-b",
             isDark 
               ? "bg-slate-900 border-slate-800" 
               : "bg-white border-slate-200"
-          )}>
+          )}
+          style={{
+            top: 'env(safe-area-inset-top, 0px)'
+          }}
+          >
             <div>
               <h1 className={cn(
                 "text-lg font-semibold capitalize transition-colors duration-300",
@@ -90,10 +101,13 @@ function LayoutContent({ children, currentPageName }) {
           </header>
 
           {/* Page Content */}
-          <div className="p-8">
+          <div className="p-4 md:p-8">
             {children}
           </div>
         </main>
+        
+        {/* Mobile Bottom Navigation */}
+        <BottomTabs />
       </div>
     </AppErrorBoundary>
   );

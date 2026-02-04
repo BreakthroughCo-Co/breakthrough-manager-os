@@ -115,6 +115,7 @@ import PractitionerMatching from './pages/PractitionerMatching';
 import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import PractitionerPerformance from './pages/PractitionerPerformance';
 import PractitionerSkillManagement from './pages/PractitionerSkillManagement';
+import PractitionerWellbeing from './pages/PractitionerWellbeing';
 import Practitioners from './pages/Practitioners';
 import ProactiveAlerts from './pages/ProactiveAlerts';
 import Programs from './pages/Programs';
@@ -144,7 +145,6 @@ import TrainingAutomation from './pages/TrainingAutomation';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import PractitionerWellbeing from './pages/PractitionerWellbeing';
 import __Layout from './Layout.jsx';
 
 
@@ -217,6 +217,7 @@ export const PAGES = {
     "PractitionerOnboarding": PractitionerOnboarding,
     "PractitionerPerformance": PractitionerPerformance,
     "PractitionerSkillManagement": PractitionerSkillManagement,
+    "PractitionerWellbeing": PractitionerWellbeing,
     "Practitioners": Practitioners,
     "ProactiveAlerts": ProactiveAlerts,
     "Programs": Programs,
@@ -246,7 +247,6 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "PractitionerWellbeing": PractitionerWellbeing,
 }
 
 export const pagesConfig = {
