@@ -134,6 +134,8 @@ import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
+import ComplianceMonitoring from './pages/ComplianceMonitoring';
+import AdvancedReporting from './pages/AdvancedReporting';
 import __Layout from './Layout.jsx';
 
 
@@ -225,6 +227,8 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
+    "ComplianceMonitoring": ComplianceMonitoring,
+    "AdvancedReporting": AdvancedReporting,
 }
 
 export const pagesConfig = {
