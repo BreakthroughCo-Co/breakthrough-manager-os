@@ -44,6 +44,248 @@ export default function ClientJourneyAnalyticsPage() {
                 </CardContent>
             </Card>
 
+            {relationshipData && (
+                <Card className={cn(
+                    "mb-6 transition-colors duration-300",
+                    isDark ? "bg-slate-900 border-slate-800" : "bg-white"
+                )}>
+                    <CardHeader>
+                        <CardTitle className={cn("flex items-center gap-2", isDark ? "text-slate-50" : "text-slate-900")}>
+                            <Heart className="h-5 w-5 text-teal-500" />
+                            Client Relationship Analysis
+                        </CardTitle>
+                        <CardDescription className={isDark ? "text-slate-400" : "text-slate-500"}>
+                            Predictive satisfaction analysis and disengagement risk monitoring
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="summary" className="w-full">
+                            <TabsList className={cn(
+                                "grid w-full grid-cols-3",
+                                isDark ? "bg-slate-800" : "bg-slate-100"
+                            )}>
+                                <TabsTrigger value="summary">Summary</TabsTrigger>
+                                <TabsTrigger value="at-risk">At Risk</TabsTrigger>
+                                <TabsTrigger value="strategies">Strategies</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="summary" className="space-y-4 mt-4">
+                                <Alert className={cn(isDark ? "bg-slate-800 border-slate-700" : "bg-blue-50 border-blue-200")}>
+                                    <AlertDescription className={isDark ? "text-slate-300" : "text-slate-700"}>
+                                        {relationshipData.analysis.overall_health_summary}
+                                    </AlertDescription>
+                                </Alert>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Card className={cn(isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50")}>
+                                        <CardContent className="pt-6">
+                                            <div className={cn("text-2xl font-bold", isDark ? "text-slate-50" : "text-slate-900")}>
+                                                {relationshipData.analysis.total_clients_analyzed}
+                                            </div>
+                                            <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-500")}>
+                                                Clients Analyzed
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className={cn(isDark ? "bg-slate-800 border-slate-700" : "bg-green-50")}>
+                                        <CardContent className="pt-6">
+                                            <div className="text-2xl font-bold text-green-600">
+                                                {relationshipData.analysis.high_satisfaction_count}
+                                            </div>
+                                            <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-600")}>
+                                                High Satisfaction
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className={cn(isDark ? "bg-slate-800 border-slate-700" : "bg-amber-50")}>
+                                        <CardContent className="pt-6">
+                                            <div className="text-2xl font-bold text-amber-600">
+                                                {relationshipData.analysis.at_risk_count}
+                                            </div>
+                                            <p className={cn("text-sm", isDark ? "text-slate-400" : "text-slate-600")}>
+                                                At Risk
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                <div className="mt-6">
+                                    <h4 className={cn("font-semibold mb-3", isDark ? "text-slate-50" : "text-slate-900")}>
+                                        Satisfaction Predictions
+                                    </h4>
+                                    <div className="space-y-2">
+                                        {relationshipData.analysis.client_satisfaction_predictions?.slice(0, 10).map((pred, idx) => (
+                                            <div key={idx} className={cn(
+                                                "p-3 rounded-lg border",
+                                                isDark ? "bg-slate-800 border-slate-700" : "bg-slate-50 border-slate-200"
+                                            )}>
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className={cn("font-medium", isDark ? "text-slate-50" : "text-slate-900")}>
+                                                            {pred.client_name}
+                                                        </p>
+                                                        <p className={cn("text-sm mt-1", isDark ? "text-slate-400" : "text-slate-600")}>
+                                                            {pred.key_indicators?.join(', ')}
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <Badge variant={
+                                                            pred.predicted_satisfaction_level === 'High' ? 'default' :
+                                                            pred.predicted_satisfaction_level === 'Medium' ? 'secondary' :
+                                                            'destructive'
+                                                        }>
+                                                            {pred.predicted_satisfaction_level}
+                                                        </Badge>
+                                                        <p className={cn("text-xs mt-1", isDark ? "text-slate-500" : "text-slate-500")}>
+                                                            {pred.confidence_score}% confidence
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="at-risk" className="space-y-4 mt-4">
+                                <Alert className="bg-amber-50 border-amber-200">
+                                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                                    <AlertDescription className="text-amber-800">
+                                        {relationshipData.analysis.at_risk_count} clients identified at risk of disengagement
+                                    </AlertDescription>
+                                </Alert>
+
+                                <div className="space-y-4">
+                                    {relationshipData.analysis.high_risk_clients?.map((client, idx) => (
+                                        <Card key={idx} className={cn(
+                                            "border-l-4",
+                                            client.risk_level === 'critical' ? 'border-l-red-500' :
+                                            client.risk_level === 'high' ? 'border-l-amber-500' :
+                                            'border-l-yellow-500',
+                                            isDark ? "bg-slate-900 border-slate-800" : "bg-white"
+                                        )}>
+                                            <CardHeader>
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <CardTitle className={cn(isDark ? "text-slate-50" : "text-slate-900")}>
+                                                            {client.client_name}
+                                                        </CardTitle>
+                                                        <CardDescription className={isDark ? "text-slate-400" : "text-slate-500"}>
+                                                            Predicted Satisfaction: {client.predicted_satisfaction}
+                                                        </CardDescription>
+                                                    </div>
+                                                    <Badge variant="destructive" className="capitalize">
+                                                        {client.risk_level} Risk
+                                                    </Badge>
+                                                </div>
+                                            </CardHeader>
+                                            <CardContent className="space-y-4">
+                                                <div>
+                                                    <h5 className={cn("font-semibold mb-2", isDark ? "text-slate-50" : "text-slate-900")}>
+                                                        Risk Factors:
+                                                    </h5>
+                                                    <ul className={cn("list-disc list-inside space-y-1 text-sm", isDark ? "text-slate-300" : "text-slate-600")}>
+                                                        {client.risk_factors?.map((factor, i) => (
+                                                            <li key={i}>{factor}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                <div>
+                                                    <h5 className={cn("font-semibold mb-2", isDark ? "text-slate-50" : "text-slate-900")}>
+                                                        Disengagement Indicators:
+                                                    </h5>
+                                                    <ul className={cn("list-disc list-inside space-y-1 text-sm", isDark ? "text-slate-300" : "text-slate-600")}>
+                                                        {client.disengagement_indicators?.map((indicator, i) => (
+                                                            <li key={i}>{indicator}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                <div>
+                                                    <h5 className={cn("font-semibold mb-2", isDark ? "text-slate-50" : "text-slate-900")}>
+                                                        Recommended Interventions:
+                                                    </h5>
+                                                    <ul className={cn("list-disc list-inside space-y-1 text-sm", isDark ? "text-slate-300" : "text-slate-600")}>
+                                                        {client.recommended_interventions?.map((action, i) => (
+                                                            <li key={i}>{action}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                <div className={cn(
+                                                    "p-3 rounded-lg",
+                                                    isDark ? "bg-slate-800" : "bg-teal-50"
+                                                )}>
+                                                    <h5 className={cn("font-semibold mb-1", isDark ? "text-slate-50" : "text-teal-900")}>
+                                                        Suggested Outreach Strategy:
+                                                    </h5>
+                                                    <p className={cn("text-sm", isDark ? "text-slate-300" : "text-teal-800")}>
+                                                        {client.suggested_outreach_strategy}
+                                                    </p>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="strategies" className="space-y-4 mt-4">
+                                <h4 className={cn("font-semibold mb-3", isDark ? "text-slate-50" : "text-slate-900")}>
+                                    General Outreach Strategies
+                                </h4>
+                                <div className="space-y-3">
+                                    {relationshipData.analysis.general_outreach_strategies?.map((strategy, idx) => (
+                                        <Card key={idx} className={cn(
+                                            isDark ? "bg-slate-900 border-slate-800" : "bg-white"
+                                        )}>
+                                            <CardHeader>
+                                                <CardTitle className={cn("text-base", isDark ? "text-slate-50" : "text-slate-900")}>
+                                                    {strategy.strategy_name}
+                                                </CardTitle>
+                                                <CardDescription className={isDark ? "text-slate-400" : "text-slate-500"}>
+                                                    Target: {strategy.target_segment}
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-2">
+                                                <p className={cn("text-sm", isDark ? "text-slate-300" : "text-slate-600")}>
+                                                    {strategy.description}
+                                                </p>
+                                                <div className={cn(
+                                                    "p-2 rounded-lg text-sm",
+                                                    isDark ? "bg-slate-800 text-slate-300" : "bg-green-50 text-green-800"
+                                                )}>
+                                                    <strong>Expected Impact:</strong> {strategy.expected_impact}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+
+                                <div className="mt-6">
+                                    <h4 className={cn("font-semibold mb-3", isDark ? "text-slate-50" : "text-slate-900")}>
+                                        Key Recommendations
+                                    </h4>
+                                    <div className={cn(
+                                        "p-4 rounded-lg border",
+                                        isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"
+                                    )}>
+                                        <ul className={cn("space-y-2", isDark ? "text-slate-300" : "text-slate-600")}>
+                                            {relationshipData.analysis.recommendations_summary?.map((rec, idx) => (
+                                                <li key={idx} className="flex items-start gap-2">
+                                                    <UserCheck className="h-4 w-4 text-teal-500 mt-0.5 flex-shrink-0" />
+                                                    <span className="text-sm">{rec}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            )}
+
             {analysisData && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

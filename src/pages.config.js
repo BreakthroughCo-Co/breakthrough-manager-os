@@ -67,6 +67,7 @@ import ClientFeedback from './pages/ClientFeedback';
 import ClientForm from './pages/ClientForm';
 import ClientGoalReview from './pages/ClientGoalReview';
 import ClientIntake from './pages/ClientIntake';
+import ClientJourneyAnalytics from './pages/ClientJourneyAnalytics';
 import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
 import ClientOutreach from './pages/ClientOutreach';
 import ClientPortal from './pages/ClientPortal';
@@ -120,6 +121,7 @@ import Programs from './pages/Programs';
 import ReportDistribution from './pages/ReportDistribution';
 import Reports from './pages/Reports';
 import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
+import ResourceManagement from './pages/ResourceManagement';
 import RestrictivePractices from './pages/RestrictivePractices';
 import RiskAssessmentTool from './pages/RiskAssessmentTool';
 import RiskManagement from './pages/RiskManagement';
@@ -138,12 +140,10 @@ import TaskQueue from './pages/TaskQueue';
 import Tasks from './pages/Tasks';
 import TeamDevelopment from './pages/TeamDevelopment';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
+import TrainingAutomation from './pages/TrainingAutomation';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import ResourceManagement from './pages/ResourceManagement';
-import ClientJourneyAnalytics from './pages/ClientJourneyAnalytics';
-import TrainingAutomation from './pages/TrainingAutomation';
 import __Layout from './Layout.jsx';
 
 
@@ -168,6 +168,7 @@ export const PAGES = {
     "ClientForm": ClientForm,
     "ClientGoalReview": ClientGoalReview,
     "ClientIntake": ClientIntake,
+    "ClientJourneyAnalytics": ClientJourneyAnalytics,
     "ClientOutcomePrediction": ClientOutcomePrediction,
     "ClientOutreach": ClientOutreach,
     "ClientPortal": ClientPortal,
@@ -221,6 +222,7 @@ export const PAGES = {
     "ReportDistribution": ReportDistribution,
     "Reports": Reports,
     "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
+    "ResourceManagement": ResourceManagement,
     "RestrictivePractices": RestrictivePractices,
     "RiskAssessmentTool": RiskAssessmentTool,
     "RiskManagement": RiskManagement,
@@ -239,12 +241,10 @@ export const PAGES = {
     "Tasks": Tasks,
     "TeamDevelopment": TeamDevelopment,
     "TeamTrainingManagement": TeamTrainingManagement,
+    "TrainingAutomation": TrainingAutomation,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "ResourceManagement": ResourceManagement,
-    "ClientJourneyAnalytics": ClientJourneyAnalytics,
-    "TrainingAutomation": TrainingAutomation,
 }
 
 export const pagesConfig = {
