@@ -230,6 +230,8 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <PractitionerMetrics practitioners={practitioners} />
           <TeamAnalyticsDashboard />
+          <ResourceAllocationRecommendations />
+          <ProactiveComplianceMonitor />
           <FundingOverview clients={clients} />
         </div>
 

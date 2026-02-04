@@ -19,6 +19,7 @@ import ClientFeedbackDisplay from '@/components/feedback/ClientFeedbackDisplay';
 import ClientCommunicationDrafter from '@/components/communication/ClientCommunicationDrafter';
 import GoalSuccessAnalysis from '@/components/client/GoalSuccessAnalysis';
 import PredictiveRiskMonitor from '@/components/client/PredictiveRiskMonitor';
+import DynamicClientPathway from '@/components/client/DynamicClientPathway';
 import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
 import SupportPlanUpdateSuggestions from '@/components/clinical/SupportPlanUpdateSuggestions';
 
@@ -260,6 +261,7 @@ export default function ClientDetailPage() {
             <div className="space-y-6">
               <AISupportPlanGenerator clientId={clientId} />
               <SupportPlanUpdateSuggestions clientId={clientId} />
+              <DynamicClientPathway clientId={clientId} clientName={client?.full_name} />
             </div>
           </TabsContent>
 
