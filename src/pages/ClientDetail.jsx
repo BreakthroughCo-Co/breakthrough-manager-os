@@ -17,6 +17,7 @@ import ClientQuickActions from '@/components/client/ClientQuickActions';
 import ClientOutcomePrediction from '@/components/client/ClientOutcomePrediction';
 import ClientFeedbackDisplay from '@/components/feedback/ClientFeedbackDisplay';
 import ClientCommunicationDrafter from '@/components/communication/ClientCommunicationDrafter';
+import GoalSuccessAnalysis from '@/components/client/GoalSuccessAnalysis';
 import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
 import SupportPlanUpdateSuggestions from '@/components/clinical/SupportPlanUpdateSuggestions';
 
