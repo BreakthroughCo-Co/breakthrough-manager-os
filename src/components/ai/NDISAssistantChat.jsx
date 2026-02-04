@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Bot, Send, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 
 export default function NDISAssistantChat() {
   const [messages, setMessages] = useState([]);
@@ -101,10 +102,14 @@ export default function NDISAssistantChat() {
                         ul: ({ children }) => <ul className="text-sm mb-2 ml-4">{children}</ul>,
                         ol: ({ children }) => <ol className="text-sm mb-2 ml-4">{children}</ol>,
                         li: ({ children }) => <li className="mb-1">{children}</li>,
-                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>
+                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        html: ({ value }) => {
+                          const sanitized = DOMPurify.sanitize(value);
+                          return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;
+                        }
                       }}
                     >
-                      {msg.content}
+                      {DOMPurify.sanitize(msg.content)}
                     </ReactMarkdown>
                   </div>
                 )}
