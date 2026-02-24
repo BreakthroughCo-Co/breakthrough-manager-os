@@ -146,6 +146,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import IntegrationsHub from './pages/IntegrationsHub';
+import PayrollManagement from './pages/PayrollManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -249,6 +250,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "IntegrationsHub": IntegrationsHub,
+    "PayrollManagement": PayrollManagement,
 }
 
 export const pagesConfig = {
