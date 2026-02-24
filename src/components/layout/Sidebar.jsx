@@ -93,6 +93,10 @@ const adminItems = [
   { name: 'Resource Management', icon: Gauge, page: 'ResourceManagement', managerOnly: true },
   { name: 'Journey Analytics', icon: TrendingUp, page: 'ClientJourneyAnalytics', managerOnly: true },
   { name: 'Training Automation', icon: Brain, page: 'TrainingAutomation', managerOnly: true },
+  { name: 'Payroll Management', icon: DollarSign, page: 'PayrollManagement', managerOnly: true },
+  { name: 'Referral Pipeline', icon: UserPlus, page: 'ReferralPipeline', managerOnly: true },
+  { name: 'Audit Preparation', icon: Package, page: 'AuditPreparation', managerOnly: true },
+  { name: 'Privacy Breaches', icon: ShieldAlert, page: 'PrivacyBreachManagement', managerOnly: true },
   { name: 'NDIS Plans', icon: FileText, page: 'NDISPlans' },
   { name: 'Plan Utilisation', icon: Gauge, page: 'PlanUtilisation' },
   { name: 'Service Agreements', icon: ScrollText, page: 'ServiceAgreements' },
@@ -124,7 +128,7 @@ const toolItems = [
   { name: 'Proactive Alerts', icon: Bell, page: 'ProactiveAlerts', managerOnly: true },
   { name: 'Client Portal', icon: Users, page: 'ClientPortal' },
   { name: 'Communication Hub', icon: MessageSquare, page: 'CommunicationHub' },
-  { name: 'Integrations', icon: Link2, page: 'Integrations' },
+  { name: 'Integrations Hub', icon: Link2, page: 'IntegrationsHub', managerOnly: true },
 ];
 
 export default function Sidebar({ currentPage }) {
