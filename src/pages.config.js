@@ -147,6 +147,9 @@ import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import IntegrationsHub from './pages/IntegrationsHub';
 import PayrollManagement from './pages/PayrollManagement';
+import PrivacyBreachManagement from './pages/PrivacyBreachManagement';
+import ReferralPipeline from './pages/ReferralPipeline';
+import AuditPreparation from './pages/AuditPreparation';
 import __Layout from './Layout.jsx';
 
 
@@ -251,6 +254,9 @@ export const PAGES = {
     "WorkloadManagement": WorkloadManagement,
     "IntegrationsHub": IntegrationsHub,
     "PayrollManagement": PayrollManagement,
+    "PrivacyBreachManagement": PrivacyBreachManagement,
+    "ReferralPipeline": ReferralPipeline,
+    "AuditPreparation": AuditPreparation,
 }
 
 export const pagesConfig = {
