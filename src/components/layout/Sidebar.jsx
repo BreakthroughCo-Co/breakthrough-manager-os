@@ -39,7 +39,8 @@ import {
   TrendingUp,
   BarChart3,
   Bot,
-  Bell
+  Bell,
+  PackageOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
