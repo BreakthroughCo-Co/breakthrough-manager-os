@@ -53,6 +53,7 @@ import AIAssistant from './pages/AIAssistant';
 import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
 import AdvancedReporting from './pages/AdvancedReporting';
 import AgentManagement from './pages/AgentManagement';
+import AuditEvidencePackage from './pages/AuditEvidencePackage';
 import AutomatedReports from './pages/AutomatedReports';
 import BIPQualityAudit from './pages/BIPQualityAudit';
 import BSPCreator from './pages/BSPCreator';
@@ -145,7 +146,9 @@ import TrainingAutomation from './pages/TrainingAutomation';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import AuditEvidencePackage from './pages/AuditEvidencePackage';
+import IncidentRegister from './pages/IncidentRegister';
+import KnowledgeBase from './pages/KnowledgeBase';
+import TrainingViewer from './pages/TrainingViewer';
 import __Layout from './Layout.jsx';
 
 
@@ -156,6 +159,7 @@ export const PAGES = {
     "AISchedulingOptimizer": AISchedulingOptimizer,
     "AdvancedReporting": AdvancedReporting,
     "AgentManagement": AgentManagement,
+    "AuditEvidencePackage": AuditEvidencePackage,
     "AutomatedReports": AutomatedReports,
     "BIPQualityAudit": BIPQualityAudit,
     "BSPCreator": BSPCreator,
@@ -248,7 +252,9 @@ export const PAGES = {
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "AuditEvidencePackage": AuditEvidencePackage,
+    "IncidentRegister": IncidentRegister,
+    "KnowledgeBase": KnowledgeBase,
+    "TrainingViewer": TrainingViewer,
 }
 
 export const pagesConfig = {
