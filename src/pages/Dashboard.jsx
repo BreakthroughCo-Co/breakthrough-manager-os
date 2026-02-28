@@ -35,6 +35,8 @@ import DynamicDashboardBuilder from '@/components/dashboard/DynamicDashboardBuil
 import TeamAnalyticsDashboard from '@/components/practitioner/TeamAnalyticsDashboard';
 import ResourceAllocationRecommendations from '@/components/practitioner/ResourceAllocationRecommendations';
 import ProactiveComplianceMonitor from '@/components/compliance/ProactiveComplianceMonitor';
+import IncidentChartWidget from '@/components/dashboard/IncidentChartWidget';
+import ComplianceChartWidget from '@/components/dashboard/ComplianceChartWidget';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -233,6 +235,8 @@ export default function Dashboard() {
         {/* Left Column - 2 cols wide */}
         <div className="lg:col-span-2 space-y-6">
           <PractitionerMetrics practitioners={practitioners} />
+          <IncidentChartWidget />
+          <ComplianceChartWidget />
           <TeamAnalyticsDashboard />
           <ResourceAllocationRecommendations />
           <ProactiveComplianceMonitor />

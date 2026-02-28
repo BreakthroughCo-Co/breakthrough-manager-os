@@ -106,6 +106,7 @@ const adminItems = [
   { name: 'Staff Performance', icon: TrendingUp, page: 'StaffPerformance' },
   { name: 'Practitioner Onboarding', icon: UserCheck, page: 'PractitionerOnboarding', managerOnly: true },
   { name: 'Client Transitions', icon: Calendar, page: 'ClientTransitions' },
+  { name: 'Incident Register', icon: AlertTriangle, page: 'IncidentRegister' },
   { name: 'Incident Analysis', icon: AlertTriangle, page: 'IncidentAnalysis' },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Comprehensive Reports', icon: BarChart3, page: 'ComprehensiveReports' },
@@ -120,7 +121,9 @@ const adminItems = [
 ];
 
 const toolItems = [
-  { name: 'Calculator', icon: Calculator, page: 'NDISCalculator' },
+  { name: 'NDIS Calculator', icon: Calculator, page: 'NDISCalculator' },
+  { name: 'Knowledge Base', icon: BookOpen, page: 'KnowledgeBase' },
+  { name: 'Training Viewer', icon: BookOpen, page: 'TrainingViewer' },
   { name: 'AI Assistant', icon: Sparkles, page: 'AIAssistant' },
   { name: 'Intelligence Hub', icon: Brain, page: 'IntelligenceHub' },
   { name: 'Proactive Alerts', icon: Bell, page: 'ProactiveAlerts', managerOnly: true },
