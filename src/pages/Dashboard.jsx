@@ -43,6 +43,9 @@ import FundingBurnRateWidget from '@/components/dashboard/FundingBurnRateWidget'
 import WidgetVisibilityConfig, { useWidgetVisibility } from '@/components/dashboard/WidgetVisibilityConfig';
 
 export default function Dashboard() {
+  const [showWidgetConfig, setShowWidgetConfig] = React.useState(false);
+  const { isVisible, toggle, visibility } = useWidgetVisibility();
+
   const { data: clients = [] } = useQuery({
     queryKey: ['clients'],
     queryFn: () => base44.entities.Client.list(),
@@ -182,7 +185,20 @@ export default function Dashboard() {
             isDark ? "text-slate-400" : "text-slate-500"
           )}>Here's your operational overview for {format(new Date(), 'EEEE, MMMM d')}</p>
         </div>
+        <button
+          onClick={() => setShowWidgetConfig(v => !v)}
+          className={cn(
+            "flex items-center gap-2 text-xs px-3 py-2 rounded-lg border transition-colors",
+            isDark ? "border-slate-700 text-slate-400 hover:bg-slate-800" : "border-slate-200 text-slate-500 hover:bg-slate-100"
+          )}
+        >
+          <span>⚙</span> {showWidgetConfig ? 'Hide' : 'Configure Widgets'}
+        </button>
       </div>
+
+      {showWidgetConfig && (
+        <WidgetVisibilityConfig visibility={visibility} onToggle={toggle} />
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

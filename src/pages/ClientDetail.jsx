@@ -22,6 +22,7 @@ import PredictiveRiskMonitor from '@/components/client/PredictiveRiskMonitor';
 import DynamicClientPathway from '@/components/client/DynamicClientPathway';
 import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
 import SupportPlanUpdateSuggestions from '@/components/clinical/SupportPlanUpdateSuggestions';
+import NDISPlanExtractor from '@/components/client/NDISPlanExtractor';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
@@ -229,6 +230,7 @@ export default function ClientDetailPage() {
               <ClientOutcomePrediction clientId={clientId} />
             </div>
 
+            <NDISPlanExtractor clientId={clientId} />
             <GoalSuccessAnalysis clientId={clientId} clientName={client?.full_name} />
             <PredictiveRiskMonitor clientId={clientId} clientName={client?.full_name} />
 

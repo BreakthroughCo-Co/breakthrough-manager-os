@@ -442,12 +442,16 @@ export default function Billing() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-2 sm:col-span-1">
+            <div className="col-span-2">
               <Label>NDIS Line Item</Label>
               <Input
                 value={formData.ndis_line_item}
                 onChange={(e) => setFormData({ ...formData, ndis_line_item: e.target.value })}
                 placeholder="e.g., 15_038_0117_1_3"
+              />
+              <NDISLineItemValidator
+                ndisLineItem={formData.ndis_line_item}
+                rate={formData.rate}
               />
             </div>
             <div className="col-span-2 sm:col-span-1">
