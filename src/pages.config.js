@@ -150,6 +150,10 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
+import CalendarSync from './pages/CalendarSync';
+import IntakePipeline from './pages/IntakePipeline';
+import ExecutiveBrief from './pages/ExecutiveBrief';
+import AuditReadiness from './pages/AuditReadiness';
 import __Layout from './Layout.jsx';
 
 
@@ -257,6 +261,10 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
+    "CalendarSync": CalendarSync,
+    "IntakePipeline": IntakePipeline,
+    "ExecutiveBrief": ExecutiveBrief,
+    "AuditReadiness": AuditReadiness,
 }
 
 export const pagesConfig = {
