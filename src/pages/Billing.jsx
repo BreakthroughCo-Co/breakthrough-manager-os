@@ -45,6 +45,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BillingAIInsights from '@/components/billing/BillingAIInsights';
+import NDISLineItemValidator from '@/components/billing/NDISLineItemValidator';
 
 const emptyRecord = {
   client_id: '',

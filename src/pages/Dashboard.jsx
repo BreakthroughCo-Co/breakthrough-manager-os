@@ -40,6 +40,7 @@ import ComplianceChartWidget from '@/components/dashboard/ComplianceChartWidget'
 import WorkerScreeningExpiryWidget from '@/components/dashboard/WorkerScreeningExpiryWidget';
 import RestrictivePracticeExpiryWidget from '@/components/dashboard/RestrictivePracticeExpiryWidget';
 import FundingBurnRateWidget from '@/components/dashboard/FundingBurnRateWidget';
+import WidgetVisibilityConfig, { useWidgetVisibility } from '@/components/dashboard/WidgetVisibilityConfig';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
