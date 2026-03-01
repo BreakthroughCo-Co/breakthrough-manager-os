@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { UserPlus, Loader2, Sparkles, ExternalLink, Archive, CheckCircle2, ArrowRight } from 'lucide-react';
+import IntakeConversionFunnel from '@/components/intake/IntakeConversionFunnel';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

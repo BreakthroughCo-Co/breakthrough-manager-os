@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, RefreshCw, DollarSign, TrendingUp } from 'lucide-react';
+import FinancialVarianceWidget from '@/components/finance/FinancialVarianceWidget';
 
 export default function FinancialOperations() {
   const [report, setReport] = useState(null);
