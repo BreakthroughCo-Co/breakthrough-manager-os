@@ -234,47 +234,51 @@ export default function Dashboard() {
       </div>
 
       {/* AI Intelligence Overview */}
-      <AIClientOverview clients={clients} />
-      <DynamicDashboardBuilder />
+      {isVisible('ai_overview') && <AIClientOverview clients={clients} />}
+      {isVisible('dynamic_builder') && <DynamicDashboardBuilder />}
 
       {/* Critical Alerts - Plan Expiry & Client Risk */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <PlanExpiryAlertsWidget />
-        <ClientRiskAlertsWidget />
-        <ComplianceRiskMonitor />
-      </div>
+      {(isVisible('plan_expiry') || isVisible('client_risk') || isVisible('compliance_risk')) && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {isVisible('plan_expiry') && <PlanExpiryAlertsWidget />}
+          {isVisible('client_risk') && <ClientRiskAlertsWidget />}
+          {isVisible('compliance_risk') && <ComplianceRiskMonitor />}
+        </div>
+      )}
 
       {/* Operational Status */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <OperationalAlertsWidget />
-        <OperationalMetricsWidget />
-      </div>
+      {(isVisible('operational_alerts') || isVisible('operational_metrics')) && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {isVisible('operational_alerts') && <OperationalAlertsWidget />}
+          {isVisible('operational_metrics') && <OperationalMetricsWidget />}
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column - 2 cols wide */}
         <div className="lg:col-span-2 space-y-6">
-          <PractitionerMetrics practitioners={practitioners} />
-          <IncidentChartWidget />
-          <ComplianceChartWidget />
-          <TeamAnalyticsDashboard />
-          <ResourceAllocationRecommendations />
-          <ProactiveComplianceMonitor />
-          <FundingOverview clients={clients} />
+          {isVisible('practitioner_metrics') && <PractitionerMetrics practitioners={practitioners} />}
+          {isVisible('incident_chart') && <IncidentChartWidget />}
+          {isVisible('compliance_chart') && <ComplianceChartWidget />}
+          {isVisible('team_analytics') && <TeamAnalyticsDashboard />}
+          {isVisible('resource_allocation') && <ResourceAllocationRecommendations />}
+          {isVisible('proactive_compliance') && <ProactiveComplianceMonitor />}
+          {isVisible('funding_overview') && <FundingOverview clients={clients} />}
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
           <QuickActions />
-          <FundingBurnRateWidget />
-          <WorkerScreeningExpiryWidget />
-          <RestrictivePracticeExpiryWidget />
-          <FundingAnalyticsWidget />
-          <ResourceOptimizationWidget />
-          <EngagementMonitorWidget />
-          <SystemicTrendsWidget />
-          <AlertsPanel alerts={alerts} />
-          <RecentActivity activities={recentActivities} />
+          {isVisible('funding_burn_rate') && <FundingBurnRateWidget />}
+          {isVisible('worker_screening') && <WorkerScreeningExpiryWidget />}
+          {isVisible('restrictive_practice') && <RestrictivePracticeExpiryWidget />}
+          {isVisible('funding_analytics') && <FundingAnalyticsWidget />}
+          {isVisible('resource_optimization') && <ResourceOptimizationWidget />}
+          {isVisible('engagement_monitor') && <EngagementMonitorWidget />}
+          {isVisible('systemic_trends') && <SystemicTrendsWidget />}
+          {isVisible('alerts_panel') && <AlertsPanel alerts={alerts} />}
+          {isVisible('recent_activity') && <RecentActivity activities={recentActivities} />}
         </div>
       </div>
     </div>
