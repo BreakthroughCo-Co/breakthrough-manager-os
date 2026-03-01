@@ -78,6 +78,10 @@ export default function CalendarSync() {
           <p className="text-muted-foreground mt-1">Google Calendar + NDIS scheduling matrix</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handleSyncCompliance} disabled={syncingCompliance}>
+            {syncingCompliance ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Shield className="w-4 h-4 mr-2" />}
+            Sync Compliance Deadlines
+          </Button>
           <Button variant="outline" onClick={handleSyncFromGoogle} disabled={syncing}>
             {syncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Sync Google Calendar
