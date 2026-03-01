@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/components/theme/ThemeContext';
 import {
   AlertTriangle, Clock, CheckCircle2, Search, Filter,
-  ChevronDown, ChevronUp, Eye, MoreHorizontal, FileText, Calendar
+  ChevronDown, ChevronUp, Eye, MoreHorizontal, FileText, Calendar, GitBranch
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import IncidentDetailPanel from '@/components/incidents/IncidentDetailPanel';
+import { createPageUrl } from '@/utils';
+import { useNavigate } from 'react-router-dom';
 
 const severityConfig = {
   critical:             { label: 'Critical',             color: 'bg-red-100 text-red-700 border-red-200' },
@@ -83,6 +85,7 @@ function DeadlineCell({ incident }) {
 export default function IncidentRegister() {
   const { isDark } = useTheme();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -316,6 +319,22 @@ export default function IncidentRegister() {
                           {statusConfig[s]?.label}
                         </DropdownMenuItem>
                       ))}
+                      <DropdownMenuItem
+                        onClick={() => {
+                          const params = new URLSearchParams({
+                            from_incident: incident.id,
+                            problem: incident.description || '',
+                            client_id: incident.client_id || '',
+                            client_name: incident.client_name || '',
+                            incident_date: incident.incident_date || '',
+                          });
+                          navigate(createPageUrl(`RootCauseAnalysis?${params.toString()}`));
+                        }}
+                        className="text-purple-700 font-medium border-t mt-1 pt-1"
+                      >
+                        <GitBranch className="w-4 h-4 mr-2" />
+                        Start Root Cause Analysis
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
