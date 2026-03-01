@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 export default function CalendarSync() {
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [syncing, setSyncing] = useState(false);
+  const [syncingCompliance, setSyncingCompliance] = useState(false);
   const [events, setEvents] = useState([]);
   const [syncStatus, setSyncStatus] = useState(null);
 
