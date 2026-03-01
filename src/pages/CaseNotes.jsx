@@ -45,6 +45,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import AIStrategySuggester from '@/components/casenotes/AIStrategySuggester';
 
 const emptyNote = {
   client_id: '',

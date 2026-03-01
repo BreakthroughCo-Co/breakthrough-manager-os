@@ -73,6 +73,7 @@ const statusColors = {
 export default function Practitioners() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [specialisationFilter, setSpecialisationFilter] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPractitioner, setEditingPractitioner] = useState(null);
   const [formData, setFormData] = useState(emptyPractitioner);
