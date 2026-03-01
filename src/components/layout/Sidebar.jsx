@@ -92,6 +92,7 @@ const complianceItems = [
 
 const adminItems = [
   { name: 'Command Center', icon: BarChart3, page: 'CommandCenter' },
+  { name: 'Xero Financial Hub', icon: Link2, page: 'XeroFinancialHub', managerOnly: true },
   { name: 'Resource Management', icon: Gauge, page: 'ResourceManagement', managerOnly: true },
   { name: 'Journey Analytics', icon: TrendingUp, page: 'ClientJourneyAnalytics', managerOnly: true },
   { name: 'Training Automation', icon: Brain, page: 'TrainingAutomation', managerOnly: true },
