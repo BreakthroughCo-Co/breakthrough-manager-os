@@ -23,6 +23,7 @@ import DynamicClientPathway from '@/components/client/DynamicClientPathway';
 import AISupportPlanGenerator from '@/components/clinical/AISupportPlanGenerator';
 import SupportPlanUpdateSuggestions from '@/components/clinical/SupportPlanUpdateSuggestions';
 import NDISPlanExtractor from '@/components/client/NDISPlanExtractor';
+import FundingForecastPanel from '@/components/client/FundingForecastPanel';
 
 export default function ClientDetailPage() {
   const { clientId } = useParams();
