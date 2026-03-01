@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Users, TrendingUp, DollarSign, AlertTriangle, RefreshCw, Activity, Target } from 'lucide-react';
 
 // Recharts deferred — only loaded when this page mounts (Item 4)
-const ManagerCharts = lazy(() => import('@/components/dashboard/ManagerCharts'));
+const ManagerCharts = lazy(() => import('@/components/dashboard/ManagerCharts.jsx'));
 
 function MetricCard({ title, value, icon: Icon, color = 'teal' }) {
   const colorMap = {
