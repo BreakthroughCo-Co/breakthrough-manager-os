@@ -223,12 +223,17 @@ Output a single cohesive professional case note.`
   };
 
   const handleSubmit = () => {
+    const validation = validateEntity(CaseNoteSchema, formData);
+    if (!validation.valid) {
+      alert('Validation errors:\n' + validation.errors.join('\n'));
+      return;
+    }
     const isCompletingNote = formData.status === 'completed' && (!editingNote || editingNote.status !== 'completed');
     if (editingNote) {
-      updateMutation.mutate({ id: editingNote.id, data: formData });
+      updateMutation.mutate({ id: editingNote.id, data: validation.data });
       if (isCompletingNote) setBillingPrompt({ ...formData, id: editingNote.id });
     } else {
-      createMutation.mutate(formData, {
+      createMutation.mutate(validation.data, {
         onSuccess: (created) => {
           if (isCompletingNote) setBillingPrompt({ ...formData, id: created.id });
         }
