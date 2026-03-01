@@ -157,6 +157,7 @@ import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
 import AutomatedOutreach from './pages/AutomatedOutreach';
 import ManagerDashboard from './pages/ManagerDashboard';
+import FinancialReconciliation from './pages/FinancialReconciliation';
 import __Layout from './Layout.jsx';
 
 
@@ -271,6 +272,7 @@ export const PAGES = {
     "XeroFinancialHub": XeroFinancialHub,
     "AutomatedOutreach": AutomatedOutreach,
     "ManagerDashboard": ManagerDashboard,
+    "FinancialReconciliation": FinancialReconciliation,
 }
 
 export const pagesConfig = {
