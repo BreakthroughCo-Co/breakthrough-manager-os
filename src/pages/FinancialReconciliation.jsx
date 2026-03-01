@@ -153,6 +153,15 @@ export default function FinancialReconciliation() {
                     )}
                 </div>
             )}
+            {lastAnomalyResult && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-3 flex flex-wrap items-center gap-4 text-sm">
+                    <Zap className="h-4 w-4 text-amber-600 shrink-0" />
+                    <span className="text-amber-800 dark:text-amber-300 font-medium">Anomaly scan complete — {lastAnomalyResult.anomalies_detected} anomalies detected</span>
+                    {lastAnomalyResult.critical > 0 && <Badge className="bg-red-100 text-red-800">{lastAnomalyResult.critical} Critical</Badge>}
+                    {lastAnomalyResult.high > 0 && <Badge className="bg-amber-100 text-amber-800">{lastAnomalyResult.high} High</Badge>}
+                    {lastAnomalyResult.tasks_created > 0 && <span className="text-amber-600">{lastAnomalyResult.tasks_created} tasks auto-created</span>}
+                </div>
+            )}
             {lastFundingResult && (
                 <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700 rounded-lg p-3 flex flex-wrap items-center gap-4 text-sm">
                     <CheckCircle className="h-4 w-4 text-teal-600 shrink-0" />
