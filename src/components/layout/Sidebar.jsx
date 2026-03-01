@@ -96,6 +96,8 @@ const complianceItems = [
 ];
 
 const adminItems = [
+  { name: 'Manager Dashboard', icon: BarChart3, page: 'ManagerDashboard', managerOnly: true },
+  { name: 'Automated Outreach', icon: Zap, page: 'AutomatedOutreach', managerOnly: true },
   { name: 'Command Center', icon: BarChart3, page: 'CommandCenter' },
   { name: 'Xero Financial Hub', icon: Link2, page: 'XeroFinancialHub', managerOnly: true },
   { name: 'Resource Management', icon: Gauge, page: 'ResourceManagement', managerOnly: true },

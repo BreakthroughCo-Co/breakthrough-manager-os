@@ -115,6 +115,7 @@ import NDISPricing from './pages/NDISPricing';
 import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerAnalytics from './pages/PractitionerAnalytics';
+import PractitionerCaseloadRebalancer from './pages/PractitionerCaseloadRebalancer';
 import PractitionerDetail from './pages/PractitionerDetail';
 import PractitionerDevelopment from './pages/PractitionerDevelopment';
 import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
@@ -154,7 +155,8 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
-import PractitionerCaseloadRebalancer from './pages/PractitionerCaseloadRebalancer';
+import AutomatedOutreach from './pages/AutomatedOutreach';
+import ManagerDashboard from './pages/ManagerDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -227,6 +229,7 @@ export const PAGES = {
     "ObservabilityDashboard": ObservabilityDashboard,
     "PlanUtilisation": PlanUtilisation,
     "PractitionerAnalytics": PractitionerAnalytics,
+    "PractitionerCaseloadRebalancer": PractitionerCaseloadRebalancer,
     "PractitionerDetail": PractitionerDetail,
     "PractitionerDevelopment": PractitionerDevelopment,
     "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
@@ -266,7 +269,8 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
-    "PractitionerCaseloadRebalancer": PractitionerCaseloadRebalancer,
+    "AutomatedOutreach": AutomatedOutreach,
+    "ManagerDashboard": ManagerDashboard,
 }
 
 export const pagesConfig = {
