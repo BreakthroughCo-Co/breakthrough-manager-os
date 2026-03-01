@@ -40,7 +40,8 @@ import {
   BarChart3,
   Bot,
   Bell,
-  PackageOpen
+  PackageOpen,
+  UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,9 +61,12 @@ function useSafeTheme() {
 
 const mainNavItems = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
+  { name: 'Executive Brief', icon: Sparkles, page: 'ExecutiveBrief' },
+  { name: 'Intake Pipeline', icon: UserPlus, page: 'IntakePipeline' },
   { name: 'Practitioners', icon: UserCheck, page: 'Practitioners' },
   { name: 'Clients', icon: Users, page: 'Clients' },
   { name: 'Billing', icon: DollarSign, page: 'Billing' },
+  { name: 'Calendar Sync', icon: Calendar, page: 'CalendarSync' },
   { name: 'Tasks', icon: ListTodo, page: 'Tasks' },
   { name: 'Messages', icon: MessageSquare, page: 'Messages' },
   { name: 'Communications', icon: MessageSquare, page: 'ClientCommunications' },
@@ -81,6 +85,7 @@ const clinicalItems = [
 
 const complianceItems = [
   { name: 'Compliance Hub', icon: Shield, page: 'Compliance' },
+  { name: 'Audit Readiness Score', icon: Gauge, page: 'AuditReadiness', managerOnly: true },
   { name: 'Compliance Automation', icon: Zap, page: 'ComplianceAutomation', managerOnly: true },
   { name: 'Audit Evidence Package', icon: PackageOpen, page: 'AuditEvidencePackage', managerOnly: true },
   { name: 'Risk Assessment', icon: AlertTriangle, page: 'RiskAssessmentTool' },
