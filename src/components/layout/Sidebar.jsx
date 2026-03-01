@@ -9,6 +9,7 @@ import {
   Users,
   UserCheck,
   Shield,
+  ShieldCheck,
   Calculator,
   DollarSign,
   Boxes,
