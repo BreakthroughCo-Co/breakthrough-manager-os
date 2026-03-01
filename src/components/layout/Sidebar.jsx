@@ -114,6 +114,7 @@ const adminItems = [
   { name: 'Client Transitions', icon: Calendar, page: 'ClientTransitions' },
   { name: 'Incident Register', icon: AlertTriangle, page: 'IncidentRegister' },
   { name: 'Incident Analysis', icon: AlertTriangle, page: 'IncidentAnalysis' },
+  { name: 'Caseload Rebalancer', icon: Users, page: 'PractitionerCaseloadRebalancer', managerOnly: true },
   { name: 'Programs', icon: Boxes, page: 'Programs' },
   { name: 'Comprehensive Reports', icon: BarChart3, page: 'ComprehensiveReports' },
   { name: 'Automated Reports', icon: FileText, page: 'AutomatedReports' },

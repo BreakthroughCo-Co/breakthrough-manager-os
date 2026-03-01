@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
-import { Calendar, ChevronLeft, ChevronRight, Plus, RefreshCw, Loader2, ExternalLink } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, RefreshCw, Loader2, ExternalLink, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
