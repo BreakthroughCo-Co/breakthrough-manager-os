@@ -11,7 +11,8 @@ import {
   Loader2,
   Copy,
   Check,
-  User
+  User,
+  DollarSign
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -78,6 +80,7 @@ export default function CaseNotes() {
   const [isRefining, setIsRefining] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(null);
+  const [billingPrompt, setBillingPrompt] = useState(null); // note id after completion
 
   const queryClient = useQueryClient();
 
@@ -199,9 +202,37 @@ Output a single cohesive professional case note.`
     }
   };
 
+  const handleCreateBillingRecord = async (note) => {
+    await base44.entities.BillingRecord.create({
+      client_id: note.client_id,
+      client_name: note.client_name,
+      practitioner_id: note.practitioner_id,
+      practitioner_name: note.practitioner_name,
+      service_date: note.session_date,
+      service_type: note.session_type === 'direct_support' ? 'Direct Support' :
+                    note.session_type === 'assessment' ? 'Assessment' :
+                    note.session_type === 'plan_development' ? 'Plan Development' :
+                    note.session_type === 'review' ? 'Plan Review' : 'Direct Support',
+      duration_hours: parseFloat(((note.duration_minutes || 60) / 60).toFixed(2)),
+      status: 'draft',
+      notes: `Auto-created from Case Note (${note.session_date})`,
+    });
+    setBillingPrompt(null);
+    queryClient.invalidateQueries({ queryKey: ['billing'] });
+  };
+
   const handleSubmit = () => {
-    if (editingNote) updateMutation.mutate({ id: editingNote.id, data: formData });
-    else createMutation.mutate(formData);
+    const isCompletingNote = formData.status === 'completed' && (!editingNote || editingNote.status !== 'completed');
+    if (editingNote) {
+      updateMutation.mutate({ id: editingNote.id, data: formData });
+      if (isCompletingNote) setBillingPrompt({ ...formData, id: editingNote.id });
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: (created) => {
+          if (isCompletingNote) setBillingPrompt({ ...formData, id: created.id });
+        }
+      });
+    }
   };
 
   return (
@@ -281,7 +312,38 @@ Output a single cohesive professional case note.`
         </CardContent>
       </Card>
 
-      {/* Dialog */}
+      {/* Billing Auto-Prompt Dialog */}
+      <Dialog open={!!billingPrompt} onOpenChange={() => setBillingPrompt(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-teal-600" />
+              Create Billing Record?
+            </DialogTitle>
+            <DialogDescription>
+              This case note has been marked as <strong>completed</strong>. Would you like to generate a draft billing record pre-filled with session details?
+            </DialogDescription>
+          </DialogHeader>
+          {billingPrompt && (
+            <div className="bg-slate-50 rounded-lg p-3 text-sm space-y-1">
+              <p><span className="font-medium">Client:</span> {billingPrompt.client_name}</p>
+              <p><span className="font-medium">Practitioner:</span> {billingPrompt.practitioner_name}</p>
+              <p><span className="font-medium">Date:</span> {billingPrompt.session_date}</p>
+              <p><span className="font-medium">Duration:</span> {((billingPrompt.duration_minutes || 60) / 60).toFixed(2)} hrs</p>
+              <p><span className="font-medium">Type:</span> {billingPrompt.session_type?.replace(/_/g, ' ')}</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBillingPrompt(null)}>Skip</Button>
+            <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => handleCreateBillingRecord(billingPrompt)}>
+              <DollarSign className="w-4 h-4 mr-2" />
+              Create Draft Billing Record
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Case Note Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
