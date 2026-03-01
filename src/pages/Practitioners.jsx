@@ -188,6 +188,17 @@ export default function Practitioners() {
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={specialisationFilter} onValueChange={setSpecialisationFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Specialisation" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Specialisations</SelectItem>
+            {['ABA','OT','Speech Therapy','LEGO Therapy','Early Intervention','Autism','Complex Behaviour','Manual Handling','Social Skills'].map(s => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Practitioners Grid */}
@@ -397,6 +408,27 @@ export default function Practitioners() {
                 value={formData.start_date}
                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
               />
+            </div>
+            <div className="col-span-2">
+              <Label>Specialisations</Label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {['ABA','OT','Speech Therapy','LEGO Therapy','Early Intervention','Autism','Complex Behaviour','Manual Handling','Social Skills'].map(s => {
+                  const selected = (formData.specialisations || []).includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        const current = formData.specialisations || [];
+                        setFormData({ ...formData, specialisations: selected ? current.filter(x => x !== s) : [...current, s] });
+                      }}
+                      className={`px-2 py-1 text-xs rounded-full border transition-all ${selected ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-300 hover:border-teal-400'}`}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="col-span-2">
               <Label>Notes</Label>
