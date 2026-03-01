@@ -231,6 +231,9 @@ export default function PractitionerCompliance() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="matrix">
+          <SkillTrainingMatrix />
+        </TabsContent>
       </Tabs>
 
       {/* Credential Dialog */}
