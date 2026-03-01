@@ -442,6 +442,14 @@ Output a single cohesive professional case note.`
               <Input value={formData.goals_addressed} onChange={(e) => setFormData({ ...formData, goals_addressed: e.target.value })} placeholder="Which BSP/plan goals were worked on?" />
             </div>
 
+            <AIStrategySuggester
+              clientId={formData.client_id}
+              sessionType={formData.session_type}
+              currentDraft={`${formData.subjective} ${formData.objective} ${formData.assessment} ${formData.plan}`}
+              onApplyGoal={(goal) => setFormData(prev => ({ ...prev, goals_addressed: prev.goals_addressed ? `${prev.goals_addressed}; ${goal}` : goal }))}
+              onApplyStrategy={(strategy) => setFormData(prev => ({ ...prev, plan: prev.plan ? `${prev.plan}\n• ${strategy}` : `• ${strategy}` }))}
+            />
+
             <Button onClick={handleRefineWithAI} disabled={isRefining} className="w-full bg-purple-600 hover:bg-purple-700">
               {isRefining ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
               {isRefining ? 'Refining...' : 'Refine with AI'}

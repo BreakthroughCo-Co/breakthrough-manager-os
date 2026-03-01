@@ -133,11 +133,14 @@ export default function Practitioners() {
     }
   };
 
+  const ALL_SPECIALISATIONS = ['ABA','OT','Speech Therapy','LEGO Therapy','Early Intervention','Autism','Complex Behaviour','Manual Handling','Social Skills'];
+
   const filteredPractitioners = practitioners.filter(p => {
     const matchesSearch = p.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesSpec = specialisationFilter === 'all' || (p.specialisations || []).includes(specialisationFilter);
+    return matchesSearch && matchesStatus && matchesSpec;
   });
 
   const getUtilizationColor = (current, capacity) => {
