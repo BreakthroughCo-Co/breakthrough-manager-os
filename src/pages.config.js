@@ -96,8 +96,10 @@ import FinancialOperations from './pages/FinancialOperations';
 import HybridIntelligence from './pages/HybridIntelligence';
 import IncidentAnalysis from './pages/IncidentAnalysis';
 import IncidentDetection from './pages/IncidentDetection';
+import IncidentRegister from './pages/IncidentRegister';
 import Integrations from './pages/Integrations';
 import IntelligenceHub from './pages/IntelligenceHub';
+import KnowledgeBase from './pages/KnowledgeBase';
 import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
 import MentorshipProgram from './pages/MentorshipProgram';
 import Messages from './pages/Messages';
@@ -143,12 +145,11 @@ import Tasks from './pages/Tasks';
 import TeamDevelopment from './pages/TeamDevelopment';
 import TeamTrainingManagement from './pages/TeamTrainingManagement';
 import TrainingAutomation from './pages/TrainingAutomation';
+import TrainingViewer from './pages/TrainingViewer';
 import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
-import IncidentRegister from './pages/IncidentRegister';
-import KnowledgeBase from './pages/KnowledgeBase';
-import TrainingViewer from './pages/TrainingViewer';
+import XeroFinancialHub from './pages/XeroFinancialHub';
 import __Layout from './Layout.jsx';
 
 
@@ -202,8 +203,10 @@ export const PAGES = {
     "HybridIntelligence": HybridIntelligence,
     "IncidentAnalysis": IncidentAnalysis,
     "IncidentDetection": IncidentDetection,
+    "IncidentRegister": IncidentRegister,
     "Integrations": Integrations,
     "IntelligenceHub": IntelligenceHub,
+    "KnowledgeBase": KnowledgeBase,
     "LEGOTransformativePlay": LEGOTransformativePlay,
     "MentorshipProgram": MentorshipProgram,
     "Messages": Messages,
@@ -249,12 +252,11 @@ export const PAGES = {
     "TeamDevelopment": TeamDevelopment,
     "TeamTrainingManagement": TeamTrainingManagement,
     "TrainingAutomation": TrainingAutomation,
+    "TrainingViewer": TrainingViewer,
     "WorkerScreening": WorkerScreening,
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
-    "IncidentRegister": IncidentRegister,
-    "KnowledgeBase": KnowledgeBase,
-    "TrainingViewer": TrainingViewer,
+    "XeroFinancialHub": XeroFinancialHub,
 }
 
 export const pagesConfig = {
