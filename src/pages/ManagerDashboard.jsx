@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
+import { Users, TrendingUp, DollarSign, AlertTriangle, RefreshCw, Activity, Target } from 'lucide-react';
+
+// Lazy-load recharts to prevent it inflating the initial bundle
+const {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  LineChart, Line, RadialBarChart, RadialBar, Cell, Legend
-} from 'recharts';
-import { Users, TrendingUp, DollarSign, AlertTriangle, RefreshCw, Activity, Target, Star } from 'lucide-react';
+  LineChart, Line,
+} = await (async () => {
+  const rc = await import('recharts');
+  return rc;
+})();
+
+// SSR-safe lazy chart wrapper
+const LazyCharts = lazy(() => import('@/components/dashboard/ManagerCharts'));
 
 const RISK_COLORS = { low: '#10b981', medium: '#f59e0b', high: '#ef4444' };
 const CHART_COLORS = ['#14b8a6', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
