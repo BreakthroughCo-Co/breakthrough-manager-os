@@ -215,6 +215,9 @@ export default function IntakePipeline() {
         ))}
       </div>
 
+      {/* Conversion Funnel */}
+      <IntakeConversionFunnel />
+
       {/* Archived section */}
       {archived.length > 0 && (
         <div className="border-t pt-4">
