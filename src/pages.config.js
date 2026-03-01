@@ -55,6 +55,7 @@ import AdvancedReporting from './pages/AdvancedReporting';
 import AgentManagement from './pages/AgentManagement';
 import AuditEvidencePackage from './pages/AuditEvidencePackage';
 import AuditReadiness from './pages/AuditReadiness';
+import AutomatedOutreach from './pages/AutomatedOutreach';
 import AutomatedReports from './pages/AutomatedReports';
 import BIPQualityAudit from './pages/BIPQualityAudit';
 import BSPCreator from './pages/BSPCreator';
@@ -105,6 +106,7 @@ import Integrations from './pages/Integrations';
 import IntelligenceHub from './pages/IntelligenceHub';
 import KnowledgeBase from './pages/KnowledgeBase';
 import LEGOTransformativePlay from './pages/LEGOTransformativePlay';
+import ManagerDashboard from './pages/ManagerDashboard';
 import MentorshipProgram from './pages/MentorshipProgram';
 import Messages from './pages/Messages';
 import NDISCalculator from './pages/NDISCalculator';
@@ -155,9 +157,10 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
-import AutomatedOutreach from './pages/AutomatedOutreach';
-import ManagerDashboard from './pages/ManagerDashboard';
 import FinancialReconciliation from './pages/FinancialReconciliation';
+import PractitionerCompliance from './pages/PractitionerCompliance';
+import ClientOutcomesTracking from './pages/ClientOutcomesTracking';
+import ComplianceAuditor from './pages/ComplianceAuditor';
 import __Layout from './Layout.jsx';
 
 
@@ -170,6 +173,7 @@ export const PAGES = {
     "AgentManagement": AgentManagement,
     "AuditEvidencePackage": AuditEvidencePackage,
     "AuditReadiness": AuditReadiness,
+    "AutomatedOutreach": AutomatedOutreach,
     "AutomatedReports": AutomatedReports,
     "BIPQualityAudit": BIPQualityAudit,
     "BSPCreator": BSPCreator,
@@ -220,6 +224,7 @@ export const PAGES = {
     "IntelligenceHub": IntelligenceHub,
     "KnowledgeBase": KnowledgeBase,
     "LEGOTransformativePlay": LEGOTransformativePlay,
+    "ManagerDashboard": ManagerDashboard,
     "MentorshipProgram": MentorshipProgram,
     "Messages": Messages,
     "NDISCalculator": NDISCalculator,
@@ -270,9 +275,10 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
-    "AutomatedOutreach": AutomatedOutreach,
-    "ManagerDashboard": ManagerDashboard,
     "FinancialReconciliation": FinancialReconciliation,
+    "PractitionerCompliance": PractitionerCompliance,
+    "ClientOutcomesTracking": ClientOutcomesTracking,
+    "ComplianceAuditor": ComplianceAuditor,
 }
 
 export const pagesConfig = {
