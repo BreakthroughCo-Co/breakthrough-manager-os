@@ -22,6 +22,19 @@ export default function CalendarSync() {
     queryFn: () => base44.entities.Appointment.list('-created_date', 100),
   });
 
+  const handleSyncCompliance = async () => {
+    setSyncingCompliance(true);
+    setSyncStatus(null);
+    try {
+      const res = await base44.functions.invoke('syncComplianceToCalendar', {});
+      setSyncStatus({ type: 'success', message: `${res.data?.message || 'Compliance deadlines synced to Google Calendar'}` });
+    } catch (e) {
+      setSyncStatus({ type: 'error', message: 'Compliance sync failed: ' + e.message });
+    } finally {
+      setSyncingCompliance(false);
+    }
+  };
+
   const handleSyncFromGoogle = async () => {
     setSyncing(true);
     setSyncStatus(null);
