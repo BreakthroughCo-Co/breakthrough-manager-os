@@ -54,10 +54,12 @@ import AISchedulingOptimizer from './pages/AISchedulingOptimizer';
 import AdvancedReporting from './pages/AdvancedReporting';
 import AgentManagement from './pages/AgentManagement';
 import AuditEvidencePackage from './pages/AuditEvidencePackage';
+import AuditReadiness from './pages/AuditReadiness';
 import AutomatedReports from './pages/AutomatedReports';
 import BIPQualityAudit from './pages/BIPQualityAudit';
 import BSPCreator from './pages/BSPCreator';
 import Billing from './pages/Billing';
+import CalendarSync from './pages/CalendarSync';
 import CapabilityAssessment from './pages/CapabilityAssessment';
 import CaseManagement from './pages/CaseManagement';
 import CaseNotes from './pages/CaseNotes';
@@ -91,12 +93,14 @@ import ComprehensiveReports from './pages/ComprehensiveReports';
 import CustomDashboard from './pages/CustomDashboard';
 import Dashboard from './pages/Dashboard';
 import DocumentProcessing from './pages/DocumentProcessing';
+import ExecutiveBrief from './pages/ExecutiveBrief';
 import FBAAssessment from './pages/FBAAssessment';
 import FinancialOperations from './pages/FinancialOperations';
 import HybridIntelligence from './pages/HybridIntelligence';
 import IncidentAnalysis from './pages/IncidentAnalysis';
 import IncidentDetection from './pages/IncidentDetection';
 import IncidentRegister from './pages/IncidentRegister';
+import IntakePipeline from './pages/IntakePipeline';
 import Integrations from './pages/Integrations';
 import IntelligenceHub from './pages/IntelligenceHub';
 import KnowledgeBase from './pages/KnowledgeBase';
@@ -150,10 +154,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
-import CalendarSync from './pages/CalendarSync';
-import IntakePipeline from './pages/IntakePipeline';
-import ExecutiveBrief from './pages/ExecutiveBrief';
-import AuditReadiness from './pages/AuditReadiness';
+import PractitionerCaseloadRebalancer from './pages/PractitionerCaseloadRebalancer';
 import __Layout from './Layout.jsx';
 
 
@@ -165,10 +166,12 @@ export const PAGES = {
     "AdvancedReporting": AdvancedReporting,
     "AgentManagement": AgentManagement,
     "AuditEvidencePackage": AuditEvidencePackage,
+    "AuditReadiness": AuditReadiness,
     "AutomatedReports": AutomatedReports,
     "BIPQualityAudit": BIPQualityAudit,
     "BSPCreator": BSPCreator,
     "Billing": Billing,
+    "CalendarSync": CalendarSync,
     "CapabilityAssessment": CapabilityAssessment,
     "CaseManagement": CaseManagement,
     "CaseNotes": CaseNotes,
@@ -202,12 +205,14 @@ export const PAGES = {
     "CustomDashboard": CustomDashboard,
     "Dashboard": Dashboard,
     "DocumentProcessing": DocumentProcessing,
+    "ExecutiveBrief": ExecutiveBrief,
     "FBAAssessment": FBAAssessment,
     "FinancialOperations": FinancialOperations,
     "HybridIntelligence": HybridIntelligence,
     "IncidentAnalysis": IncidentAnalysis,
     "IncidentDetection": IncidentDetection,
     "IncidentRegister": IncidentRegister,
+    "IntakePipeline": IntakePipeline,
     "Integrations": Integrations,
     "IntelligenceHub": IntelligenceHub,
     "KnowledgeBase": KnowledgeBase,
@@ -261,10 +266,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
-    "CalendarSync": CalendarSync,
-    "IntakePipeline": IntakePipeline,
-    "ExecutiveBrief": ExecutiveBrief,
-    "AuditReadiness": AuditReadiness,
+    "PractitionerCaseloadRebalancer": PractitionerCaseloadRebalancer,
 }
 
 export const pagesConfig = {
