@@ -37,6 +37,9 @@ import ResourceAllocationRecommendations from '@/components/practitioner/Resourc
 import ProactiveComplianceMonitor from '@/components/compliance/ProactiveComplianceMonitor';
 import IncidentChartWidget from '@/components/dashboard/IncidentChartWidget';
 import ComplianceChartWidget from '@/components/dashboard/ComplianceChartWidget';
+import WorkerScreeningExpiryWidget from '@/components/dashboard/WorkerScreeningExpiryWidget';
+import RestrictivePracticeExpiryWidget from '@/components/dashboard/RestrictivePracticeExpiryWidget';
+import FundingBurnRateWidget from '@/components/dashboard/FundingBurnRateWidget';
 
 export default function Dashboard() {
   const { data: clients = [] } = useQuery({
@@ -246,6 +249,9 @@ export default function Dashboard() {
         {/* Right Column */}
         <div className="space-y-6">
           <QuickActions />
+          <FundingBurnRateWidget />
+          <WorkerScreeningExpiryWidget />
+          <RestrictivePracticeExpiryWidget />
           <FundingAnalyticsWidget />
           <ResourceOptimizationWidget />
           <EngagementMonitorWidget />

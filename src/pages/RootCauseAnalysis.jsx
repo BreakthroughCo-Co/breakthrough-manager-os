@@ -66,6 +66,21 @@ export default function RootCauseAnalysis() {
 
   const queryClient = useQueryClient();
 
+  // Pre-fill from Incident fast-track URL params
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('from_incident')) {
+      setFormData({
+        ...emptyRCA,
+        client_id: params.get('client_id') || '',
+        client_name: params.get('client_name') || '',
+        incident_date: params.get('incident_date')?.split('T')[0] || '',
+        problem_statement: params.get('problem') || '',
+      });
+      setIsDialogOpen(true);
+    }
+  }, []);
+
   const { data: rcas = [] } = useQuery({
     queryKey: ['rcas'],
     queryFn: () => base44.entities.RootCauseAnalysis.list('-created_date'),
