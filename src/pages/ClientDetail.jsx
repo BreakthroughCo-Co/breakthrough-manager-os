@@ -231,6 +231,7 @@ export default function ClientDetailPage() {
               <ClientOutcomePrediction clientId={clientId} />
             </div>
 
+            <FundingForecastPanel clientId={clientId} client={client} />
             <NDISPlanExtractor clientId={clientId} />
             <GoalSuccessAnalysis clientId={clientId} clientName={client?.full_name} />
             <PredictiveRiskMonitor clientId={clientId} clientName={client?.full_name} />

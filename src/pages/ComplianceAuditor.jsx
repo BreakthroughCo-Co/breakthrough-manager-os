@@ -85,6 +85,8 @@ export default function ComplianceAuditor() {
         </div>
       </div>
 
+      <UnifiedComplianceHub />
+
       {/* Scan Controls */}
       <Card>
         <CardContent className="pt-5">

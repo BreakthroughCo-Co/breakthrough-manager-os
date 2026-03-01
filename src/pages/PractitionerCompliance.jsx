@@ -118,9 +118,11 @@ export default function PractitionerCompliance() {
       </div>
 
       <Tabs defaultValue="credentials">
+
         <TabsList>
           <TabsTrigger value="credentials">Credentials & Screening ({filtered(credentials).length})</TabsTrigger>
           <TabsTrigger value="training">Mandatory Training ({filtered(trainingRecords).length})</TabsTrigger>
+          <TabsTrigger value="matrix">Skill & Compliance Matrix</TabsTrigger>
         </TabsList>
 
         <TabsContent value="credentials" className="space-y-4">
