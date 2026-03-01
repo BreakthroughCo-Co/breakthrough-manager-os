@@ -14,8 +14,10 @@ import { Zap } from 'lucide-react';
 export default function FinancialReconciliation() {
     const [runningRecon, setRunningRecon] = useState(false);
     const [runningFunding, setRunningFunding] = useState(false);
+    const [runningAnomalyDetect, setRunningAnomalyDetect] = useState(false);
     const [lastReconResult, setLastReconResult] = useState(null);
     const [lastFundingResult, setLastFundingResult] = useState(null);
+    const [lastAnomalyResult, setLastAnomalyResult] = useState(null);
     const [activeTab, setActiveTab] = useState('discrepancies');
 
     const { data: discrepancies = [], isLoading: loadingDisc, refetch: refetchDisc } = useQuery({
@@ -67,6 +69,15 @@ export default function FinancialReconciliation() {
         refetchFunding();
     };
 
+    const runAnomalyDetection = async () => {
+        setRunningAnomalyDetect(true);
+        setLastAnomalyResult(null);
+        const result = await base44.functions.invoke('detectBillingAnomalies', {});
+        setLastAnomalyResult(result.data);
+        setRunningAnomalyDetect(false);
+        refetchDisc();
+    };
+
     const handleImportComplete = useCallback(() => {
         refetchClaims();
     }, [refetchClaims]);
@@ -89,6 +100,15 @@ export default function FinancialReconciliation() {
                     >
                         {runningFunding ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingUp className="h-4 w-4" />}
                         Run Funding Report
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={runAnomalyDetection}
+                        disabled={runningAnomalyDetect}
+                        className="gap-2 bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                        {runningAnomalyDetect ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                        Anomaly Scan
                     </Button>
                     <Button
                         size="sm"
