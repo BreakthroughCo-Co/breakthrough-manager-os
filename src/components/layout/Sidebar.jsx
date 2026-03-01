@@ -100,6 +100,7 @@ const adminItems = [
   { name: 'Automated Outreach', icon: Zap, page: 'AutomatedOutreach', managerOnly: true },
   { name: 'Command Center', icon: BarChart3, page: 'CommandCenter' },
   { name: 'Xero Financial Hub', icon: Link2, page: 'XeroFinancialHub', managerOnly: true },
+  { name: 'Financial Reconciliation', icon: BarChart3, page: 'FinancialReconciliation', managerOnly: true },
   { name: 'Resource Management', icon: Gauge, page: 'ResourceManagement', managerOnly: true },
   { name: 'Journey Analytics', icon: TrendingUp, page: 'ClientJourneyAnalytics', managerOnly: true },
   { name: 'Training Automation', icon: Brain, page: 'TrainingAutomation', managerOnly: true },
