@@ -73,6 +73,7 @@ import ClientGoalReview from './pages/ClientGoalReview';
 import ClientIntake from './pages/ClientIntake';
 import ClientJourneyAnalytics from './pages/ClientJourneyAnalytics';
 import ClientOutcomePrediction from './pages/ClientOutcomePrediction';
+import ClientOutcomesTracking from './pages/ClientOutcomesTracking';
 import ClientOutreach from './pages/ClientOutreach';
 import ClientPortal from './pages/ClientPortal';
 import ClientProgressReports from './pages/ClientProgressReports';
@@ -84,6 +85,7 @@ import CommandCenter from './pages/CommandCenter';
 import CommunicationHub from './pages/CommunicationHub';
 import Compliance from './pages/Compliance';
 import ComplianceAuditCenter from './pages/ComplianceAuditCenter';
+import ComplianceAuditor from './pages/ComplianceAuditor';
 import ComplianceAutomation from './pages/ComplianceAutomation';
 import ComplianceBreachManagement from './pages/ComplianceBreachManagement';
 import ComplianceCenter from './pages/ComplianceCenter';
@@ -97,6 +99,7 @@ import DocumentProcessing from './pages/DocumentProcessing';
 import ExecutiveBrief from './pages/ExecutiveBrief';
 import FBAAssessment from './pages/FBAAssessment';
 import FinancialOperations from './pages/FinancialOperations';
+import FinancialReconciliation from './pages/FinancialReconciliation';
 import HybridIntelligence from './pages/HybridIntelligence';
 import IncidentAnalysis from './pages/IncidentAnalysis';
 import IncidentDetection from './pages/IncidentDetection';
@@ -118,6 +121,7 @@ import ObservabilityDashboard from './pages/ObservabilityDashboard';
 import PlanUtilisation from './pages/PlanUtilisation';
 import PractitionerAnalytics from './pages/PractitionerAnalytics';
 import PractitionerCaseloadRebalancer from './pages/PractitionerCaseloadRebalancer';
+import PractitionerCompliance from './pages/PractitionerCompliance';
 import PractitionerDetail from './pages/PractitionerDetail';
 import PractitionerDevelopment from './pages/PractitionerDevelopment';
 import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter';
@@ -157,10 +161,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
-import FinancialReconciliation from './pages/FinancialReconciliation';
-import PractitionerCompliance from './pages/PractitionerCompliance';
-import ClientOutcomesTracking from './pages/ClientOutcomesTracking';
-import ComplianceAuditor from './pages/ComplianceAuditor';
+import ResourceLibrary from './pages/ResourceLibrary';
 import __Layout from './Layout.jsx';
 
 
@@ -191,6 +192,7 @@ export const PAGES = {
     "ClientIntake": ClientIntake,
     "ClientJourneyAnalytics": ClientJourneyAnalytics,
     "ClientOutcomePrediction": ClientOutcomePrediction,
+    "ClientOutcomesTracking": ClientOutcomesTracking,
     "ClientOutreach": ClientOutreach,
     "ClientPortal": ClientPortal,
     "ClientProgressReports": ClientProgressReports,
@@ -202,6 +204,7 @@ export const PAGES = {
     "CommunicationHub": CommunicationHub,
     "Compliance": Compliance,
     "ComplianceAuditCenter": ComplianceAuditCenter,
+    "ComplianceAuditor": ComplianceAuditor,
     "ComplianceAutomation": ComplianceAutomation,
     "ComplianceBreachManagement": ComplianceBreachManagement,
     "ComplianceCenter": ComplianceCenter,
@@ -215,6 +218,7 @@ export const PAGES = {
     "ExecutiveBrief": ExecutiveBrief,
     "FBAAssessment": FBAAssessment,
     "FinancialOperations": FinancialOperations,
+    "FinancialReconciliation": FinancialReconciliation,
     "HybridIntelligence": HybridIntelligence,
     "IncidentAnalysis": IncidentAnalysis,
     "IncidentDetection": IncidentDetection,
@@ -236,6 +240,7 @@ export const PAGES = {
     "PlanUtilisation": PlanUtilisation,
     "PractitionerAnalytics": PractitionerAnalytics,
     "PractitionerCaseloadRebalancer": PractitionerCaseloadRebalancer,
+    "PractitionerCompliance": PractitionerCompliance,
     "PractitionerDetail": PractitionerDetail,
     "PractitionerDevelopment": PractitionerDevelopment,
     "PractitionerDevelopmentCenter": PractitionerDevelopmentCenter,
@@ -275,10 +280,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
-    "FinancialReconciliation": FinancialReconciliation,
-    "PractitionerCompliance": PractitionerCompliance,
-    "ClientOutcomesTracking": ClientOutcomesTracking,
-    "ComplianceAuditor": ComplianceAuditor,
+    "ResourceLibrary": ResourceLibrary,
 }
 
 export const pagesConfig = {
