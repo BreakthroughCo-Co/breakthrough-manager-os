@@ -136,6 +136,7 @@ import Programs from './pages/Programs';
 import ReportDistribution from './pages/ReportDistribution';
 import Reports from './pages/Reports';
 import ResourceAllocationOptimizer from './pages/ResourceAllocationOptimizer';
+import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceManagement from './pages/ResourceManagement';
 import RestrictivePractices from './pages/RestrictivePractices';
 import RiskAssessmentTool from './pages/RiskAssessmentTool';
@@ -161,7 +162,7 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
-import ResourceLibrary from './pages/ResourceLibrary';
+import PractitionerPerformanceDashboard from './pages/PractitionerPerformanceDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -255,6 +256,7 @@ export const PAGES = {
     "ReportDistribution": ReportDistribution,
     "Reports": Reports,
     "ResourceAllocationOptimizer": ResourceAllocationOptimizer,
+    "ResourceLibrary": ResourceLibrary,
     "ResourceManagement": ResourceManagement,
     "RestrictivePractices": RestrictivePractices,
     "RiskAssessmentTool": RiskAssessmentTool,
@@ -280,7 +282,7 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
-    "ResourceLibrary": ResourceLibrary,
+    "PractitionerPerformanceDashboard": PractitionerPerformanceDashboard,
 }
 
 export const pagesConfig = {
