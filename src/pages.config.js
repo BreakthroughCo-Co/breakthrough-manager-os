@@ -128,6 +128,7 @@ import PractitionerDevelopmentCenter from './pages/PractitionerDevelopmentCenter
 import PractitionerMatching from './pages/PractitionerMatching';
 import PractitionerOnboarding from './pages/PractitionerOnboarding';
 import PractitionerPerformance from './pages/PractitionerPerformance';
+import PractitionerPerformanceDashboard from './pages/PractitionerPerformanceDashboard';
 import PractitionerSkillManagement from './pages/PractitionerSkillManagement';
 import PractitionerWellbeing from './pages/PractitionerWellbeing';
 import Practitioners from './pages/Practitioners';
@@ -162,7 +163,6 @@ import WorkerScreening from './pages/WorkerScreening';
 import WorkflowTriggers from './pages/WorkflowTriggers';
 import WorkloadManagement from './pages/WorkloadManagement';
 import XeroFinancialHub from './pages/XeroFinancialHub';
-import PractitionerPerformanceDashboard from './pages/PractitionerPerformanceDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -248,6 +248,7 @@ export const PAGES = {
     "PractitionerMatching": PractitionerMatching,
     "PractitionerOnboarding": PractitionerOnboarding,
     "PractitionerPerformance": PractitionerPerformance,
+    "PractitionerPerformanceDashboard": PractitionerPerformanceDashboard,
     "PractitionerSkillManagement": PractitionerSkillManagement,
     "PractitionerWellbeing": PractitionerWellbeing,
     "Practitioners": Practitioners,
@@ -282,7 +283,6 @@ export const PAGES = {
     "WorkflowTriggers": WorkflowTriggers,
     "WorkloadManagement": WorkloadManagement,
     "XeroFinancialHub": XeroFinancialHub,
-    "PractitionerPerformanceDashboard": PractitionerPerformanceDashboard,
 }
 
 export const pagesConfig = {
