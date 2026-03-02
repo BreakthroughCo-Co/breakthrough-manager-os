@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Zap, Mail, MessageSquare, Play, Plus, RefreshCw, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import DisengagementRiskPanel from '@/components/outreach/DisengagementRiskPanel';
 
 const TRIGGER_LABELS = {
   plan_review_due: 'Plan Review Due',

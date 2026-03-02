@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import NDISClaimImport from '@/components/reconciliation/NDISClaimImport';
 import DiscrepancyTable from '@/components/reconciliation/DiscrepancyTable';
 import FundingUtilisationPanel from '@/components/reconciliation/FundingUtilisationPanel';
+import PRODABatchManager from '@/components/financial/PRODABatchManager';
 import { Zap } from 'lucide-react';
 
 export default function FinancialReconciliation() {
