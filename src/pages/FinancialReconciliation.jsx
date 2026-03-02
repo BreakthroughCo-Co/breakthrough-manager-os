@@ -252,6 +252,10 @@ export default function FinancialReconciliation() {
                         </table>
                     </div>
                 </TabsContent>
+
+                <TabsContent value="proda" className="mt-4">
+                    <PRODABatchManager />
+                </TabsContent>
             </Tabs>
         </div>
     );
