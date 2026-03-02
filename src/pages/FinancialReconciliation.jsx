@@ -189,6 +189,7 @@ export default function FinancialReconciliation() {
                     </TabsTrigger>
                     <TabsTrigger value="funding">Funding Utilisation</TabsTrigger>
                     <TabsTrigger value="claims">Claim Register</TabsTrigger>
+                <TabsTrigger value="proda">PRODA Batch Manager</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="discrepancies" className="mt-4">

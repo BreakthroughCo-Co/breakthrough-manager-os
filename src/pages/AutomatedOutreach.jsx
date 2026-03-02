@@ -305,6 +305,12 @@ export default function AutomatedOutreach() {
         </Card>
       </div>
 
+      {/* Disengagement Risk Engine */}
+      <div className="space-y-3">
+        <h3 className="font-semibold text-slate-700 dark:text-slate-300">AI Disengagement Risk Engine</h3>
+        <DisengagementRiskPanel />
+      </div>
+
       {/* Workflow Form Dialog */}
       <Dialog open={showForm} onOpenChange={v => { setShowForm(v); if (!v) setEditTarget(null); }}>
         <DialogContent className="max-w-2xl">
