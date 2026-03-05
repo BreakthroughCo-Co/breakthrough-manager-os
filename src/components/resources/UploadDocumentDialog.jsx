@@ -80,6 +80,24 @@ export default function UploadDocumentDialog({ open, onClose, onSuccess, editing
       const uploadResult = await base44.integrations.Core.UploadFile({ file });
       file_url = uploadResult.file_url;
       file_name = file.name;
+
+      // Sync to Google Drive: Resource Library > Category folder
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const driveResult = await base44.functions.invoke('uploadDocumentToDrive', {
+        participant_name: 'Resource Library',
+        doc_type: form.category || 'Other',
+        file_name: file.name,
+        file_content_base64: base64,
+        mime_type: file.type || 'application/octet-stream'
+      }).catch(() => null);
+      if (driveResult?.data?.file_id) {
+        form.drive_file_id = driveResult.data.file_id;
+      }
     }
 
     const user = await base44.auth.me();
