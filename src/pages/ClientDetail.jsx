@@ -151,8 +151,9 @@ export default function ClientDetailPage() {
       {/* Main Content Tabs */}
       {!isEditingProfile && (
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="funding">Funding</TabsTrigger>
             <TabsTrigger value="support_plan">AI Support Plan</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
