@@ -12,9 +12,23 @@ Deno.serve(async (req) => {
         const { start_date, end_date } = body;
         const runId = `recon_${Date.now()}`;
 
-        // Fetch billing records
-        const allBilling = await base44.asServiceRole.entities.BillingRecord.list();
-        const allClaims = await base44.asServiceRole.entities.NDISClaimData.list();
+        // Fetch billing records, NDIS claims, and Xero invoices in parallel
+        const [allBilling, allClaims, xeroResult] = await Promise.all([
+            base44.asServiceRole.entities.BillingRecord.list(),
+            base44.asServiceRole.entities.NDISClaimData.list(),
+            (async () => {
+                try {
+                    const { accessToken } = await base44.asServiceRole.connectors.getConnection('xero');
+                    const tenantId = Deno.env.get('XERO_TENANT_ID') || '';
+                    const res = await fetch('https://api.xero.com/api.xro/2.0/Invoices?Statuses=AUTHORISED,PAID', {
+                        headers: { 'Authorization': `Bearer ${accessToken}`, 'Xero-tenant-id': tenantId, 'Accept': 'application/json' }
+                    });
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    return data?.Invoices || [];
+                } catch { return null; }
+            })()
+        ]);
 
         // Filter by date range if provided
         const billing = start_date
