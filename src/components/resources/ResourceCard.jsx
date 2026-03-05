@@ -8,8 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Download, MoreVertical, History, Archive, RefreshCw, FileText, FileSpreadsheet, Video, File } from 'lucide-react';
-import { format } from 'date-fns';
+import { Download, MoreVertical, History, Archive, RefreshCw, FileText, FileSpreadsheet, Video, File, HardDrive, AlertCircle, Clock } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const fileTypeConfig = {
