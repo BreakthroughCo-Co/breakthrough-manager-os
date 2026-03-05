@@ -35,13 +35,29 @@ Deno.serve(async (req) => {
             const weeksElapsed = Math.max(1, planDaysElapsed / 7);
             const weeksRemaining = Math.max(0, (planEnd - new Date(today)) / (1000 * 60 * 60 * 24 * 7));
 
-            const burnRateWeekly = utilisedFunding / weeksElapsed;
-            const projectedEndBalance = remainingFunding - (burnRateWeekly * weeksRemaining);
+            // Session frequency variance: compute weekly session counts for std dev
+            const sessionsByWeek = {};
+            clientBilling.forEach(b => {
+                const weekKey = Math.floor((new Date(b.service_date) - new Date(client.plan_start_date || today)) / (7 * 86400000));
+                sessionsByWeek[weekKey] = (sessionsByWeek[weekKey] || 0) + 1;
+            });
+            const weekCounts = Object.values(sessionsByWeek);
+            const avgSessions = weekCounts.length > 0 ? weekCounts.reduce((a, b) => a + b, 0) / weekCounts.length : 0;
+            const variance = weekCounts.length > 1
+                ? weekCounts.reduce((sum, v) => sum + Math.pow(v - avgSessions, 2), 0) / weekCounts.length
+                : 0;
+            const stdDev = Math.sqrt(variance);
+            // Volatility-adjusted burn rate: high variance → use upper bound
+            const adjustedBurnRate = stdDev > 1 ? Math.max(utilisedFunding / weeksElapsed, (utilisedFunding + stdDev * 50) / weeksElapsed) : utilisedFunding / weeksElapsed;
 
-            // Estimate depletion date
+            const burnRateWeekly = utilisedFunding / weeksElapsed;
+            const projectedEndBalance = remainingFunding - (adjustedBurnRate * weeksRemaining);
+            const depletionConfidence = stdDev < 0.5 ? 'high' : stdDev < 1.5 ? 'medium' : 'low';
+
+            // Estimate depletion date using adjusted burn rate
             let depletionDate = null;
-            if (burnRateWeekly > 0 && remainingFunding > 0) {
-                const weeksToDepletion = remainingFunding / burnRateWeekly;
+            if (adjustedBurnRate > 0 && remainingFunding > 0) {
+                const weeksToDepletion = remainingFunding / adjustedBurnRate;
                 const depletionMs = new Date(today).getTime() + (weeksToDepletion * 7 * 24 * 60 * 60 * 1000);
                 depletionDate = new Date(depletionMs).toISOString().split('T')[0];
             }
