@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ShieldCheck, Scan, AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Loader2, FileText } from 'lucide-react';
 import UnifiedComplianceHub from '@/components/compliance/UnifiedComplianceHub';
+import AuditTrailViewer from '@/components/compliance/AuditTrailViewer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
