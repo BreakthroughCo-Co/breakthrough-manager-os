@@ -8,11 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X, Loader2, Sparkles, Calendar } from 'lucide-react';
 
 const CATEGORIES = [
   'NDIS Regulations', 'Templates', 'Policies', 'Training Materials', 'Tools & Checklists', 'Forms', 'Other'
 ];
+const REVIEW_DATE_CATEGORIES = ['NDIS Regulations', 'Policies'];
 
 export default function UploadDocumentDialog({ open, onClose, onSuccess, editingDoc = null }) {
   const [form, setForm] = useState({
@@ -23,8 +24,10 @@ export default function UploadDocumentDialog({ open, onClose, onSuccess, editing
     file_type: editingDoc?.file_type || 'pdf',
     version: editingDoc ? '' : '1.0',
     version_notes: '',
-    is_mandatory: editingDoc?.is_mandatory || false
+    is_mandatory: editingDoc?.is_mandatory || false,
+    review_due_date: editingDoc?.review_due_date || ''
   });
+  const [suggestingTags, setSuggestingTags] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
