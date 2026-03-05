@@ -35,6 +35,21 @@ export default function UploadDocumentDialog({ open, onClose, onSuccess, editing
 
   const isNewVersion = !!editingDoc;
 
+  const suggestTags = async () => {
+    if (!form.title) return;
+    setSuggestingTags(true);
+    const res = await base44.functions.invoke('aiTagDocument', {
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      file_name: file?.name || ''
+    });
+    const newTags = res.data?.tags || [];
+    const merged = [...new Set([...form.tags, ...newTags])];
+    setForm(f => ({ ...f, tags: merged }));
+    setSuggestingTags(false);
+  };
+
   const addTag = () => {
     const t = tagInput.trim().toLowerCase();
     if (t && !form.tags.includes(t)) {
