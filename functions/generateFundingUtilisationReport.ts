@@ -85,7 +85,8 @@ Deno.serve(async (req) => {
                 projected_end_balance: Math.round(projectedEndBalance * 100) / 100,
                 estimated_depletion_date: depletionDate,
                 risk_level: riskLevel,
-                ai_insights: null
+                ai_insights: null,
+                notes: `depletion_confidence:${depletionConfidence}`
             });
         }
 
