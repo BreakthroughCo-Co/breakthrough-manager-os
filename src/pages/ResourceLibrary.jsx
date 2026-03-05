@@ -13,6 +13,7 @@ import {
 import ResourceCard from '@/components/resources/ResourceCard';
 import UploadDocumentDialog from '@/components/resources/UploadDocumentDialog';
 import VersionHistoryDialog from '@/components/resources/VersionHistoryDialog';
+import AcknowledgementDialog from '@/components/resources/AcknowledgementDialog';
 
 const CATEGORIES = [
   { id: 'all',              label: 'All',               icon: Book },
@@ -33,6 +34,7 @@ export default function ResourceLibrary() {
   const [newVersionDoc, setNewVersionDoc]   = useState(null);
   const [historyDoc, setHistoryDoc]         = useState(null);
   const [activeTab, setActiveTab]           = useState('library');
+  const [ackDoc, setAckDoc]                 = useState(null);
 
   const queryClient = useQueryClient();
 
