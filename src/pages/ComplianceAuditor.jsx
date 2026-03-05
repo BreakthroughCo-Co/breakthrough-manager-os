@@ -52,6 +52,7 @@ function FindingRow({ finding }) {
 }
 
 export default function ComplianceAuditor() {
+  const [activeTab, setActiveTab] = useState('scanner');
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [scopeClient, setScopeClient] = useState('');
