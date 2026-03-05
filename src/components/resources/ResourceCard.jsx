@@ -75,10 +75,27 @@ export default function ResourceCard({ doc, isAdmin, onDownload, onNewVersion, o
             {doc.tags.length > 4 && <Badge variant="secondary" className="text-xs">+{doc.tags.length - 4}</Badge>}
           </div>
         )}
+        {/* Review due chip */}
+        {doc.review_due_date && (() => {
+          const days = differenceInDays(new Date(doc.review_due_date), new Date());
+          const chip = days < 0
+            ? { label: `Review overdue ${Math.abs(days)}d`, cls: 'bg-red-100 text-red-700', icon: AlertCircle }
+            : days <= 30
+            ? { label: `Review in ${days}d`, cls: 'bg-amber-100 text-amber-700', icon: Clock }
+            : null;
+          if (!chip) return null;
+          const ChipIcon = chip.icon;
+          return (
+            <div className={cn('flex items-center gap-1 text-xs px-2 py-0.5 rounded-full w-fit', chip.cls)}>
+              <ChipIcon className="w-3 h-3" />{chip.label}
+            </div>
+          );
+        })()}
         <div className="flex items-center justify-between pt-1">
-          <div className="text-xs text-slate-400">
-            {doc.download_count || 0} download{doc.download_count !== 1 ? 's' : ''}
-            {doc.created_date && <span className="ml-2">· {format(new Date(doc.created_date), 'dd MMM yy')}</span>}
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span>{doc.download_count || 0} dl{doc.download_count !== 1 ? 's' : ''}</span>
+            {doc.created_date && <span>· {format(new Date(doc.created_date), 'dd MMM yy')}</span>}
+            {doc.drive_file_id && <HardDrive className="w-3 h-3 text-blue-500" title="Synced to Google Drive" />}
           </div>
           <Button
             size="sm"
