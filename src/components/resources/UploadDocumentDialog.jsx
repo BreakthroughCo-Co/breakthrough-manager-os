@@ -176,6 +176,12 @@ export default function UploadDocumentDialog({ open, onClose, onSuccess, editing
                 <Switch checked={form.is_mandatory} onCheckedChange={v => setForm({ ...form, is_mandatory: v })} />
                 <Label>Mandatory compliance document</Label>
               </div>
+              {REVIEW_DATE_CATEGORIES.includes(form.category) && (
+                <div>
+                  <Label className="flex items-center gap-1"><Calendar className="w-3 h-3" />Next Review Date</Label>
+                  <Input type="date" value={form.review_due_date} onChange={e => setForm({ ...form, review_due_date: e.target.value })} />
+                </div>
+              )}
             </>
           )}
 
