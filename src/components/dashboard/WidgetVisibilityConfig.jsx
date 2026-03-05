@@ -38,14 +38,33 @@ export function useWidgetVisibility() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) return JSON.parse(stored);
     } catch {}
-    // Default: all visible
     return Object.fromEntries(DASHBOARD_WIDGETS.map(w => [w.id, true]));
   });
+
+  // On mount, load from user profile (server-persisted)
+  React.useEffect(() => {
+    const loadFromProfile = async () => {
+      try {
+        const { base44 } = await import('@/api/base44Client');
+        const user = await base44.auth.me();
+        if (user?.dashboard_config) {
+          const serverConfig = JSON.parse(user.dashboard_config);
+          setVisibility(serverConfig);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(serverConfig));
+        }
+      } catch {}
+    };
+    loadFromProfile();
+  }, []);
 
   const toggle = (id) => {
     setVisibility(prev => {
       const next = { ...prev, [id]: !prev[id] };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      // Persist to user profile
+      import('@/api/base44Client').then(({ base44 }) => {
+        base44.auth.updateMe({ dashboard_config: JSON.stringify(next) }).catch(() => {});
+      });
       return next;
     });
   };
