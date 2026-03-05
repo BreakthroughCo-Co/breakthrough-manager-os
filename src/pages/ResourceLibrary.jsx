@@ -74,6 +74,15 @@ export default function ResourceLibrary() {
 
   const handleDownload = async (doc) => {
     if (!doc.file_url) return;
+    // Intercept mandatory docs for acknowledgement
+    if (doc.is_mandatory) {
+      setAckDoc(doc);
+      return;
+    }
+    await performDownload(doc);
+  };
+
+  const performDownload = async (doc) => {
     window.open(doc.file_url, '_blank');
     // Log download
     await base44.entities.ResourceDownloadLog.create({
