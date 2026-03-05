@@ -338,6 +338,16 @@ export default function ResourceLibrary() {
         onClose={() => setHistoryDoc(null)}
         doc={historyDoc}
       />
+      <AcknowledgementDialog
+        open={!!ackDoc}
+        doc={ackDoc}
+        user={user}
+        onConfirm={async () => {
+          if (ackDoc) await performDownload(ackDoc);
+          setAckDoc(null);
+        }}
+        onCancel={() => setAckDoc(null)}
+      />
     </div>
   );
 }
