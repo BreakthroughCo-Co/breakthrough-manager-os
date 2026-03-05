@@ -193,17 +193,17 @@ export default function IntakePipeline() {
                                   {PIPELINE_STAGES[PIPELINE_STAGES.findIndex(s => s.key === stage.key) + 1]?.label}
                                 </Button>
                               )}
-                              {stage.key === 'contract_sent' && (
-                                <Button
-                                  size="sm"
-                                  className="w-full text-xs h-7 bg-emerald-600 hover:bg-emerald-700"
-                                  onClick={() => convertToClient.mutate(intake)}
-                                  disabled={convertToClient.isPending}
-                                >
-                                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                                  Convert to Client
-                                </Button>
-                              )}
+                              {(stage.key === 'contract_sent' || stage.key === 'reviewed' || stage.key === 'contacted') && (
+                                 <Button
+                                   size="sm"
+                                   className={cn("w-full text-xs h-7", stage.key === 'contract_sent' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-teal-500 hover:bg-teal-600')}
+                                   onClick={() => convertToClient.mutate(intake)}
+                                   disabled={convertToClient.isPending}
+                                 >
+                                   <CheckCircle2 className="w-3 h-3 mr-1" />
+                                   {stage.key === 'contract_sent' ? 'Convert to Client' : 'Convert (Early)'}
+                                 </Button>
+                               )}
                               <Button
                                 size="sm"
                                 variant="ghost"
