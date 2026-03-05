@@ -209,6 +209,9 @@ export default function UploadDocumentDialog({ open, onClose, onSuccess, editing
                   placeholder="Add tag and press Enter"
                 />
                 <Button type="button" variant="outline" onClick={addTag}>Add</Button>
+                <Button type="button" variant="outline" onClick={suggestTags} disabled={suggestingTags || !form.title} className="gap-1 whitespace-nowrap">
+                  {suggestingTags ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}AI Tags
+                </Button>
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
                 {form.tags.map(t => (
