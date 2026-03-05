@@ -89,6 +89,22 @@ export default function ComplianceAuditor() {
 
       <UnifiedComplianceHub />
 
+      <div className="border-b border-slate-200">
+        <div className="flex gap-1">
+          {[{ id: 'scanner', label: 'Audit Scanner' }, { id: 'trail', label: 'Compliance Audit Trail' }].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            >{tab.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === 'trail' && <AuditTrailViewer />}
+
+      {activeTab === 'scanner' && (<>
+
       {/* Scan Controls */}
       <Card>
         <CardContent className="pt-5">
