@@ -259,6 +259,12 @@ export default function ClientDetailPage() {
             </Card>
           </TabsContent>
 
+          {/* FUNDING TAB */}
+          <TabsContent value="funding" className="space-y-4">
+            <FundingForecastPanel clientId={clientId} client={client} />
+            <NDISPlanExtractor clientId={clientId} />
+          </TabsContent>
+
           {/* AI SUPPORT PLAN TAB */}
           <TabsContent value="support_plan">
             <div className="space-y-6">
