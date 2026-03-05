@@ -243,6 +243,7 @@ export default function ComplianceAuditor() {
           </CardContent>
         </Card>
       )}
+      </>)}
     </div>
   );
 }
