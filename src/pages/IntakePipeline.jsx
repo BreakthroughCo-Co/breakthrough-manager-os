@@ -47,22 +47,43 @@ export default function IntakePipeline() {
     onSuccess: () => queryClient.invalidateQueries(['intake-pipeline']),
   });
 
+  const SERVICE_MAP = {
+    'Behaviour Support': 'Behaviour Support',
+    'LEGO Therapy': 'LEGO Therapy',
+    'Capacity Building': 'Capacity Building',
+    'Combined': 'Combined',
+    'Not Sure': 'Behaviour Support'
+  };
+
   const convertToClient = useMutation({
     mutationFn: async (intake) => {
       const analysis = intake.ai_analysis ? JSON.parse(intake.ai_analysis) : {};
+      const today = format(new Date(), 'yyyy-MM-dd');
       const client = await base44.entities.Client.create({
         full_name: intake.participant_name || `${intake.given_name || ''} ${intake.surname || ''}`.trim() || intake.contact_name,
         ndis_number: intake.ndis_number || '',
         primary_contact_name: intake.contact_name,
         primary_contact_email: intake.contact_email,
         primary_contact_phone: intake.contact_phone,
-        service_type: analysis.recommended_service || intake.service_interest,
+        service_type: SERVICE_MAP[analysis.recommended_service] || SERVICE_MAP[intake.service_interest] || 'Behaviour Support',
         status: 'active',
+        plan_start_date: today,
+        risk_level: intake.urgency === 'immediate' || intake.urgency === 'high' ? 'high' : 'low',
+      });
+      // Auto-create onboarding task
+      await base44.entities.Task.create({
+        title: `Onboard New Client: ${client.full_name}`,
+        description: `New client converted from intake on ${today}. Actions: assign practitioner, complete service agreement, enter NDIS plan funding details, schedule initial assessment.\n\nContact: ${intake.contact_email} / ${intake.contact_phone || 'N/A'}\nService: ${client.service_type}\nNDIS: ${client.ndis_number || 'Pending verification'}`,
+        category: 'Client Management',
+        priority: intake.urgency === 'immediate' ? 'critical' : 'high',
+        status: 'pending',
+        related_entity_type: 'Client',
+        related_entity_id: client.id
       });
       await base44.entities.ClientIntakeRequest.update(intake.id, {
         status: 'converted',
         client_id: client.id,
-        conversion_notes: `Converted to Client entity on ${format(new Date(), 'yyyy-MM-dd')}`,
+        conversion_notes: `Converted to Client entity on ${today}`,
       });
       return client;
     },
